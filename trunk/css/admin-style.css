@@ -1,0 +1,9 @@
+table.tb-wp-table-options td {
+	padding: 5px 0px 5px 0px;
+}
+
+table.tb-wp-table-options th {
+	font-weight: normal;
+	text-align: left;
+	padding: 5px 10px 5px 0px;
+}
