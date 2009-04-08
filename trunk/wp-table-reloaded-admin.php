@@ -1,0 +1,1046 @@
+<?php
+/*
+File Name: WP-Table Reloaded - Admin Class (see main file wp-table-reloaded.php)
+Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
+Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
+Version: 0.9
+Author: Tobias B&auml;thge
+Author URI: http://tobias.baethge.com/
+*/
+
+class WP_Table_Reloaded_Admin {
+
+    // ###################################################################################################################
+    var $plugin_version = '0.9beta1';
+    // nonce for security of links/forms, try to prevent "CSRF"
+    var $nonce_base = 'wp-table-reloaded-nonce';
+    // names for the options which are stored in the WP database
+    var $optionname = array(
+        'tables' => 'wp_table_reloaded_tables',
+        'options' => 'wp_table_reloaded_options',
+        'table' => 'wp_table_reloaded_data'
+    );
+    // allowed actions in this class
+    var $allowed_actions = array( 'list', 'add', 'edit', 'copy', 'delete', 'insert', 'import', 'export', 'options', 'uninstall', 'info' );
+    
+    // init vars
+    var $tables = array();
+    var $options = array();
+
+    // default values, could be different in future plugin version
+    var $default_options = array(
+        'installed_version' => '0',
+        'uninstall_upon_deactivation' => false,
+        'last_id' => 0
+    );
+    var $default_tables = array();
+    var $default_table = array(
+        'id' => 0,
+        'data' => array( 0 => array( 0 => '' ) ),
+        'name' => 'default',
+        'description' => 'default',
+        'options' => array(
+            'alternating_row_colors' => true,
+            'first_row_th' => true,
+            'print_name' => false,
+            'print_description' => false
+        )
+    );
+    
+    // class instances
+    var $export_instance;
+    var $import_instance;
+
+    // ###################################################################################################################
+    // add admin-page to sidebar navigation, function called by PHP when class is constructed
+    function WP_Table_Reloaded_Admin() {
+        add_action( 'admin_menu', array( &$this, 'add_manage_page' ) );
+    }
+
+    // ###################################################################################################################
+    // add page, and what happens when page is loaded or shown
+    function add_manage_page() {
+        $hook = add_management_page( 'WP-Table Reloaded', 'WP-Table Reloaded', 'manage_options', 'wp_table_reloaded_manage_page', array( &$this, 'show_manage_page' ) );
+        add_action('load-' . $hook, array( &$this, 'load_manage_page' ) );
+    }
+    
+    // ###################################################################################################################
+    // only load the scripts, stylesheets and language by hook, if this admin page will be shown
+    // all of this will be done before the page is shown by show_manage_page()
+    function load_manage_page() {
+        // load css
+        $this->add_manage_page_css();
+
+        // init language support (add later)
+        define( 'WP_TABLE_RELOADED_TEXTDOMAIN', 'wp-table-reloaded' );
+        $this->init_language_support();
+
+        // init plugin (means: load plugin options and existing tables)
+        $this->init_plugin();
+    }
+
+    // ###################################################################################################################
+    function show_manage_page() {
+        // get and check action parameter from passed variables
+        $action = ( isset( $_REQUEST['action'] ) and !empty( $_REQUEST['action'] ) ) ? $_REQUEST['action'] : 'list';
+        // check if action is in allowed actions and if method is callable, if yes, call it
+        if ( in_array( $action, $this->allowed_actions ) && is_callable( array( &$this, 'do_action_' . $action ) ) )
+            call_user_func( array( &$this, 'do_action_' . $action ) );
+        else
+            call_user_func( array( &$this, 'do_action_list' ) );
+    }
+    
+    // ###################################################################################################################
+    // ##########################################                   ######################################################
+    // ##########################################      ACTIONS      ######################################################
+    // ##########################################                   ######################################################
+    // ###################################################################################################################
+    // list all tables
+    function do_action_list()  {
+        $this->print_list_tables_form();
+    }
+    
+    // ###################################################################################################################
+    function do_action_add() {
+        if ( isset( $_POST['submit'] ) && isset( $_POST['table'] ) ) {
+            check_admin_referer( $this->get_nonce( 'add' ) );
+
+            $rows = ( 0 < $_POST['table']['rows'] ) ? $_POST['table']['rows'] : 1;
+            $cols = ( 0 < $_POST['table']['cols'] ) ? $_POST['table']['cols'] : 1;
+
+            $table = $this->default_table;
+
+            $table['id'] = $this->get_new_table_id();
+            $table['data'] = $this->create_empty_table( $rows, $cols );
+            $table['name'] = $_POST['table']['name'];
+            $table['description'] = $_POST['table']['description'];
+
+            $this->save_table( $table );
+
+            $this->print_success_message( sprintf( __( 'Table "%s" added successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->safe_output( $table['name'] ) ) );
+            $this->print_edit_table_form( $table['id'] );
+        } else
+            $this->print_add_table_form();
+    }
+
+    // ###################################################################################################################
+    function do_action_edit() {
+        if ( isset( $_POST['submit'] ) && isset( $_POST['table'] ) ) {
+            check_admin_referer( $this->get_nonce( 'edit' ) );
+            
+            $subactions = array_keys( $_POST['submit'] );
+            $subaction = $subactions[0];
+            
+            switch( $subaction ) {
+            case 'update':
+            case 'save_back':
+                $table = $_POST['table'];   // careful here to not miss any stuff!!! (options, etc.)
+                $table['options']['alternating_row_colors'] = isset( $_POST['table']['options']['alternating_row_colors'] );
+                $table['options']['first_row_th'] = isset( $_POST['table']['options']['first_row_th'] );
+                $table['options']['print_name'] = isset( $_POST['table']['options']['print_name'] );
+                $table['options']['print_description'] = isset( $_POST['table']['options']['print_description'] );
+                $this->save_table( $table );
+                $message = __( 'Table edited successfully.', WP_TABLE_RELOADED_TEXTDOMAIN );
+                break;
+            case 'swap_rows':
+                $table_id = $_POST['table']['id'];
+                $row_id1 = ( isset( $_POST['swap']['row'][1] ) ) ? $_POST['swap']['row'][1] : -1;
+                $row_id2 = ( isset( $_POST['swap']['row'][2] ) ) ? $_POST['swap']['row'][2] : -1;
+                $table = $this->load_table( $table_id );
+                $rows = count( $table['data'] );
+                // swap rows $row_id1 and $row_id2
+                if ( ( 1 < $rows ) && ( -1 < $row_id1 ) && ( -1 < $row_id2 ) ) {
+                    $temp_row = $table['data'][$row_id1];
+                    $table['data'][$row_id1] = $table['data'][$row_id2];
+                    $table['data'][$row_id2] = $temp_row;
+                    unset($temp_row);
+                }
+                $this->save_table( $table );
+                $message = __( 'Rows swapped successfully.', WP_TABLE_RELOADED_TEXTDOMAIN );
+                break;
+            case 'swap_cols':
+                $table_id = $_POST['table']['id'];
+                $col_id1 = ( isset( $_POST['swap']['col'][1] ) ) ? $_POST['swap']['col'][1] : -1;
+                $col_id2 = ( isset( $_POST['swap']['col'][2] ) ) ? $_POST['swap']['col'][2] : -1;
+                $table = $this->load_table( $table_id );
+                $rows = count( $table['data'] );
+                $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
+                // swap rows $col_id1 and $col_id2
+                if ( ( 1 < $cols ) && ( -1 < $col_id1 ) && ( -1 < $col_id2 ) ) {
+                  foreach( $table['data'] as $row_idx => $row) {
+                        $temp_col = $table['data'][$row_idx][$col_id1];
+                        $table['data'][$row_idx][$col_id1] = $table['data'][$row_idx][$col_id2];
+                        $table['data'][$row_idx][$col_id2] = $temp_col;
+                    }
+                    unset($temp_col);
+                }
+                $this->save_table( $table );
+                $message =  __( 'Columns swapped successfully.', WP_TABLE_RELOADED_TEXTDOMAIN );
+                break;
+            default:
+                $this->do_action_list();
+            }
+
+            $this->print_success_message( $message );
+            if ( 'save_back' == $subaction ) {
+                $this->do_action_list();
+            } else {
+                $this->print_edit_table_form( $table['id'] );
+            }
+        } elseif ( isset( $_GET['table_id'] ) ) {
+            $this->print_edit_table_form( $_GET['table_id'] );
+        } else {
+            $this->do_action_list();
+        }
+    }
+
+    // ###################################################################################################################
+    function do_action_copy() {
+        if ( isset( $_GET['table_id'] ) ) {
+            check_admin_referer( $this->get_nonce( 'copy' ) );
+
+            $table_to_copy = $this->load_table( $_GET['table_id'] );
+
+            // new table
+            $new_table = $table_to_copy;
+            $new_table['id'] = $this->get_new_table_id();
+            unset( $table_to_copy );
+
+            $this->save_table( $new_table );
+
+            $this->print_success_message( sprintf( __( 'Table "%s" copied successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->safe_output( $new_table['name'] ) ) );
+        }
+        $this->do_action_list();
+    }
+
+    // ###################################################################################################################
+    function do_action_delete() {
+        if ( isset( $_GET['table_id'] ) && isset( $_GET['item'] ) ) {
+            check_admin_referer( $this->get_nonce( 'delete', $_GET['item'] ) );
+
+            $table_id = $_GET['table_id'];
+            $table = $this->load_table( $table_id );
+
+            switch( $_GET['item'] ) {
+            case 'table':
+                $this->tables[ $table_id ] = ( isset( $this->tables[ $table_id ] ) ) ? $this->tables[ $table_id ] : $this->optionname['table'] . '_' . $table_id;
+                delete_option( $this->tables[ $table_id ] );
+                unset( $this->tables[ $table_id ] );
+                $this->update_tables();
+                $this->print_success_message( sprintf( __( 'Table "%s" deleted successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->safe_output( $table['name'] ) ) );
+                $this->do_action_list();
+                break;
+            case 'row':
+                $row_id = ( isset( $_GET['element_id'] ) ) ? $_GET['element_id'] : -1;
+                $rows = count( $table['data'] );
+                // delete row with key $row_id, if there are at least 2 rows
+                if ( ( 1 < $rows ) && ( -1 < $row_id ) ) {
+                    array_splice( $table['data'], $row_id, 1 );
+                    $this->save_table( $table );
+                    $this->print_success_message( __( 'Row deleted successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+                }
+                $this->print_edit_table_form( $table_id );
+                break;
+            case 'col':
+                $col_id = ( isset( $_GET['element_id'] ) ) ? $_GET['element_id'] : -1;
+                $rows = count( $table['data'] );
+                $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
+                // delete column with key $col_id, if there are at least 2 columns
+                if ( ( 1 < $cols ) && ( -1 < $col_id ) ) {
+                    foreach( $table['data'] as $row_idx => $row)
+                        array_splice( $table['data'][$row_idx], $col_id, 1 );
+                    $this->save_table( $table );
+                    $this->print_success_message( __( 'Column deleted successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+                }
+                $this->print_edit_table_form( $table_id );
+                break;
+            default:
+                $this->print_success_message( __( 'Delete failed.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+                $this->do_action_list();
+            } // end switch
+        } else
+            $this->do_action_list();
+    }
+
+    // ###################################################################################################################
+    function do_action_insert() {
+        if ( isset( $_GET['table_id'] ) && isset( $_GET['item'] ) && isset( $_GET['element_id'] ) ) {
+            check_admin_referer( $this->get_nonce( 'insert', $_GET['item']  ) );
+
+            $table_id = $_GET['table_id'];
+            $table = $this->load_table( $table_id );
+
+            switch( $_GET['item'] ) {
+            case 'row':
+                $row_id = $_GET['element_id'];
+                $rows = count( $table['data'] );
+                $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
+                // init new empty row (with all columns) and insert it before row with key $row_id
+                $new_row = array( array_fill( 0, $cols, '' ) );
+                array_splice( $table['data'], $row_id, 0, $new_row );
+                $this->save_table( $table );
+                $message = __( 'Row inserted successfully.', WP_TABLE_RELOADED_TEXTDOMAIN );
+                break;
+            case 'col':
+                $col_id = $_GET['element_id'];
+                // init new empty row (with all columns) and insert it before row with key $row_id
+                $new_col = '';
+                foreach( $table['data'] as $row_idx => $row)
+                    array_splice( $table['data'][$row_idx], $col_id, 0, $new_col );
+                $this->save_table( $table );
+                $message = __( 'Column inserted successfully.', WP_TABLE_RELOADED_TEXTDOMAIN );
+                break;
+            default:
+                $message = __( 'Insert failed.', WP_TABLE_RELOADED_TEXTDOMAIN );
+            }
+            $this->print_success_message( $message );
+            $this->print_edit_table_form( $table_id );
+        } else
+            $this->do_action_list();
+    }
+
+    // ###################################################################################################################
+    function do_action_import() {
+        $this->import_instance = $this->create_class_instance( 'WP_Table_Reloaded_Import', 'wp-table-reloaded-import.php' );
+        if ( isset( $_POST['submit'] ) && isset( $_FILES['import_file'] ) ) {
+            check_admin_referer( $this->get_nonce( 'import' ) );
+
+            // do import
+
+            $this->import_instance->tempname = $_FILES['import_file']['tmp_name'];
+            $this->import_instance->filename = $_FILES['import_file']['name'];
+            $this->import_instance->mimetype = $_FILES['import_file']['type'];
+            $this->import_instance->delimiter = $_POST['delimiter'];
+            $this->import_instance->import_table();
+            $imported_table = $this->import_instance->imported_table;
+            $this->import_instance->unlink_csv_file();
+
+            $table = array_merge( $this->default_table, $imported_table );
+
+            $table['id'] = $this->get_new_table_id();
+
+            $this->save_table( $table );
+
+            $this->print_success_message( __( 'Table imported successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+            $this->print_edit_table_form( $table['id'] );
+        } else
+            $this->print_import_table_form();
+    }
+
+    // ###################################################################################################################
+    function do_action_export() {
+        $this->export_instance = $this->create_class_instance( 'WP_Table_Reloaded_Export', 'wp-table-reloaded-export.php' );
+        if ( isset( $_POST['submit'] ) && isset( $_POST['table_id'] ) && isset( $_POST['export_format'] ) ) {
+            check_admin_referer( $this->get_nonce( 'export' ) );
+
+            $table_to_export = $this->load_table( $_POST['table_id'] );
+            
+            $this->export_instance->table_to_export = $table_to_export;
+            $this->export_instance->export_format = $_POST['export_format'];
+            $this->export_instance->delimiter = $_POST['delimiter'];
+            $this->export_instance->export_table();
+            $exported_table = $this->export_instance->exported_table;
+
+            $this->print_success_message( sprintf( __( 'Table "%s" exported successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->safe_output( $table_to_export['name'] ) ) );
+            $this->print_export_table_form( $_POST['table_id'], $exported_table );
+        } else {
+            $this->print_export_table_form( $_REQUEST['table_id'] );
+        }
+    }
+    
+    // ###################################################################################################################
+    function do_action_options() {
+        if ( isset( $_POST['submit'] ) && isset( $_POST['options'] ) ) {
+            check_admin_referer( $this->get_nonce( 'options' ) );
+
+            $new_options = $_POST['options'];
+            // checkboxes: option value is defined by whether option isset (e.g. was checked) or not
+            $this->options['uninstall_upon_deactivation'] = isset( $new_options['uninstall_upon_deactivation'] );
+            $this->update_options();
+
+            $this->print_success_message( __( 'Options saved successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        }
+        $this->print_plugin_options_form();
+    }
+    
+    // ###################################################################################################################
+    function do_action_uninstall() {
+        check_admin_referer( $this->get_nonce( 'uninstall' ) );
+        $this->plugin_uninstall();
+        $this->print_success_message( __( 'Plugin uninstalled successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+    }
+    
+    // ###################################################################################################################
+    function do_action_info() {
+        $this->print_plugin_info_form();
+    }
+    
+    // ###################################################################################################################
+    // ##########################################                     ####################################################
+    // ##########################################     Print Forms     ####################################################
+    // ##########################################                     ####################################################
+    // ###################################################################################################################
+
+    // list all tables
+    function print_list_tables_form()  {
+        $this->print_page_header( __( 'List of Tables', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        $this->print_submenu_navigation( 'list' );
+        ?>
+        <div style="clear:both;"><p><?php _e( 'This is a list of all available tables. You may add, edit, copy or delete tables here.', WP_TABLE_RELOADED_TEXTDOMAIN ) ?><br />
+		<?php _e( 'If you want to show a table in your pages or posts, use the shortcode: <strong>[table id=&lt;the_table_ID&gt; /]</strong>', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></p></div>
+		<?php
+        if ( 0 < count($this->tables) ) {
+            ?>
+        <div style="clear:both;">
+            <table class="widefat">
+            <thead>
+                <tr>
+                    <th scope="col"><?php _e( 'ID', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
+                    <th scope="col"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
+                    <th scope="col"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
+                    <th scope="col"><?php _e( 'Action', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+            $bg_style_index = 0;
+            foreach ( $this->tables as $id => $tableoptionname ) {
+                $bg_style_index++;
+                $bg_style = ( 0 == ($bg_style_index % 2) ) ? ' class="alternate"' : '';
+
+                // get name and description to show in list
+                $table = $this->load_table( $id );
+                    $name = $this->safe_output( $table['name'] );
+                    $description = $this->safe_output( $table['description'] );
+                unset( $table );
+
+                $edit_url = $this->get_action_url( array( 'action' => 'edit', 'table_id' => $id ), false );
+                $copy_url = $this->get_action_url( array( 'action' => 'copy', 'table_id' => $id ), true );
+                $export_url = $this->get_action_url( array( 'action' => 'export', 'table_id' => $id ), false );
+                $delete_url = $this->get_action_url( array( 'action' => 'delete', 'table_id' => $id, 'item' => 'table' ), true );
+
+                echo "<tr{$bg_style}>\n";
+                echo "\t<th scope=\"row\">{$id}</th>";
+                echo "<td>{$name}</td>";
+                echo "<td>{$description}</td>";
+                echo "<td><a href=\"{$edit_url}\">" . __( 'Edit', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>" . " | ";
+                echo "<a href=\"{$copy_url}\" onclick=\"javascript:return confirm( '".__( 'Do you want to copy this table?', WP_TABLE_RELOADED_TEXTDOMAIN  )."' );\">" . __( 'Copy', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>" . " | ";
+                echo "<a href=\"{$export_url}\">" . __( 'Export', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>" . " | ";
+                echo "<a href=\"{$delete_url}\" class=\"delete\" onclick=\"javascript:return confirm( '".__( 'The complete table and all content will be erased. Do you really want to delete it?', WP_TABLE_RELOADED_TEXTDOMAIN  )."' );\">" . __( 'Delete', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a></td>\n";
+                echo "</tr>\n";
+
+            }
+            echo "</tbody>\n";
+            echo "</table>\n";
+            echo "</div>";
+        } else { // end if $tables
+            $add_url = $this->get_action_url( array( 'action' => 'add' ), false );
+            $import_url = $this->get_action_url( array( 'action' => 'import' ), false );
+            echo "<div style=\"clear:both;\"><p>" . __( 'No tables found.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/>' . sprintf( __( 'You might <a href="%s">add</a> or <a href="%s">import</a> one!', WP_TABLE_RELOADED_TEXTDOMAIN ), $add_url, $import_url ) . "</p></div>";
+        }
+        $this->print_page_footer();
+    }
+    
+    // ###################################################################################################################
+    function print_add_table_form() {
+        // Begin Add Table Form
+        $this->print_page_header( __( 'Add new Table', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        $this->print_submenu_navigation( 'add' );
+        ?>
+        <p></p>
+        <div style="clear:both;"><p>
+        <?php _e( 'You can add a new table here. Just enter it\'s name, a description (optional) and the number of rows and columns.<br/>You may add, insert or delete rows and columns later.', WP_TABLE_RELOADED_TEXTDOMAIN ) ?><br />
+		</p></div>
+		<div style="clear:both;">
+        <form method="post" action="<?php echo $this->get_action_url(); ?>">
+        <?php wp_nonce_field( $this->get_nonce( 'add' ) ); ?>
+
+        <table class="tb-wp-table-options">
+        <tr valign="top">
+            <th scope="row"><label for="table[name]"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><input type="text" name="table[name]" value="<?php echo _c( 'Enter Table Name|Default Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" style="width:250px;" /></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><label for="table[description]"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><textarea name="table[description]" id="table[description]" style="width:250px;height:85px;"><?php echo _c( 'Enter Description|Default Table Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></textarea></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><label for="table[rows]"><?php _e( 'Number of Rows', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><input type="text" name="table[rows]" id="table[rows]" value="5" /></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><label for="table[cols]"><?php _e( 'Number of Columns', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><input type="text" name="table[cols]" id="table[cols]" value="5" /></td>
+        </tr>
+        </table>
+
+        <input type="hidden" name="action" value="add" />
+        <p class="submit">
+        <input type="submit" name="submit" class="button-primary" value="<?php _e( 'Add Table', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
+        </p>
+
+        </form>
+        </div>
+        <?php
+        $this->print_page_footer();
+    }
+
+    // ###################################################################################################################
+    function print_edit_table_form( $table_id ) {
+
+        $table = $this->load_table( $table_id );
+
+        $rows = count( $table['data'] );
+        $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
+
+        $this->print_page_header( __( sprintf( 'Edit Table "%s"', $this->safe_output( $table['name'] ) ), WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        $this->print_submenu_navigation( 'edit' );
+        ?><div style="clear:both;"><p><?php _e( 'You may edit the content of the table here. It is also possible to add or delete columns and rows.', WP_TABLE_RELOADED_TEXTDOMAIN ) ?><br />
+		<?php _e( sprintf( 'If you want to show a table in your pages or posts, use this shortcode: <strong>[table id=%s /]</strong>', $this->safe_output( $table_id ) ), WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p></div>
+        <form method="post" action="<?php echo $this->get_action_url(); ?>">
+        <?php wp_nonce_field( $this->get_nonce( 'edit' ) ); ?>
+
+        <div style="clear:both;">
+        <h3><?php _e( 'Table Information', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></h3>
+        <table class="tb-wp-table-options">
+        <tr valign="top">
+            <th scope="row"><label for="table[name]"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><input type="text" name="table[name]" id="table[name]" value="<?php echo $this->safe_output( $table['name'] ); ?>" style="width:250px" /></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><label for="table[description]"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><textarea name="table[description]" id="table[description]" style="width:250px;height:85px;"><?php echo $this->safe_output( $table['description'] ); ?></textarea></td>
+        </tr>
+        </table>
+        </div>
+        <div style="clear:both;">
+        <?php if ( 0 < $cols && 0 < $rows ) { ?>
+        <h3><?php _e( 'Table Contents', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></h3>
+            <table class="widefat" style="width:auto;">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <?php
+                            // Table Header (Columns get a Letter between A and A+$cols-1)
+                            foreach ( range( 'A', chr( ord( 'A' ) + $cols - 1 ) ) as $letter)
+                                echo "<th scope=\"col\">".$letter."</th>";
+                        ?>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+                foreach( $table['data'] as $row_idx => $table_row ) {
+                    echo "<tr>\n";
+                    // Table Header (Rows get a Number between 1 and $rows)
+                    $output_idx = $row_idx + 1;
+                    echo "\t<th scope=\"row\">{$output_idx}</th>\n";
+                    foreach( $table_row as $col_idx => $cell_content ) {
+                        $cell_content = $this->safe_output( $cell_content );
+                        $cell_name = "table[data][{$row_idx}][{$col_idx}]";
+                        echo "\t<td><input type=\"text\" name=\"{$cell_name}\" value=\"{$cell_content}\" /></td>\n";
+                    }
+                    $insert_row_url = $this->get_action_url( array( 'action' => 'insert', 'table_id' => $table['id'], 'item' => 'row', 'element_id' => $row_idx ), true );
+                    $delete_row_url = $this->get_action_url( array( 'action' => 'delete', 'table_id' => $table['id'], 'item' => 'row', 'element_id' => $row_idx ), true );
+                    echo "\t<td><a href=\"{$insert_row_url}\">" . __( 'Insert Row', WP_TABLE_RELOADED_TEXTDOMAIN )."</a>";
+                    if ( 1 < $rows ) // don't show delete link for last and only row
+                        echo " | <a href=\"{$delete_row_url}\" onclick=\"javascript:return confirm( '".__( 'Do you really want to delete this row?', WP_TABLE_RELOADED_TEXTDOMAIN )."' );\">".__( 'Delete Row', WP_TABLE_RELOADED_TEXTDOMAIN )."</a>";
+                    echo "</td>\n</tr>";
+                }
+                ?>
+                <?php
+                    echo "<tr>\n";
+                    echo "\t<th scope=\"row\">&nbsp;</th>\n";
+                    foreach( $table['data'][0] as $col_idx => $cell_content ) {
+                        $insert_col_url = $this->get_action_url( array( 'action' => 'insert', 'table_id' => $table['id'], 'item' => 'col', 'element_id' => $col_idx ), true );
+                        $delete_col_url = $this->get_action_url( array( 'action' => 'delete', 'table_id' => $table['id'], 'item' => 'col', 'element_id' => $col_idx ), true );
+                        echo "\t<td><a href=\"{$insert_col_url}\">" . __( 'Insert Column', WP_TABLE_RELOADED_TEXTDOMAIN )."</a>";
+                        if ( 1 < $cols ) // don't show delete link for last and only column
+                            echo " | <a href=\"{$delete_col_url}\" onclick=\"javascript:return confirm( '" . __( 'Do you really want to delete this column?', WP_TABLE_RELOADED_TEXTDOMAIN )."' );\">" . __('Delete Column', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
+                        echo "</td>\n";
+                    }
+                    $add_row_url = $this->get_action_url( array( 'action' => 'insert', 'table_id' => $table['id'],'item' => 'row',  'element_id' => $rows ), true ); // number of $rows is equal to new row's id
+                    $add_col_url = $this->get_action_url( array( 'action' => 'insert', 'table_id' => $table['id'],'item' => 'col',  'element_id' => $cols ), true ); // number of $cols is equal to new col's id
+                    echo "\t<td><a href=\"{$add_row_url}\">" . __( 'Add Row', WP_TABLE_RELOADED_TEXTDOMAIN )."</a> | <a href=\"{$add_col_url}\">" . __( 'Add Column', WP_TABLE_RELOADED_TEXTDOMAIN )."</a></td>\n";
+                    echo "</tr>";
+                ?>
+                </tbody>
+            </table>
+        <?php } //endif ?>
+        </div>
+        <div style="clear:both;">
+        <?php if ( 1 < $rows ) { // swap rows form?>
+            <br/>
+            <?php _e( 'Swap rows', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <select name="swap[row][1]">
+            <?php   foreach( $table['data'] as $row_idx => $table_row )
+                       echo "<option value=\"{$row_idx}\">" . ( $row_idx + 1 ) . "</option>"; ?>
+            </select>
+            <?php _e( 'and', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <select name="swap[row][2]">
+            <?php   foreach( $table['data'] as $row_idx => $table_row )
+                      echo "<option value=\"{$row_idx}\">" . ( $row_idx + 1 ) . "</option>"; ?>
+            </select>
+            <input type="submit" name="submit[swap_rows]" class="button-primary" value="<?php _e( 'Swap', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
+        <?php } // end if form swap rows ?>
+
+        <?php if ( 1 < $cols ) { // swap cols form ?>
+            <br/>
+            <?php _e( 'Swap columns', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <select name="swap[col][1]">
+            <?php   foreach( $table['data'][0] as $col_idx => $cell_content )
+                echo "<option value=\"{$col_idx}\">" . ( chr( ord( 'A' ) + $col_idx ) ) . "</option>"; ?>
+            </select>
+            <?php _e( 'and', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <select name="swap[col][2]">
+            <?php   foreach( $table['data'][0] as $col_idx => $cell_content )
+                        echo "<option value=\"{$col_idx}\">" . ( chr( ord( 'A' ) + $col_idx ) ) . "</option>"; ?>
+            </select>
+            <input type="submit" name="submit[swap_cols]" class="button-primary" value="<?php _e( 'Swap', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
+        <?php } // end if form swap cols ?>
+        </div>
+        <div style="clear:both;">
+        <h3><?php _e( 'Table Settings', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></h3>
+        <p><?php _e( 'These settings will only be used for this table.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        <table class="tb-wp-table-options">
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Alternating row colors', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="table[options][alternating_row_colors]" id="table[options][alternating_row_colors]"<?php echo ( true == $table['options']['alternating_row_colors'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][alternating_row_colors]"><?php _e( 'Every second row will have an alternating background color.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Use Table Headline', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="table[options][first_row_th]" id="table[options][first_row_th]"<?php echo ( true == $table['options']['first_row_th'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][first_row_th]"><?php _e( 'The first row of your table will use the [th] tag.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Print Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="table[options][print_name]" id="table[options][print_name]"<?php echo ( true == $table['options']['print_name'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][print_name]"><?php _e( 'The Table Name will be written above the table in a [h2] tag.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Print Table Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="table[options][print_description]" id="table[options][print_description]"<?php echo ( true == $table['options']['print_description'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][print_description]"><?php _e( 'The Table Description will be written under the table.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
+        </table>
+        </div>
+                
+        <input type="hidden" name="table[id]" value="<?php echo $table['id']; ?>" />
+        <input type="hidden" name="action" value="edit" />
+        <p class="submit">
+        <input type="submit" name="submit[update]" class="button-primary" value="<?php _e( 'Update Changes', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
+        <input type="submit" name="submit[save_back]" class="button-primary" value="<?php _e( 'Save and go back', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
+        <?php
+        $list_url = $this->get_action_url( array( 'action' => 'list' ) );
+        echo " <a class=\"button-primary\" href=\"{$list_url}\">" . __( 'Cancel', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
+        
+        echo '<br/><br/>' . __( 'Other actions', WP_TABLE_RELOADED_TEXTDOMAIN ) . ':';
+        $delete_url = $this->get_action_url( array( 'action' => 'delete', 'table_id' => $table['id'], 'item' => 'table' ), true );
+        $export_url = $this->get_action_url( array( 'action' => 'export', 'table_id' => $table['id'] ), false );
+        echo " <a class=\"button-secondary\" href=\"{$delete_url}\" onclick=\"javascript:return confirm( '".__( 'The complete table and all content will be erased. Do you really want to delete it?', WP_TABLE_RELOADED_TEXTDOMAIN )."' );\">" . __( 'Delete Table', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
+        echo " <a class=\"button-secondary\" href=\"{$export_url}\">" . __( 'Export Table', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
+        ?>
+        </p>
+        </form>
+        <?php
+        $this->print_page_footer();
+    }
+
+    // ###################################################################################################################
+    function print_import_table_form() {
+        // Begin Import Table Form
+        $this->print_page_header( __( 'Import a Table', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        $this->print_submenu_navigation( 'import' );
+        ?>
+        <div style="clear:both;">
+            <p><?php _e( 'You may import a table from existing data here.<br/>It has to be a CSV file. You can select the used delimiter below.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        </div>
+        <div style="clear:both;">
+        <form method="post" enctype="multipart/form-data" action="<?php echo $this->get_action_url(); ?>">
+        <?php wp_nonce_field( $this->get_nonce( 'import' ) ); ?>
+        <table class="tb-wp-table-options">
+        <tr valign="top">
+            <th scope="row"><label for="import_file"><?php _e( 'Select File with Table to Import', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><input name="import_file" id="import_file" type="file" /></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><label for="delimiter"><?php _e( 'Used Delimiter', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><select id="delimiter" name="delimiter">
+        <?php
+            $delimiters = $this->import_instance->delimiters;
+            foreach( $delimiters as $delimiter => $longname )
+                echo "<option" . ( ( $delimiter == $_POST['delimiter'] ) ? ' selected="selected"': '' ) . " value=\"{$delimiter}\">{$longname}</option>";
+        ?>
+        </select></td>
+        </tr>
+        </table>
+        <input type="hidden" name="action" value="import" />
+        <p class="submit">
+        <input type="submit" name="submit" class="button-primary" value="<?php _e( 'Import Table', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
+        </p>
+        </form>
+        </div>
+        <?php
+        $this->print_page_footer();
+    }
+
+    // ###################################################################################################################
+    function print_export_table_form( $table_id, $output = false ) {
+        // Begin Export Table Form
+        $table = $this->load_table( $table_id );
+
+        $rows = count( $table['data'] );
+        $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
+
+        $this->print_page_header( __( 'Export a Table', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        $this->print_submenu_navigation( 'export' );
+        ?>
+        <div style="clear:both;">
+            <p><?php _e( 'You may export a table here.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        </div>
+        <?php if( 0 < count( $this->tables ) ) { ?>
+        <div style="clear:both;">
+        <form method="post" action="<?php echo $this->get_action_url(); ?>">
+        <?php wp_nonce_field( $this->get_nonce( 'export' ) ); ?>
+        <table class="tb-wp-table-options">
+        <tr valign="top">
+            <th scope="row"><label for="table_id"><?php _e( 'Select Table to Export', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><select id="table_id" name="table_id">
+        <?php
+            foreach( $this->tables as $id => $tableoptionname ) {
+                // get name and description to show in list
+                $table = $this->load_table( $id );
+                    $name = $this->safe_output( $table['name'] );
+                    //$description = $this->safe_output( $table['description'] );
+                unset( $table );
+                echo "<option" . ( ( $id == $table_id ) ? ' selected="selected"': '' ) . " value=\"{$id}\">{$name}</option>";
+            }
+        ?>
+        </select></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><label for="export_format"><?php _e( 'Select Export Format', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><select id="export_format" name="export_format">
+        <?php
+            $export_formats = $this->export_instance->export_formats;
+            foreach( $export_formats as $export_format => $longname )
+                echo "<option" . ( ( $export_format == $_POST['export_format'] ) ? ' selected="selected"': '' ) . " value=\"{$export_format}\">{$longname}</option>";
+        ?>
+        </select></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><label for="delimiter"><?php _e( 'Select Delimiter to use', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><select id="delimiter" name="delimiter">
+        <?php
+            $delimiters = $this->export_instance->delimiters;
+            foreach( $delimiters as $delimiter => $longname )
+                echo "<option" . ( ( $delimiter == $_POST['delimiter'] ) ? ' selected="selected"': '' ) . " value=\"{$delimiter}\">{$longname}</option>";
+        ?>
+        </select></td>
+        </tr>
+        </table>
+        <input type="hidden" name="action" value="export" />
+        <p class="submit">
+        <input type="submit" name="submit" class="button-primary" value="<?php _e( 'Export Table', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
+        </p>
+        <?php if ( false != $output ) { ?>
+        <textarea style="width:600px;height:300px;"><?php echo htmlspecialchars( $output ); ?></textarea>
+        <?php } ?>
+        </form>
+        </div>
+        <?php
+        } else { // end if $tables
+            $add_url = $this->get_action_url( array( 'action' => 'add' ), false );
+            $import_url = $this->get_action_url( array( 'action' => 'import' ), false );
+            echo "<div style=\"clear:both;\"><p>" . __( 'No tables found.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/>' . sprintf( __( 'You might <a href="%s">add</a> or <a href="%s">import</a> one!', WP_TABLE_RELOADED_TEXTDOMAIN ), $add_url, $import_url ) . "</p></div>";
+        }
+
+        $this->print_page_footer();
+    }
+
+    // ###################################################################################################################
+    function print_plugin_options_form() {
+        // Begin Add Table Form
+        $this->print_page_header( __( 'General Plugin Options', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        $this->print_submenu_navigation( 'options' );
+        ?>
+        <div style="clear:both;">
+            <p><?php _e( 'You may change these global options.<br/>They will effect all tables or the general plugin behaviour.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        </div>
+
+        <div style="clear:both;">
+        <form method="post" action="<?php echo $this->get_action_url(); ?>">
+        <?php wp_nonce_field( $this->get_nonce( 'options' ) ); ?>
+
+        <table class="tb-wp-table-options">
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Uninstall Plugin upon Deactivation?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
+        </table>
+        <input type="hidden" name="options[installed_version]" value="<?php echo $this->options['installed_version']; ?>" />
+        <input type="hidden" name="options[last_id]" value="<?php echo $this->options['last_id']; ?>" />
+        <input type="hidden" name="action" value="options" />
+        <p class="submit">
+        <input type="submit" name="submit[form]" class="button-primary" value="<?php _e( 'Save Options', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
+        </p>
+
+        </form>
+        </div>
+
+        <h2><?php _e( 'Uninstall Plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></h2>
+        <div style="clear:both;">
+            <p><?php _e( 'You may uninstall the plugin here. This will delete all tables, data, options, etc., that belong to the plugin, including all tables you added or imported.<br/> Be very careful with this and only click the button if you know what you are doing!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        <?php
+            $uninstall_url = $this->get_action_url( array( 'action' => 'uninstall' ), true );
+            echo " <a class=\"button-secondary delete\" href=\"{$uninstall_url}\" onclick=\"javascript:if ( confirm( '".__( 'Do you really want to uninstall the plugin and delete ALL data?', WP_TABLE_RELOADED_TEXTDOMAIN )."' ) ) { return confirm( '".__( 'Are you really sure?', WP_TABLE_RELOADED_TEXTDOMAIN )."' ); } else { return false; }\">" . __( 'Uninstall TB-WP-Table Plugin', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
+        ?>
+        </div>
+        <?php
+        $this->print_page_footer();
+    }
+
+    // ###################################################################################################################
+    function print_plugin_info_form() {
+        // Begin Add Table Form
+        $this->print_page_header( __( 'Information about the plugin', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        $this->print_submenu_navigation( 'info' );
+        ?>
+        <div style="clear:both;">
+            <p><?php _e( 'This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+            <p><?php _e( 'More information can be found on the <a href="http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/">plugin\'s website</a>.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p
+        </div>
+        <?php
+        $this->print_page_footer();
+    }
+
+    // ###################################################################################################################
+    // #########################################                      ####################################################
+    // #########################################     Print Support    ####################################################
+    // #########################################                      ####################################################
+    // ###################################################################################################################
+
+    // ###################################################################################################################
+    function print_success_message( $text ) {
+        echo "<div id='message' class='updated fade'><p><strong>{$text}</strong></p></div>";
+    }
+
+    // ###################################################################################################################
+    function print_page_header( $text = 'WP-Table Reloaded' ) {
+        echo "<div class='wrap'>
+              <h2>{$text}</h2>";
+    }
+
+    // ###################################################################################################################
+    function print_page_footer() {
+        echo "</div>";
+    }
+
+    // ###################################################################################################################
+    function print_submenu_navigation( $action ) {
+        ?>
+        <ul class="subsubsub">
+            <li><a <?php if ( 'list' == $action ) echo 'class="current" '; ?>href="<?php echo $this->get_action_url( array( 'action' => 'list' ) ); ?>"><?php _e( 'List Tables', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a> | </li>
+            <li><a <?php if ( 'add' == $action ) echo 'class="current" '; ?>href="<?php echo $this->get_action_url( array( 'action' => 'add' ) ); ?>"><?php _e( 'Add new Table', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a> | </li>
+            <li><a <?php if ( 'import' == $action ) echo 'class="current" '; ?>href="<?php echo $this->get_action_url( array( 'action' => 'import' ) ); ?>"><?php _e( 'Import a Table', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a> | </li>
+            <li><a <?php if ( 'export' == $action ) echo 'class="current" '; ?>href="<?php echo $this->get_action_url( array( 'action' => 'export' ) ); ?>"><?php _e( 'Export a Table', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a></li>
+            <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+            <li><a <?php if ( 'options' == $action ) echo 'class="current" '; ?>href="<?php echo $this->get_action_url( array( 'action' => 'options' ) ); ?>"><?php _e( 'Plugin Options', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a> | </li>
+            <li><a <?php if ( 'info' == $action ) echo 'class="current" '; ?>href="<?php echo $this->get_action_url( array( 'action' => 'info' ) ); ?>"><?php _e( 'About the Plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a></li>
+        </ul>
+        <br class="clear" />
+        <?php
+    }
+
+    // ###################################################################################################################
+    function safe_output( $string ) {
+        return htmlspecialchars( stripslashes( $string ) );
+    }
+
+    // ###################################################################################################################
+    // #########################################                      ####################################################
+    // #########################################     Options Funcs    ####################################################
+    // #########################################                      ####################################################
+    // ###################################################################################################################
+
+    // ###################################################################################################################
+    function get_new_table_id() {
+        $this->options['last_id'] = $this->options['last_id'] + 1;
+        $this->update_options();
+        return $this->options['last_id'];
+    }
+    
+    // ###################################################################################################################
+    // create new two-dimensional array with $num_rows rows and $num_cols columns, each cell filled with $default_cell_content
+    function create_empty_table( $num_rows = 1, $num_cols = 1, $default_cell_content = '' ) {
+        return array_fill( 0, $num_rows, array_fill( 0, $num_cols, $default_cell_content ) );
+    }
+
+
+    // ###################################################################################################################
+    function update_options() {
+        update_option( $this->optionname['options'], $this->options );
+    }
+
+    // ###################################################################################################################
+    function update_tables() {
+        update_option( $this->optionname['tables'], $this->tables );
+    }
+
+    // ###################################################################################################################
+    function save_table( $table ) {
+        if ( 0 < $table['id'] ) {
+            $this->tables[ $table['id'] ] = ( isset( $this->tables[ $table['id'] ] ) ) ? $this->tables[ $table['id'] ] : $this->optionname['table'] . '_' . $table['id'];
+            update_option( $this->tables[ $table['id'] ], $table );
+            $this->update_tables();
+        }
+    }
+
+    // ###################################################################################################################
+    function load_table( $table_id ) {
+        if ( 0 < $table_id ) {
+            $this->tables[ $table_id ] = ( isset( $this->tables[ $table_id ] ) ) ? $this->tables[ $table_id ] : $this->optionname['table'] . '_' . $table_id;
+            $table = get_option( $this->tables[ $table_id ], $this->default_table);
+            return $table;
+        } else
+            return $this->default_table;
+    }
+    
+    // ###################################################################################################################
+    // #########################################                      ####################################################
+    // #########################################      URL Support     ####################################################
+    // #########################################                      ####################################################
+    // ###################################################################################################################
+    
+    // ###################################################################################################################
+    function get_nonce( $action, $item = false ) {
+        return ( false !== $item ) ? $this->nonce_base . '_' . $action . '_' . $item : $this->nonce_base . '_' . $action;
+    }
+
+    // ###################################################################################################################
+    function get_action_url( $params = array(), $add_nonce = false ) {//$action = false, $table_id = false, $add_nonce = false, $element_id = false ) {
+        $default_params = array(
+                'page' => $_REQUEST['page'],
+                'action' => false,
+                'item' => false
+        );
+        $url_params = array_merge( $default_params, $params );
+
+        $action_url = add_query_arg( $url_params, $_SERVER['PHP_SELF'] );
+        $action_url = ( true == $add_nonce ) ? wp_nonce_url( $action_url, $this->get_nonce( $url_params['action'], $url_params['item'] ) ) : $action_url;
+        return $action_url;
+    }
+    
+    // ###################################################################################################################
+    // #######################################                         ###################################################
+    // #######################################    Plugin Management    ###################################################
+    // #######################################                         ###################################################
+    // ###################################################################################################################
+
+    // ###################################################################################################################
+    function create_class_instance( $class, $file) {
+        if ( !class_exists( $class ) ) {
+            include_once ( WP_TABLE_RELOADED_ABSPATH . $file );
+            if ( class_exists( $class ) )  {
+                return new $class;
+            }
+        }
+    }
+
+    // ###################################################################################################################
+    function init_plugin() {
+        // load options and table information from database, if not available: default
+		$this->options = get_option( $this->optionname['options'] );
+		$this->tables = get_option( $this->optionname['tables'] );
+        if ( false === $this->options || false === $this->tables ) {
+            $this->plugin_install();
+        }
+    }
+
+    // ###################################################################################################################
+    function plugin_activation_hook() {
+        $this->options = get_option( $this->optionname['options'] );
+        if ( false !== $this->options && isset( $this->options['installed_version'] ) ) {
+            // check if update needed, or just reactivated the latest version of it
+            if ( version_compare($this->options['installed_version'], $this->plugin_version, '<') ) {
+                $this->plugin_update();
+            } else {
+                // just reactivating, but latest version of plugin installed
+            }
+        } else {
+            // plugin has never been installed before
+            $this->plugin_install();
+        }
+    }
+
+    // ###################################################################################################################
+    function plugin_deactivation_hook() {
+        $this->options = get_option( $this->optionname['options'] );
+   		$this->tables = get_option( $this->optionname['tables'] );
+        if ( false !== $this->options && isset( $this->options['uninstall_upon_deactivation'] ) ) {
+            if ( true == $this->options['uninstall_upon_deactivation'] )
+                $this->plugin_uninstall();
+        }
+    }
+
+    // ###################################################################################################################
+    function plugin_install() {
+        $this->options = $this->default_options;
+        $this->options['installed_version'] = $this->plugin_version;
+        $this->update_options();
+        $this->tables = $this->default_tables;
+        $this->update_tables();
+    }
+
+    // ###################################################################################################################
+    function plugin_update() {
+        // update general plugin options
+        // 1. step: by adding/overwriting existing options
+		$this->options = get_option( $this->optionname['options'] );
+        $new_options = array_merge( $this->default_options, $this->options );
+        // 2. step: by removing options which are deprecated (and thus not in_array(default_options)
+        $new_options = array_intersect_key( $new_options, $this->default_options );
+        // 3. step: update installed version number
+        $new_options['installed_version'] = $this->plugin_version;
+        // 4. step: save the new options
+        $this->options = $new_options;
+        $this->update_options();
+
+        // update individual table options
+		$this->tables = get_option( $this->optionname['tables'] );
+        foreach( $this->tables as $id => $tableoptionname ) {
+            $table = $this->load_table( $id );
+            $new_table = array_merge( $this->default_table, $table );
+            $new_table = array_intersect_key( $new_table, $this->default_table );
+            $new_table['options'] = array_merge( $this->default_table['options'], $new_table['options'] );
+            $new_table['options'] = array_intersect_key( $new_table['options'], $this->default_table['options'] );
+            $this->save_table( $new_table );
+        }
+    }
+
+    // ###################################################################################################################
+    function plugin_uninstall() {
+        // delete all options and tables
+        foreach ( $this->tables as $id => $tableoptionname ) {
+            delete_option( $tableoptionname );
+        }
+        delete_option( $this->optionname['tables'] );
+        delete_option( $this->optionname['options'] );
+    }
+    
+    // ###################################################################################################################
+    // initialize i18n support, load textdomain
+    function init_language_support() {
+        $language_directory = basename( dirname( __FILE__ ) );// . '/language';
+        load_plugin_textdomain( WP_TABLE_RELOADED_TEXTDOMAIN, 'wp-content/plugins/' . $language_directory, $language_directory );
+    }
+    
+    // ###################################################################################################################
+    // enqueue css-stylesheet-file, if it exists
+    function add_manage_page_css() {
+        $cssfile =  'admin-style.css';
+        if ( file_exists( dirname ( __FILE__ ) . '/css/' . $cssfile ) ) {
+            wp_enqueue_style( 'wp-table-reloaded-admin-css', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile );
+        }
+    }
+    
+} // class WP_Table_Reloaded_Admin
+
+?>
