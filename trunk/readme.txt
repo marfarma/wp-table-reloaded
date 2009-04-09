@@ -20,7 +20,7 @@ This plugin allows you to create and manage tables in the admin-area of WordPres
 
 3. Create and manage tables via "WP-Table Reloaded" in the "Tools" section.
 
-4. Include a table by adding the shortcode [table id=<your-table's-id> /] to your post or page.
+4. Include a table by adding the shortcode [table id=&lt;your-table's-id&gt; /] to your post or page.
 
 5. You might want to add styling features via your blog's theme's CSS file (probably style.css).
 == Frequently Asked Questions ==

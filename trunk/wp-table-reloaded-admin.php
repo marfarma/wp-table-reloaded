@@ -3,7 +3,7 @@
 File Name: WP-Table Reloaded - Admin Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
 Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 0.9
+Version: 0.9.1
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -11,7 +11,7 @@ Author URI: http://tobias.baethge.com/
 class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
-    var $plugin_version = '0.9beta1';
+    var $plugin_version = '0.9.1';
     // nonce for security of links/forms, try to prevent "CSRF"
     var $nonce_base = 'wp-table-reloaded-nonce';
     // names for the options which are stored in the WP database
@@ -31,6 +31,8 @@ class WP_Table_Reloaded_Admin {
     var $default_options = array(
         'installed_version' => '0',
         'uninstall_upon_deactivation' => false,
+        'enable_tablesorter' => true,
+        'use_global_css' => true,
         'last_id' => 0
     );
     var $default_tables = array();
@@ -43,7 +45,8 @@ class WP_Table_Reloaded_Admin {
             'alternating_row_colors' => true,
             'first_row_th' => true,
             'print_name' => false,
-            'print_description' => false
+            'print_description' => false,
+            'use_tablesorter' => true
         )
     );
     
@@ -356,6 +359,8 @@ class WP_Table_Reloaded_Admin {
             $new_options = $_POST['options'];
             // checkboxes: option value is defined by whether option isset (e.g. was checked) or not
             $this->options['uninstall_upon_deactivation'] = isset( $new_options['uninstall_upon_deactivation'] );
+            $this->options['enable_tablesorter'] = isset( $new_options['enable_tablesorter'] );
+            $this->options['use_global_css'] = isset( $new_options['use_global_css'] );
             $this->update_options();
 
             $this->print_success_message( __( 'Options saved successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
@@ -619,6 +624,10 @@ class WP_Table_Reloaded_Admin {
             <th scope="row"><?php _e( 'Print Table Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="table[options][print_description]" id="table[options][print_description]"<?php echo ( true == $table['options']['print_description'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][print_description]"><?php _e( 'The Table Description will be written under the table.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Use Tablesorter', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="table[options][use_tablesorter]" id="table[options][use_tablesorter]"<?php echo ( true == $table['options']['use_tablesorter'] ) ? ' checked="checked"': '' ;?><?php echo ( false == $this->options['enable_tablesorter'] ) ? ' disabled="disabled"': '' ;?> value="true" /> <label for="table[options][use_tablesorter]"><?php _e( 'You may sort a table using the <a href="http://www.tablesorter.com/">Tablesorter-jQuery-Plugin</a>. <small>Attention: You must have Tablesorter enabled on the "Plugin Options" page and the option "Use Table Headline" has to be enabled above for this to work!</small>', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
         </table>
         </div>
                 
@@ -774,6 +783,14 @@ class WP_Table_Reloaded_Admin {
             <th scope="row"><?php _e( 'Uninstall Plugin upon Deactivation?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Enable Tablesorter-JavaScript?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="options[enable_tablesorter]" id="options[enable_tablesorter]"<?php echo ( true == $this->options['enable_tablesorter'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[enable_tablesorter]"><?php _e( 'Yes, enable <a href="http://www.tablesorter.com/">Tablesorter-jQuery-Plugin</a> to be used to make table sortable (can be changed for every table separatly).', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Use global CSS-file?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="options[use_global_css]" id="options[use_global_css]"<?php echo ( true == $this->options['use_global_css'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[use_global_css]"><?php _e( 'Yes, load the global CSS-file wp-table-reloaded.css, which contains basic styles and graphics for the Tablesorter. (File "global-frontend-style.css" in subfolder "css")', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
         </table>
         <input type="hidden" name="options[installed_version]" value="<?php echo $this->options['installed_version']; ?>" />
         <input type="hidden" name="options[last_id]" value="<?php echo $this->options['last_id']; ?>" />
@@ -805,7 +822,8 @@ class WP_Table_Reloaded_Admin {
         ?>
         <div style="clear:both;">
             <p><?php _e( 'This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
-            <p><?php _e( 'More information can be found on the <a href="http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/">plugin\'s website</a>.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p
+            <p><?php _e( 'More information can be found on the <a href="http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/">plugin\'s website</a>. A documentation and certain support and help request possibilities will be available soon.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+            <p><?php _e( 'This plugin was written by <a href="http://tobias.baethge.com/">Tobias B&auml;thge</a>. It is licenced as Free Software under GPL 2.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
         </div>
         <?php
         $this->print_page_footer();
