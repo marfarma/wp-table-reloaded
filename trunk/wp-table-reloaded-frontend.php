@@ -80,7 +80,7 @@ class WP_Table_Reloaded_Frontend {
         if ( 0 < $rows && 0 < $cols) {
         
             if ( true == $table['options']['print_name'] )
-                $output .= '<h2 class="wp-table-reloaded-table-name">' . $this->safe_output( $table['name'] ) . "</h2><br/>\n";
+                $output .= '<h2 class="wp-table-reloaded-table-name">' . $this->safe_output( $table['name'] ) . "</h2>\n";
         
             $output .= "<table class=\"{$cssclasses}\" cellspacing=\"1\" cellpadding=\"0\" border=\"0\">\n";
 
@@ -120,7 +120,7 @@ class WP_Table_Reloaded_Frontend {
             $output .= "</table>\n";
 
             if ( true == $table['options']['print_description'] )
-                $output .= '<span class="wp-table-reloaded-table-description">' . $this->safe_output( $table['description'] ) . "</span><br/>\n";
+                $output .= '<span class="wp-table-reloaded-table-description">' . $this->safe_output( $table['description'] ) . "</span>\n";
 
             $widgets = ( true == $table['options']['alternating_row_colors'] ) ? "{widgets: ['zebra']}" : '';
             if ( true == $table['options']['use_tablesorter'] ) {
