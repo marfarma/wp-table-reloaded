@@ -16,9 +16,9 @@ class WP_Table_Reloaded_Frontend {
     var $tables = array();
 
     var $optionname = array(
-        'tables' => 'tb_wp_table_tables',
-        'options' => 'tb_wp_table_options',
-        'table' => 'tb_wp_table_data'
+        'tables' => 'wp_table_reloaded_tables',
+        'options' => 'wp_table_reloaded_options',
+        'table' => 'wp_table_reloaded_data'
     );
     var $shortcode = 'table';
 
