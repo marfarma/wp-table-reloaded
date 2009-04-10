@@ -3,7 +3,7 @@
 Plugin Name: WP-Table Reloaded
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
 Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 0.9.1
+Version: 0.9.2
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -36,7 +36,7 @@ if ( is_admin() ) {
     if ( !class_exists( 'WP_Table_Reloaded_Admin' ) ) {
         include_once ( WP_TABLE_RELOADED_ABSPATH  . 'wp-table-reloaded-admin.php' );
         if ( class_exists( 'WP_Table_Reloaded_Admin' ) )  {
-            $TB_WP_Table_Admin = new WP_Table_Reloaded_Admin();
+            $WP_Table_Reloaded_Admin = new WP_Table_Reloaded_Admin();
             register_activation_hook( __FILE__, array( &$WP_Table_Reloaded_Admin, 'plugin_activation_hook' ));
             register_deactivation_hook( __FILE__, array( &$WP_Table_Reloaded_Admin, 'plugin_deactivation_hook' ));
         }

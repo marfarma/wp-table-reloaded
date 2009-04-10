@@ -60,6 +60,9 @@ Upcoming versions will include (at least) German (by me), Turkish (thanks to Sem
 
 I'd really appreciate it, if you want to translate the plugin into your language! Using Heiko Rabe's WordPress plugin [Codestyling Localization](http://www.code-styling.de/english/development/wordpress-plugin-codestyling-localization-en) that really is as easy as pie. Just install the plugin, add your language, create the .po-file, translate the strings in the comfortable editor and create the .mo-file. It will automatically be saved in WP-Table Reloaded's plugin folder. If you send me the .mo- and .po-file, I will gladly include them into future plugin releases.
 
+= Where can I get more information? =
+
+Please visit the [official plugin website](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/) for the latest information on this plugin.
 
 == Usage ==
 
@@ -70,8 +73,21 @@ After that you might want to change the style of the table: Just edit the CSS-fi
 You may also add certain features (like table-sorting, alternating row colors, print name and/or description, …) by checking the appropriate options in the "Edit table" screen.
 
 
+== Acknowledgements ==
+
+Thanks go to [Alex Rabe](http://alexrabe.boelinger.com/) for the initial WP-Table plugin!
+
+Thanks to every supporter and bug reporter!
+
+== License ==
+
+This plugins is Free Software, released under the GPL version 2.
+You may use it free of charge for any purposes.
+I kindly ask you for link somewhere on your website http://tobias.baethge.com/. This is not required!
+
 == Changelog ==
 
-0.9.1: first good release with all mentioned functions working well
-0.9 beta 1b: small bug which prevented showing of tables (but still not everything implemented)
-0.9 beta 1: First release (not everything functional)
+* 0.9.2: fixed bug with plugin deactivation hook, added missing css-file
+* 0.9.1: first good release with all mentioned functions working well
+* 0.9 beta 1b: small bug which prevented showing of tables (but still not everything implemented)
+* 0.9 beta 1: First release (not everything functional)
