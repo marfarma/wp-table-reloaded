@@ -23,10 +23,8 @@ More informatation: http://tobias.baethge.com/wordpress-plugins/wp-table-reloade
 5. "Export table" screen
 6. "Plugin Options" screen
 
-	
-== Installation/Usage ==
 
-= Installation =
+== Installation ==
 
 The easiest way would be through your WordPress Admin area. Go to the plugin section and search for "WP-Table Reloaded" in the WordPress Plugin Directory. Then you can click "Install now" and the following steps will be done for you automatically. You just have to activate the plugin (step 5).
 
@@ -42,14 +40,6 @@ Manual Installation works just as for most other WordPress plugins:
 
 1. You might want to add styling features via your blog's theme's CSS file (probably style.css).
 
-
-= Usage =
-
-After installing the plugin, you can add, import, export, edit, copy, delete, … tables via the "WP-Table Reloaded" screen which appears under the "Tools" section in your Admin menu.
-Everything should be self-explaining there.
-To show one of your tables in a post or on a page just include the shortcode [table id=&lt;the-id&gt; /] to your post/page, where &lt;the-id&gt is the ID of your table (can be found on the left side of the "List tables" screen.)
-After that you might want to change the style of the table: Just edit the CSS-file "global-frontend-style.css" in the subfolder "css" of the plugin folder to fit your layout needs. Be sure to activate the option "Use global css-file?" in the plugin options for this to work!
-You may also add certain features (like table-sorting, alternating row colors, print name and/or description, …) by checking the appropriate options in the "Edit table" screen.
 
 == Frequently Asked Questions ==
 
@@ -70,7 +60,17 @@ Upcoming versions will include (at least) German (by me), Turkish (thanks to Sem
 
 I'd really appreciate it, if you want to translate the plugin into your language! Using Heiko Rabe's WordPress plugin [Codestyling Localization](http://www.code-styling.de/english/development/wordpress-plugin-codestyling-localization-en) that really is as easy as pie. Just install the plugin, add your language, create the .po-file, translate the strings in the comfortable editor and create the .mo-file. It will automatically be saved in WP-Table Reloaded's plugin folder. If you send me the .mo- and .po-file, I will gladly include them into future plugin releases.
 
-== Version History ==
+
+== Usage ==
+
+After installing the plugin, you can add, import, export, edit, copy, delete, … tables via the "WP-Table Reloaded" screen which appears under the "Tools" section in your Admin menu.
+Everything should be self-explaining there.
+To show one of your tables in a post or on a page just include the shortcode [table id=&lt;the-id&gt; /] to your post/page, where &lt;the-id&gt is the ID of your table (can be found on the left side of the "List tables" screen.)
+After that you might want to change the style of the table: Just edit the CSS-file "global-frontend-style.css" in the subfolder "css" of the plugin folder to fit your layout needs. Be sure to activate the option "Use global css-file?" in the plugin options for this to work!
+You may also add certain features (like table-sorting, alternating row colors, print name and/or description, …) by checking the appropriate options in the "Edit table" screen.
+
+
+== Changelog ==
 
 0.9.1: first good release with all mentioned functions working well
 0.9 beta 1b: small bug which prevented showing of tables (but still not everything implemented)
