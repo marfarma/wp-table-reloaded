@@ -1042,12 +1042,13 @@ class WP_Table_Reloaded_Admin {
         delete_option( $this->optionname['tables'] );
         delete_option( $this->optionname['options'] );
     }
-    
+
     // ###################################################################################################################
     // initialize i18n support, load textdomain
     function init_language_support() {
-        $language_directory = basename( dirname( __FILE__ ) );// . '/language';
-        load_plugin_textdomain( WP_TABLE_RELOADED_TEXTDOMAIN, 'wp-content/plugins/' . $language_directory, $language_directory );
+        $rel_language_directory = basename( dirname( __FILE__ ) ) . '/languages';
+	$abs_language_directory = WP_CONTENT_DIR . '/plugins/' . $rel_language_directory
+        load_plugin_textdomain( WP_TABLE_RELOADED_TEXTDOMAIN, $abs_language_directory, $rel_language_directory );
     }
     
     // ###################################################################################################################
