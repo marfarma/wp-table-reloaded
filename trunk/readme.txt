@@ -10,7 +10,7 @@ This plugin allows you to create and manage tables in your WP's admin-area. You 
 
 == Description ==
 
-This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
+This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin. You may also have both plugins installed at the same time!
 
 More informatation: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
 
@@ -43,6 +43,10 @@ Manual Installation works just as for most other WordPress plugins:
 
 == Frequently Asked Questions ==
 
+= Can I use WP-Table and WP-Table Reloaded together? =
+
+Yes! You can have both WP-Table and WP-Table Reloaded installed in your WordPress! They will not interfere (as they are not using anything together). They are completely independent from each other. (At the moment, this also means that you can not edit/import your tables from WP-Table in WP-Table Reloaded. This might be included in future versions.)
+
 = Support? =
 
 If you experience trouble in using the plugin or find a bug, please don't hesitate to tell me about it. Right now the preferred way is the comments section of the [plugin page](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/) (that way other users with the same problem could get help, too). I might add a support forum later. Till then you might also consider opening a new topic in the [WordPress Support Forums](http://wordpress.org/support/) and send me the link to your thread.
@@ -53,7 +57,7 @@ In short: WordPress 2.5 or higher
 
 = Languages and Localization? =
 
-As of version 0.9.1 only the English language file is included.
+As of the current version only the English language file is included.
 The plugin is localization ready though (by using WordPress's localization features).
 
 Upcoming versions will include (at least) German (by me), Turkish (thanks to Semih) and possibly Swedish (thanks to ZuperZed).
@@ -66,11 +70,11 @@ Please visit the [official plugin website](http://tobias.baethge.com/wordpress-p
 
 == Usage ==
 
-After installing the plugin, you can add, import, export, edit, copy, delete, … tables via the "WP-Table Reloaded" screen which appears under the "Tools" section in your Admin menu.
+After installing the plugin, you can add, import, export, edit, copy, delete, ... tables via the "WP-Table Reloaded" screen which appears under the "Tools" section in your Admin menu.
 Everything should be self-explaining there.
 To show one of your tables in a post or on a page just include the shortcode [table id=&lt;the-id&gt; /] to your post/page, where &lt;the-id&gt is the ID of your table (can be found on the left side of the "List tables" screen.)
 After that you might want to change the style of the table: Just edit the CSS-file "global-frontend-style.css" in the subfolder "css" of the plugin folder to fit your layout needs. Be sure to activate the option "Use global css-file?" in the plugin options for this to work!
-You may also add certain features (like table-sorting, alternating row colors, print name and/or description, …) by checking the appropriate options in the "Edit table" screen.
+You may also add certain features (like table-sorting, alternating row colors, print name and/or description, ...) by checking the appropriate options in the "Edit table" screen.
 
 
 == Acknowledgements ==
