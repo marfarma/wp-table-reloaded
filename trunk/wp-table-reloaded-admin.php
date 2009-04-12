@@ -781,7 +781,7 @@ class WP_Table_Reloaded_Admin {
         <table class="tb-wp-table-options">
         <tr valign="top">
             <th scope="row"><?php _e( 'Uninstall Plugin upon Deactivation?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
-            <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+            <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin! Otherwise everything will be deleted upon an automatic update of the plugin by WordPress!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
         <tr valign="top">
             <th scope="row"><?php _e( 'Enable Tablesorter-JavaScript?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
@@ -807,7 +807,7 @@ class WP_Table_Reloaded_Admin {
             <p><?php _e( 'You may uninstall the plugin here. This will delete all tables, data, options, etc., that belong to the plugin, including all tables you added or imported.<br/> Be very careful with this and only click the button if you know what you are doing!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
         <?php
             $uninstall_url = $this->get_action_url( array( 'action' => 'uninstall' ), true );
-            echo " <a class=\"button-secondary delete\" href=\"{$uninstall_url}\" onclick=\"javascript:if ( confirm( '".__( 'Do you really want to uninstall the plugin and delete ALL data?', WP_TABLE_RELOADED_TEXTDOMAIN )."' ) ) { return confirm( '".__( 'Are you really sure?', WP_TABLE_RELOADED_TEXTDOMAIN )."' ); } else { return false; }\">" . __( 'Uninstall TB-WP-Table Plugin', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
+            echo " <a class=\"button-secondary delete\" href=\"{$uninstall_url}\" onclick=\"javascript:if ( confirm( '".__( 'Do you really want to uninstall the plugin and delete ALL data?', WP_TABLE_RELOADED_TEXTDOMAIN )."' ) ) { return confirm( '".__( 'Are you really sure?', WP_TABLE_RELOADED_TEXTDOMAIN )."' ); } else { return false; }\">" . __( 'Uninstall Plugin WP-Table Reloaded', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
         ?>
         </div>
         <?php
@@ -1042,13 +1042,12 @@ class WP_Table_Reloaded_Admin {
         delete_option( $this->optionname['tables'] );
         delete_option( $this->optionname['options'] );
     }
-
+    
     // ###################################################################################################################
     // initialize i18n support, load textdomain
     function init_language_support() {
-        $rel_language_directory = basename( dirname( __FILE__ ) ) . '/languages';
-	$abs_language_directory = WP_CONTENT_DIR . '/plugins/' . $rel_language_directory
-        load_plugin_textdomain( WP_TABLE_RELOADED_TEXTDOMAIN, $abs_language_directory, $rel_language_directory );
+        $language_directory = basename( dirname( __FILE__ ) );// . '/language';
+        load_plugin_textdomain( WP_TABLE_RELOADED_TEXTDOMAIN, 'wp-content/plugins/' . $language_directory, $language_directory );
     }
     
     // ###################################################################################################################
