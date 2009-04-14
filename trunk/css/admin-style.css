@@ -1,9 +1,10 @@
-table.tb-wp-table-options td {
+table.wp-table-reloaded-options td {
 	padding: 5px 0px 5px 0px;
 }
 
-table.tb-wp-table-options th {
+table.wp-table-reloaded-options th {
 	font-weight: normal;
 	text-align: left;
 	padding: 5px 10px 5px 0px;
+	vertical-align: middle;
 }

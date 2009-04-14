@@ -58,6 +58,12 @@ class WP_Table_Reloaded_Admin {
     // add admin-page to sidebar navigation, function called by PHP when class is constructed
     function WP_Table_Reloaded_Admin() {
         add_action( 'admin_menu', array( &$this, 'add_manage_page' ) );
+
+        // have to check for possible export file download request this early,
+        // because otherwise http-headers will be sent by WP before we can send download headers
+        if ( isset( $_POST['wp_table_reloaded_download_export_file'] ) ) {
+            add_action('init', array( &$this, 'do_action_export' ) );
+        }
     }
 
     // ###################################################################################################################
@@ -170,7 +176,7 @@ class WP_Table_Reloaded_Admin {
                 $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
                 // swap rows $col_id1 and $col_id2
                 if ( ( 1 < $cols ) && ( -1 < $col_id1 ) && ( -1 < $col_id2 ) ) {
-                  foreach( $table['data'] as $row_idx => $row) {
+                  foreach ( $table['data'] as $row_idx => $row ) {
                         $temp_col = $table['data'][$row_idx][$col_id1];
                         $table['data'][$row_idx][$col_id1] = $table['data'][$row_idx][$col_id2];
                         $table['data'][$row_idx][$col_id2] = $temp_col;
@@ -207,6 +213,7 @@ class WP_Table_Reloaded_Admin {
             // new table
             $new_table = $table_to_copy;
             $new_table['id'] = $this->get_new_table_id();
+            $new_table['name'] = __( 'Copy of', WP_TABLE_RELOADED_TEXTDOMAIN ) . ' ' . $table_to_copy['name'];
             unset( $table_to_copy );
 
             $this->save_table( $new_table );
@@ -250,7 +257,7 @@ class WP_Table_Reloaded_Admin {
                 $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
                 // delete column with key $col_id, if there are at least 2 columns
                 if ( ( 1 < $cols ) && ( -1 < $col_id ) ) {
-                    foreach( $table['data'] as $row_idx => $row)
+                    foreach ( $table['data'] as $row_idx => $row )
                         array_splice( $table['data'][$row_idx], $col_id, 1 );
                     $this->save_table( $table );
                     $this->print_success_message( __( 'Column deleted successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
@@ -288,7 +295,7 @@ class WP_Table_Reloaded_Admin {
                 $col_id = $_GET['element_id'];
                 // init new empty row (with all columns) and insert it before row with key $row_id
                 $new_col = '';
-                foreach( $table['data'] as $row_idx => $row)
+                foreach ( $table['data'] as $row_idx => $row )
                     array_splice( $table['data'][$row_idx], $col_id, 0, $new_col );
                 $this->save_table( $table );
                 $message = __( 'Column inserted successfully.', WP_TABLE_RELOADED_TEXTDOMAIN );
@@ -304,19 +311,36 @@ class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
     function do_action_import() {
-        $this->import_instance = $this->create_class_instance( 'WP_Table_Reloaded_Import', 'wp-table-reloaded-import.php' );
+        $this->import_instance = $this->create_class_instance( 'WP_Table_Reloaded_Import', 'wp-table-reloaded-import.class.php' );
         if ( isset( $_POST['submit'] ) && isset( $_FILES['import_file'] ) ) {
             check_admin_referer( $this->get_nonce( 'import' ) );
 
             // do import
-
             $this->import_instance->tempname = $_FILES['import_file']['tmp_name'];
             $this->import_instance->filename = $_FILES['import_file']['name'];
             $this->import_instance->mimetype = $_FILES['import_file']['type'];
+            $this->import_instance->import_format = $_POST['import_format'];
             $this->import_instance->delimiter = $_POST['delimiter'];
             $this->import_instance->import_table();
             $imported_table = $this->import_instance->imported_table;
             $this->import_instance->unlink_csv_file();
+
+            $table = array_merge( $this->default_table, $imported_table );
+
+            $table['id'] = $this->get_new_table_id();
+
+            $this->save_table( $table );
+
+            $this->print_success_message( __( 'Table imported successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+            $this->print_edit_table_form( $table['id'] );
+        } elseif (  'wp_table' == $_GET['import_format'] && isset( $_GET['wp_table_id'] ) ) {
+            check_admin_referer( $this->get_nonce( 'import' ) );
+
+            // do import
+            $this->import_instance->import_format = 'wp_table';
+            $this->import_instance->wp_table_id = $_GET['wp_table_id'];
+            $this->import_instance->import_table();
+            $imported_table = $this->import_instance->imported_table;
 
             $table = array_merge( $this->default_table, $imported_table );
 
@@ -332,7 +356,7 @@ class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
     function do_action_export() {
-        $this->export_instance = $this->create_class_instance( 'WP_Table_Reloaded_Export', 'wp-table-reloaded-export.php' );
+        $this->export_instance = $this->create_class_instance( 'WP_Table_Reloaded_Export', 'wp-table-reloaded-export.class.php' );
         if ( isset( $_POST['submit'] ) && isset( $_POST['table_id'] ) && isset( $_POST['export_format'] ) ) {
             check_admin_referer( $this->get_nonce( 'export' ) );
 
@@ -344,8 +368,15 @@ class WP_Table_Reloaded_Admin {
             $this->export_instance->export_table();
             $exported_table = $this->export_instance->exported_table;
 
-            $this->print_success_message( sprintf( __( 'Table "%s" exported successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->safe_output( $table_to_export['name'] ) ) );
-            $this->print_export_table_form( $_POST['table_id'], $exported_table );
+            if ( isset( $_POST['wp_table_reloaded_download_export_file'] ) ) {
+                $filename = $table_to_export['id'] . '-' . $table_to_export['name'] . '-' . date('Y-m-d') . '.' . $_POST['export_format'];
+                $this->prepare_download( $filename, strlen( $exported_table ), 'text/' . $_POST['export_format'] );
+                echo $exported_table;
+                exit;
+            } else {
+                $this->print_success_message( sprintf( __( 'Table "%s" exported successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->safe_output( $table_to_export['name'] ) ) );
+                $this->print_export_table_form( $_POST['table_id'], $exported_table );
+            }
         } else {
             $this->print_export_table_form( $_REQUEST['table_id'] );
         }
@@ -394,7 +425,7 @@ class WP_Table_Reloaded_Admin {
         <div style="clear:both;"><p><?php _e( 'This is a list of all available tables. You may add, edit, copy or delete tables here.', WP_TABLE_RELOADED_TEXTDOMAIN ) ?><br />
 		<?php _e( 'If you want to show a table in your pages or posts, use the shortcode: <strong>[table id=&lt;the_table_ID&gt; /]</strong>', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></p></div>
 		<?php
-        if ( 0 < count($this->tables) ) {
+        if ( 0 < count( $this->tables ) ) {
             ?>
         <div style="clear:both;">
             <table class="widefat">
@@ -406,8 +437,8 @@ class WP_Table_Reloaded_Admin {
                     <th scope="col"><?php _e( 'Action', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
                 </tr>
             </thead>
-            <tbody>
             <?php
+            echo "<tbody>\n";
             $bg_style_index = 0;
             foreach ( $this->tables as $id => $tableoptionname ) {
                 $bg_style_index++;
@@ -460,7 +491,7 @@ class WP_Table_Reloaded_Admin {
         <form method="post" action="<?php echo $this->get_action_url(); ?>">
         <?php wp_nonce_field( $this->get_nonce( 'add' ) ); ?>
 
-        <table class="tb-wp-table-options">
+        <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><label for="table[name]"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
             <td><input type="text" name="table[name]" value="<?php echo _c( 'Enter Table Name|Default Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" style="width:250px;" /></td>
@@ -507,7 +538,7 @@ class WP_Table_Reloaded_Admin {
 
         <div style="clear:both;">
         <h3><?php _e( 'Table Information', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></h3>
-        <table class="tb-wp-table-options">
+        <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><label for="table[name]"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
             <td><input type="text" name="table[name]" id="table[name]" value="<?php echo $this->safe_output( $table['name'] ); ?>" style="width:250px" /></td>
@@ -527,7 +558,7 @@ class WP_Table_Reloaded_Admin {
                         <th>&nbsp;</th>
                         <?php
                             // Table Header (Columns get a Letter between A and A+$cols-1)
-                            foreach ( range( 'A', chr( ord( 'A' ) + $cols - 1 ) ) as $letter)
+                            foreach ( range( 'A', chr( ord( 'A' ) + $cols - 1 ) ) as $letter )
                                 echo "<th scope=\"col\">".$letter."</th>";
                         ?>
                         <th>&nbsp;</th>
@@ -535,12 +566,12 @@ class WP_Table_Reloaded_Admin {
                 </thead>
                 <tbody>
                 <?php
-                foreach( $table['data'] as $row_idx => $table_row ) {
+                foreach ( $table['data'] as $row_idx => $table_row ) {
                     echo "<tr>\n";
                     // Table Header (Rows get a Number between 1 and $rows)
                     $output_idx = $row_idx + 1;
                     echo "\t<th scope=\"row\">{$output_idx}</th>\n";
-                    foreach( $table_row as $col_idx => $cell_content ) {
+                    foreach ( $table_row as $col_idx => $cell_content ) {
                         $cell_content = $this->safe_output( $cell_content );
                         $cell_name = "table[data][{$row_idx}][{$col_idx}]";
                         echo "\t<td><input type=\"text\" name=\"{$cell_name}\" value=\"{$cell_content}\" /></td>\n";
@@ -556,7 +587,7 @@ class WP_Table_Reloaded_Admin {
                 <?php
                     echo "<tr>\n";
                     echo "\t<th scope=\"row\">&nbsp;</th>\n";
-                    foreach( $table['data'][0] as $col_idx => $cell_content ) {
+                    foreach ( $table['data'][0] as $col_idx => $cell_content ) {
                         $insert_col_url = $this->get_action_url( array( 'action' => 'insert', 'table_id' => $table['id'], 'item' => 'col', 'element_id' => $col_idx ), true );
                         $delete_col_url = $this->get_action_url( array( 'action' => 'delete', 'table_id' => $table['id'], 'item' => 'col', 'element_id' => $col_idx ), true );
                         echo "\t<td><a href=\"{$insert_col_url}\">" . __( 'Insert Column', WP_TABLE_RELOADED_TEXTDOMAIN )."</a>";
@@ -578,12 +609,12 @@ class WP_Table_Reloaded_Admin {
             <br/>
             <?php _e( 'Swap rows', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
             <select name="swap[row][1]">
-            <?php   foreach( $table['data'] as $row_idx => $table_row )
+            <?php   foreach ( $table['data'] as $row_idx => $table_row )
                        echo "<option value=\"{$row_idx}\">" . ( $row_idx + 1 ) . "</option>"; ?>
             </select>
             <?php _e( 'and', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
             <select name="swap[row][2]">
-            <?php   foreach( $table['data'] as $row_idx => $table_row )
+            <?php   foreach ( $table['data'] as $row_idx => $table_row )
                       echo "<option value=\"{$row_idx}\">" . ( $row_idx + 1 ) . "</option>"; ?>
             </select>
             <input type="submit" name="submit[swap_rows]" class="button-primary" value="<?php _e( 'Swap', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
@@ -593,12 +624,12 @@ class WP_Table_Reloaded_Admin {
             <br/>
             <?php _e( 'Swap columns', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
             <select name="swap[col][1]">
-            <?php   foreach( $table['data'][0] as $col_idx => $cell_content )
+            <?php   foreach ( $table['data'][0] as $col_idx => $cell_content )
                 echo "<option value=\"{$col_idx}\">" . ( chr( ord( 'A' ) + $col_idx ) ) . "</option>"; ?>
             </select>
             <?php _e( 'and', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
             <select name="swap[col][2]">
-            <?php   foreach( $table['data'][0] as $col_idx => $cell_content )
+            <?php   foreach ( $table['data'][0] as $col_idx => $cell_content )
                         echo "<option value=\"{$col_idx}\">" . ( chr( ord( 'A' ) + $col_idx ) ) . "</option>"; ?>
             </select>
             <input type="submit" name="submit[swap_cols]" class="button-primary" value="<?php _e( 'Swap', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
@@ -607,7 +638,7 @@ class WP_Table_Reloaded_Admin {
         <div style="clear:both;">
         <h3><?php _e( 'Table Settings', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></h3>
         <p><?php _e( 'These settings will only be used for this table.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
-        <table class="tb-wp-table-options">
+        <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><?php _e( 'Alternating row colors', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="table[options][alternating_row_colors]" id="table[options][alternating_row_colors]"<?php echo ( true == $table['options']['alternating_row_colors'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][alternating_row_colors]"><?php _e( 'Every second row will have an alternating background color.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
@@ -664,20 +695,30 @@ class WP_Table_Reloaded_Admin {
         <div style="clear:both;">
         <form method="post" enctype="multipart/form-data" action="<?php echo $this->get_action_url(); ?>">
         <?php wp_nonce_field( $this->get_nonce( 'import' ) ); ?>
-        <table class="tb-wp-table-options">
+        <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><label for="import_file"><?php _e( 'Select File with Table to Import', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
             <td><input name="import_file" id="import_file" type="file" /></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><label for="import_format"><?php _e( 'Select Import Format', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
+            <td><select id="import_format" name="import_format">
+        <?php
+            $import_formats = $this->import_instance->import_formats;
+            foreach ( $import_formats as $import_format => $longname )
+                echo "<option value=\"{$import_format}\">{$longname}</option>";
+        ?>
+        </select></td>
         </tr>
         <tr valign="top">
             <th scope="row"><label for="delimiter"><?php _e( 'Used Delimiter', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
             <td><select id="delimiter" name="delimiter">
         <?php
             $delimiters = $this->import_instance->delimiters;
-            foreach( $delimiters as $delimiter => $longname )
+            foreach ( $delimiters as $delimiter => $longname )
                 echo "<option" . ( ( $delimiter == $_POST['delimiter'] ) ? ' selected="selected"': '' ) . " value=\"{$delimiter}\">{$longname}</option>";
         ?>
-        </select></td>
+        </select> <?php _e( '<small>(Only needed for CSV export.)</small>', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></td>
         </tr>
         </table>
         <input type="hidden" name="action" value="import" />
@@ -686,8 +727,66 @@ class WP_Table_Reloaded_Admin {
         </p>
         </form>
         </div>
+        <?php // check if plugin is installed at all / if tables in db exist
+        global $wpdb;
+        $wpdb->golftable  = $wpdb->prefix . 'golftable';
+        $wpdb->golfresult = $wpdb->prefix . 'golfresult';
+
+        if ( $wpdb->golftable == $wpdb->get_var( "show tables like '{$wpdb->golftable}'" ) && $wpdb->golfresult == $wpdb->get_var( "show tables like '{$wpdb->golfresult}'" ) ) {
+        // WP-Table tables exist -> the plugin might be installed, so we output all found tables
+        
+        
+        ?>
+        <h2><?php _e( 'Import from original WP-Table plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></h2>
+        <div style="clear:both;">
+        <?php
+        $tables = $wpdb->get_results("SELECT * FROM $wpdb->golftable ORDER BY 'table_aid' ASC ");
+        if ( 0 < count( $tables ) ) {
+            // Tables found in db
+        ?>
+            <table class="widefat">
+            <thead>
+                <tr>
+                    <th scope="col"><?php _e( 'ID', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
+                    <th scope="col"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
+                    <th scope="col"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
+                    <th scope="col"><?php _e( 'Action', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
+                </tr>
+            </thead>
+            <?php
+            echo "<tbody>\n";
+            $bg_style_index = 0;
+            foreach ( $tables as $table ) {
+                $bg_style_index++;
+                $bg_style = ( 0 == ($bg_style_index % 2) ) ? ' class="alternate"' : '';
+
+                $table_id = $table->table_aid;
+                $name = $table->table_name;
+                $description = $table->description;
+
+                $import_url = $this->get_action_url( array( 'action' => 'import', 'import_format' => 'wp_table', 'wp_table_id' => $table_id ), true );
+
+                echo "<tr{$bg_style}>\n";
+                echo "\t<th scope=\"row\">{$table_id}</th>";
+                echo "<td>{$name}</td>";
+                echo "<td>{$description}</td>";
+                echo "<td><a href=\"{$import_url}\" onclick=\"javascript:return confirm( '".__( 'Do you really want to import this table from the WP-Table plugin?', WP_TABLE_RELOADED_TEXTDOMAIN )."' );\">" . __( 'Import', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a></td>\n";
+                echo "</tr>\n";
+
+            }
+            echo "</tbody>\n";
+            echo "</table>\n";
+            
+        } else { // end if $tables
+            echo "<div style=\"clear:both;\"><p>" . __( 'WP-Table by Alex Rabe seems to be installed, but no tables were found.', WP_TABLE_RELOADED_TEXTDOMAIN );
+        }
+            ?>
+        </div>
         <?php
         $this->print_page_footer();
+        } else {
+            // one of the WP-Table tables was not found in database, so nothing to show here
+        }
     }
 
     // ###################################################################################################################
@@ -702,24 +801,24 @@ class WP_Table_Reloaded_Admin {
         $this->print_submenu_navigation( 'export' );
         ?>
         <div style="clear:both;">
-            <p><?php _e( 'You may export a table here.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+            <p><?php _e( 'You may export a table here. Just select the table, your desired export format and a delimiter (needed for CSV only). You may opt to download the export file. Otherwise it will be shown on this page.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
         </div>
         <?php if( 0 < count( $this->tables ) ) { ?>
         <div style="clear:both;">
         <form method="post" action="<?php echo $this->get_action_url(); ?>">
         <?php wp_nonce_field( $this->get_nonce( 'export' ) ); ?>
-        <table class="tb-wp-table-options">
+        <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><label for="table_id"><?php _e( 'Select Table to Export', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
             <td><select id="table_id" name="table_id">
         <?php
-            foreach( $this->tables as $id => $tableoptionname ) {
+            foreach ( $this->tables as $id => $tableoptionname ) {
                 // get name and description to show in list
                 $table = $this->load_table( $id );
                     $name = $this->safe_output( $table['name'] );
                     //$description = $this->safe_output( $table['description'] );
                 unset( $table );
-                echo "<option" . ( ( $id == $table_id ) ? ' selected="selected"': '' ) . " value=\"{$id}\">{$name}</option>";
+                echo "<option" . ( ( $id == $table_id ) ? ' selected="selected"': '' ) . " value=\"{$id}\">{$name} (ID {$id})</option>";
             }
         ?>
         </select></td>
@@ -729,7 +828,7 @@ class WP_Table_Reloaded_Admin {
             <td><select id="export_format" name="export_format">
         <?php
             $export_formats = $this->export_instance->export_formats;
-            foreach( $export_formats as $export_format => $longname )
+            foreach ( $export_formats as $export_format => $longname )
                 echo "<option" . ( ( $export_format == $_POST['export_format'] ) ? ' selected="selected"': '' ) . " value=\"{$export_format}\">{$longname}</option>";
         ?>
         </select></td>
@@ -739,10 +838,14 @@ class WP_Table_Reloaded_Admin {
             <td><select id="delimiter" name="delimiter">
         <?php
             $delimiters = $this->export_instance->delimiters;
-            foreach( $delimiters as $delimiter => $longname )
+            foreach ( $delimiters as $delimiter => $longname )
                 echo "<option" . ( ( $delimiter == $_POST['delimiter'] ) ? ' selected="selected"': '' ) . " value=\"{$delimiter}\">{$longname}</option>";
         ?>
-        </select></td>
+        </select> <?php _e( '<small>(Only needed for CSV export.)</small>', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row"><?php _e( 'Download file', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="wp_table_reloaded_download_export_file" id="wp_table_reloaded_download_export_file" value="true" /> <label for="wp_table_reloaded_download_export_file"><?php _e( 'Yes, I want to download the export file.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
         </table>
         <input type="hidden" name="action" value="export" />
@@ -778,7 +881,7 @@ class WP_Table_Reloaded_Admin {
         <form method="post" action="<?php echo $this->get_action_url(); ?>">
         <?php wp_nonce_field( $this->get_nonce( 'options' ) ); ?>
 
-        <table class="tb-wp-table-options">
+        <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><?php _e( 'Uninstall Plugin upon Deactivation?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin! Otherwise everything will be deleted upon an automatic update of the plugin by WordPress!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
@@ -922,6 +1025,17 @@ class WP_Table_Reloaded_Admin {
     }
     
     // ###################################################################################################################
+    // need to clean this up and find out what's really necessary
+    function prepare_download( $filename, $filesize, $filetype ) {
+        @ob_end_clean();
+        //header( 'Content-Description: File Transfer' );
+        header( 'Content-Type: application/octet-stream' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"');
+        header( 'Content-Length: ' . $filesize );
+        //header( 'Content-type: ' . $filetype. '; charset=' . get_option('blog_charset') );
+    }
+
+    // ###################################################################################################################
     // #########################################                      ####################################################
     // #########################################      URL Support     ####################################################
     // #########################################                      ####################################################
@@ -955,7 +1069,7 @@ class WP_Table_Reloaded_Admin {
     // ###################################################################################################################
     function create_class_instance( $class, $file) {
         if ( !class_exists( $class ) ) {
-            include_once ( WP_TABLE_RELOADED_ABSPATH . $file );
+            include_once ( WP_TABLE_RELOADED_ABSPATH . 'php/' . $file );
             if ( class_exists( $class ) )  {
                 return new $class;
             }
@@ -1023,7 +1137,7 @@ class WP_Table_Reloaded_Admin {
 
         // update individual table options
 		$this->tables = get_option( $this->optionname['tables'] );
-        foreach( $this->tables as $id => $tableoptionname ) {
+        foreach ( $this->tables as $id => $tableoptionname ) {
             $table = $this->load_table( $id );
             $new_table = array_merge( $this->default_table, $table );
             $new_table = array_intersect_key( $new_table, $this->default_table );
@@ -1054,7 +1168,7 @@ class WP_Table_Reloaded_Admin {
     // enqueue css-stylesheet-file, if it exists
     function add_manage_page_css() {
         $cssfile =  'admin-style.css';
-        if ( file_exists( dirname ( __FILE__ ) . '/css/' . $cssfile ) ) {
+        if ( file_exists( dirname( __FILE__ ) . '/css/' . $cssfile ) ) {
             wp_enqueue_style( 'wp-table-reloaded-admin-css', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile );
         }
     }
