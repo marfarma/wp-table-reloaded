@@ -11,7 +11,7 @@ Author URI: http://tobias.baethge.com/
 class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
-    var $plugin_version = '0.9.2';
+    var $plugin_version = '0.9.3-beta2';
     // nonce for security of links/forms, try to prevent "CSRF"
     var $nonce_base = 'wp-table-reloaded-nonce';
     // names for the options which are stored in the WP database
@@ -1199,7 +1199,7 @@ class WP_Table_Reloaded_Admin {
     // ###################################################################################################################
     // initialize i18n support, load textdomain
     function init_language_support() {
-        $language_directory = basename( dirname( __FILE__ ) );// . '/language';
+        $language_directory = basename( dirname( __FILE__ ) ) . '/languages';
         load_plugin_textdomain( WP_TABLE_RELOADED_TEXTDOMAIN, 'wp-content/plugins/' . $language_directory, $language_directory );
     }
 
