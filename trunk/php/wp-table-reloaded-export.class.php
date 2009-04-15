@@ -51,28 +51,15 @@ class WP_Table_Reloaded_Export {
             case 'csv':
                 if ( 0 < $rows && 0 < $cols) {
                 if ( function_exists( 'fputcsv' ) ) { // introduced in PHP 5.1.0
-                    if ( function_exists( 'sys_get_temp_dir' ) ) { // introduced in PHP 5.2.1
-                        $temp_file = tempnam( sys_get_temp_dir(), 'export_table_' . $this->table_to_export['id'] . '_' );
-                        $handle = fopen( $temp_file, 'w' );
-                        foreach ( $data as $row_idx => $row ) {
-                            $row = array_map( 'stripslashes', $row );
-                            fputcsv( $handle, $row, $this->delimiter, '"' );
-                        }
-                        fclose( $handle );
-                        $output = file_get_contents( $temp_file );
-                    } else {
-                        $handle = tmpfile();
-                        foreach ( $data as $row_idx => $row ) {
-                            $row = array_map( 'stripslashes', $row );
-                            fputcsv( $handle, $row, $this->delimiter, '"' );
-                        }
-                        fseek($handle, 0);
-                        while ( !feof( $handle ) ) {
-                            $output .= fread( $handle, 1024);
-                        }
-                        fclose( $handle );
+                    $temp_file = tempnam( $this->get_temp_dir(), 'export_table_' . $this->table_to_export['id'] . '_' );
+                    $handle = fopen( $temp_file, 'w' );
+                    foreach ( $data as $row_idx => $row ) {
+                        $row = array_map( 'stripslashes', $row );
+                        fputcsv( $handle, $row, $this->delimiter, '"' );
                     }
-                } else { // should word for all PHP versions
+                    fclose( $handle );
+                    $output = file_get_contents( $temp_file );
+                } else { // should word for all PHP versions, but might not be as good as fputcsv
                     foreach( $data as $row_idx => $row ) {
                         $row = array_map( array( &$this, 'csv_wrap_and_escape' ), $row );
                         $output .= implode( $this->delimiter, $row ) . "\n";
@@ -129,6 +116,21 @@ class WP_Table_Reloaded_Export {
     function html_wrap_and_escape( $string ) {
         $string = stripslashes( $string );
         return "\t\t<td>" . $string . "</td>\n";
+    }
+
+    // ###################################################################################################################
+    function get_temp_dir() {
+        if ( function_exists( 'sys_get_temp_dir' ) ) { return sys_get_temp_dir(); } // introduced in PHP 5.2.1
+
+        if ( !empty($_ENV['TMP'] ) ) { return realpath( $_ENV['TMP'] ); }
+        if ( !empty($_ENV['TMPDIR'] ) ) { return realpath( $_ENV['TMPDIR'] ); }
+        if ( !empty($_ENV['TEMP'] ) ) { return realpath( $_ENV['TEMP'] ); }
+
+        $tempfile = tempnam( uniqid( rand(), true ), '' );
+        if ( file_exists( $tempfile ) ) {
+            unlink( $tempfile );
+            return realpath( dirname( $tempfile ) );
+        }
     }
     
 } // class WP_Table_Reloaded_Export

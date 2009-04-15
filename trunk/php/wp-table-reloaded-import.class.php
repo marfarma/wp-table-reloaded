@@ -22,7 +22,9 @@ class WP_Table_Reloaded_Import {
     var $mimetype = '';
     var $delimiter = ';';
     var $import_format = '';
+    var $import_from = '';
     var $wp_table_id = '';
+    var $error = false;
     var $imported_table = array();
     
 
@@ -66,18 +68,20 @@ class WP_Table_Reloaded_Import {
 
     // ###################################################################################################################
     function import_csv() {
-        $table['name'] = $this->filename;
-        $table['description'] = $this->filename . ' (' . $this->mimetype . ')';
+        $table = $this->get_table_meta();
+        
+        if ( 'form-field' == $this->import_from )
+            $this->tempname = $this->csv_string_to_file( $this->import_data );
 
         $temp_data = $this->csv_file_to_array( $this->tempname, $this->delimiter, '"' );
+            
         $table['data'] = $this->pad_array_to_max_cols( $temp_data );
         $this->imported_table = $table;
     }
 
     // ###################################################################################################################
     function import_html() {
-        $table['name'] = $this->filename;
-        $table['description'] = $this->filename . ' (' . $this->mimetype . ')';
+        $table = $this->get_table_meta();
 
         if ( !class_exists( 'simplexml' ) ) {
             include_once ( WP_TABLE_RELOADED_ABSPATH . 'php/' . 'simplexml.class.php' );
@@ -86,7 +90,11 @@ class WP_Table_Reloaded_Import {
             }
         }
 
-        $temp_data = file_get_contents( $this->tempname );
+        if ( 'form-field' == $this->import_from )
+            $temp_data = $this->import_data;
+        elseif ( 'file-upload' == $this->import_from )
+            $temp_data = file_get_contents( $this->tempname );
+            
         // most inner items have to be escaped, so we can get their contents as a string not as array elements
         $temp_data = preg_replace('#<td(.*?)>#', '<td><![CDATA[' , $temp_data); //eventually later <td$1>
         $temp_data = preg_replace('#</td>#', ']]></td>' , $temp_data);
@@ -95,6 +103,12 @@ class WP_Table_Reloaded_Import {
         $temp_data = preg_replace('#<_thead>#', '<thead>' , $temp_data); // revert from 2 lines above
         $temp_data = preg_replace('#</th>#', ']]></th>' , $temp_data);
         $temp_data = $simpleXML->xml_load_string( $temp_data, 'array' );
+
+        if ( false == is_array( $temp_data ) ) {
+            $this->imported_table = array();
+            $this->error = true;
+            return;
+        }
 
         $data = array();
         
@@ -115,8 +129,7 @@ class WP_Table_Reloaded_Import {
 
     // ###################################################################################################################
     function import_xml() {
-        $table['name'] = $this->filename;
-        $table['description'] = $this->filename . ' (' . $this->mimetype . ')';
+        $table = $this->get_table_meta();
 
         if ( !class_exists( 'simplexml' ) ) {
             include_once ( WP_TABLE_RELOADED_ABSPATH . 'php/' . 'simplexml.class.php' );
@@ -125,7 +138,16 @@ class WP_Table_Reloaded_Import {
             }
         }
 
-        $temp_data = $simpleXML->xml_load_file( $this->tempname, 'array' );
+        if ( 'form-field' == $this->import_from )
+            $temp_data = $simpleXML->xml_load_string( $this->import_data, 'array' );
+        elseif ( 'file-upload' == $this->import_from )
+            $temp_data = $simpleXML->xml_load_file( $this->tempname, 'array' );
+
+        if ( false == is_array( $temp_data ) || false == isset( $temp_data['row'] ) || empty( $temp_data['row'] ) ) {
+            $this->imported_table = array();
+            $this->error = true;
+            return;
+        }
 
         $data = $temp_data['row'];
         foreach ($data as $key => $value )
@@ -177,6 +199,7 @@ class WP_Table_Reloaded_Import {
         } else {
             // no tables from WP-Table found
             $this->imported_table = array();
+            $this->error = true;
         }
     }
 
@@ -194,6 +217,21 @@ class WP_Table_Reloaded_Import {
             }
         fclose($handle);
         return $data;
+    }
+    
+    // ###################################################################################################################
+    function csv_string_to_file( $data ) {
+        $temp_file_name = tempnam( $this->get_temp_dir(), 'import_table_' );
+
+        if ( function_exists( 'file_put_contents' ) ) {
+            file_put_contents( $temp_file_name, $data );
+        } else {
+            $handle = fopen( $temp_file_name, 'w' );
+            $bytes = fwrite( $handle, $data );
+            fclose( $handle );
+        }
+        
+        return $temp_file_name;
     }
 
     // ###################################################################################################################
@@ -223,6 +261,29 @@ class WP_Table_Reloaded_Import {
     // ###################################################################################################################
     function add_slashes( $array ) {
         return array_map( 'addslashes', $array );
+    }
+    
+    // ###################################################################################################################
+    function get_table_meta() {
+        $table['name'] = $this->filename;
+        $table['description'] = $this->filename;
+        $table['description'] .= ( false == empty( $this->mimetype ) ) ? ' (' . $this->mimetype . ')' : '';
+        return $table;
+    }
+    
+    // ###################################################################################################################
+    function get_temp_dir() {
+        if ( function_exists( 'sys_get_temp_dir' ) ) { return sys_get_temp_dir(); } // introduced in PHP 5.2.1
+
+        if ( !empty($_ENV['TMP'] ) ) { return realpath( $_ENV['TMP'] ); }
+        if ( !empty($_ENV['TMPDIR'] ) ) { return realpath( $_ENV['TMPDIR'] ); }
+        if ( !empty($_ENV['TEMP'] ) ) { return realpath( $_ENV['TEMP'] ); }
+    
+        $tempfile = tempnam( uniqid( rand(), true ), '' );
+        if ( file_exists( $tempfile ) ) {
+            unlink( $tempfile );
+            return realpath( dirname( $tempfile ) );
+        }
     }
 
 } // class WP_Table_Reloaded_Import

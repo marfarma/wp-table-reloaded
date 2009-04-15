@@ -271,7 +271,7 @@ class simplexml {
 		if (!$data)
 		return 'Cannot open xml document: ' . (isset($php_errormsg) ? $php_errormsg : $file);
 
-		return xml_load_string($data, $resulttype, $encoding);
+		return $this->xml_load_string($data, $resulttype, $encoding);
 	}
 	
 

@@ -2,8 +2,8 @@
 /*
 File Name: WP-Table Reloaded - Frontend Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
-Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 0.9.2
+Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "WP-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
+Version: 0.9.3-beta2
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -31,8 +31,9 @@ class WP_Table_Reloaded_Frontend {
 		if ( false === $this->options || false === $this->tables )
             return '';
 
-		// front-end function
-		add_shortcode( $this->shortcode, array( &$this, 'handle_shortcode' ) );
+		// front-end function, shortcode for the_content, manual filter for widget_text
+		add_shortcode( $this->shortcode, array( &$this, 'handle_content_shortcode' ) );
+        add_filter('widget_text', array( &$this, 'handle_widget_filter' ) );
 
         // if tablesorter enabled (globally) include javascript
 		if ( true == $this->options['enable_tablesorter'] )
@@ -44,12 +45,12 @@ class WP_Table_Reloaded_Frontend {
     }
 
     // ###################################################################################################################
-    // handle [table id=<the_table_id> /]
-    function handle_shortcode( $attr ) {
+    // handle [table id=<the_table_id> /] in the_content()
+    function handle_content_shortcode( $attr ) {
         $table_id = $attr['id'];
 
-        if ( !is_numeric( $table_id ) || 1 > $table_id)
-            return '';
+        if ( !is_numeric( $table_id ) || 1 > $table_id || false == $this->is_table( $table_id ) )
+            return "[table \"{$table_id}\" not found /]<br />\n";
 
         $table = $this->load_table( $table_id );
 
@@ -57,11 +58,25 @@ class WP_Table_Reloaded_Frontend {
 
         return $output;
     }
+    
+    // ###################################################################################################################
+    // handle [table id=<the_table_id> /] in widget texts
+    function handle_widget_filter( $text ) {
+        // pattern to search for in widget text (only our plugin's shortcode!)
+        $pattern = '\[(' . preg_quote( $this->shortcode ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\1\])?';
+        // search for it, if found, handle as if it were a shortcode
+        return preg_replace_callback( '/'.$pattern.'/s', 'do_shortcode_tag', $text );
+    }
+
+    // ###################################################################################################################
+    function is_table( $table_id ) {
+        return isset( $this->tables[ $table_id ] );
+    }
 
     // ###################################################################################################################
     function load_table( $table_id ) {
         $this->tables[ $table_id ] = ( isset( $this->tables[ $table_id ] ) ) ? $this->tables[ $table_id ] : $this->optionname['table'] . '_' . $table_id;
-        $table = get_option( $this->tables[ $table_id ], $this->default_table);
+        $table = get_option( $this->tables[ $table_id ], array() );
         return $table;
     }
 
