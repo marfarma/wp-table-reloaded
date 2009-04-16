@@ -27,8 +27,14 @@ Author URI: http://tobias.baethge.com/
 // folder definitions as constants
 if ( !defined( 'WP_CONTENT_DIR' ) )
     define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+if ( !defined( 'WP_CONTENT_URL' ) )
+    define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content' );
+if ( !defined( 'WP_PLUGIN_URL' ) )
+	define( 'WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins' );
+if ( !defined( 'WP_PLUGIN_DIR' ) )
+	define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins');
 if ( !defined( 'WP_TABLE_RELOADED_ABSPATH' ) )
-    define( 'WP_TABLE_RELOADED_ABSPATH', WP_CONTENT_DIR . '/plugins/' . basename( dirname ( __FILE__ ) ) . '/' );
+    define( 'WP_TABLE_RELOADED_ABSPATH', WP_PLUGIN_DIR . '/' . basename( dirname ( __FILE__ ) ) . '/' );
 
 // decide whether admin or frontend
 if ( is_admin() ) {

@@ -164,22 +164,31 @@ JSSCRIPT;
             wp_enqueue_script( 'wp-table-reloaded-tablesorter-js', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/js/' . $jsfile, array( 'jquery' ) );
         }
     }
+    
     // ###################################################################################################################
-    // enqueue tablesorter-css-file, if it exists, may be modified by user
+    // enqueue global-css-file, if it exists, may be modified by user
     function add_head_global_css() {
         $cssfile =  'global-frontend-style.css';
         if ( file_exists( dirname ( __FILE__ ) . '/css/' . $cssfile ) ) {
-            wp_enqueue_style( 'wp-table-reloaded-global-css', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile );
-            // WP < 2.7 does not contain call to add_action( 'wp_head', 'wp_print_styles' ) in default-filters.php (Core Trac Ticket #7720)
-            if ( false == has_action( 'wp_head', 'wp_print_styles' ) )
-                add_action( 'wp_head', array( &$this, 'print_style' ) );
+            if ( function_exists( 'wp_enqueue_style' ) ) {
+                wp_enqueue_style( 'wp-table-reloaded-global-css', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile );
+                // WP < 2.7 does not contain call to add_action( 'wp_head', 'wp_print_styles' ) in default-filters.php (Core Trac Ticket #7720)
+                if ( false == has_action( 'wp_head', 'wp_print_styles' ) )
+                    add_action( 'wp_head', array( &$this, 'print_styles' ) );
+            } else {
+                add_action( 'wp_head', array( &$this, 'print_styles' ) );
+            }
         }
     }
 
     // ###################################################################################################################
-    // print our style in wp-head (only done in WP < 2.7)
-    function print_style() {
-        wp_print_styles( 'wp-table-reloaded-global-css' );
+    // print our style in wp-head (only needed for WP < 2.7)
+    function print_styles() {
+        $cssfile =  'global-frontend-style.css';
+        if ( function_exists( 'wp_print_styles' ) )
+            wp_print_styles( 'wp-table-reloaded-global-css' );
+        else
+            echo "<link rel='stylesheet' href='" . WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile . "' type='text/css' media='' />\n";
     }
 
 } // class WP_Table_Reloaded_Frontend
