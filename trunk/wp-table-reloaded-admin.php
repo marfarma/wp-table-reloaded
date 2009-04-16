@@ -772,8 +772,7 @@ class WP_Table_Reloaded_Admin {
 
         if ( $wpdb->golftable == $wpdb->get_var( "show tables like '{$wpdb->golftable}'" ) && $wpdb->golfresult == $wpdb->get_var( "show tables like '{$wpdb->golfresult}'" ) ) {
         // WP-Table tables exist -> the plugin might be installed, so we output all found tables
-        
-        
+
         ?>
         <h2><?php _e( 'Import from original WP-Table plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></h2>
         <div style="clear:both;">
@@ -816,15 +815,15 @@ class WP_Table_Reloaded_Admin {
             echo "</table>\n";
             
         } else { // end if $tables
-            echo "<div style=\"clear:both;\"><p>" . __( 'WP-Table by Alex Rabe seems to be installed, but no tables were found.', WP_TABLE_RELOADED_TEXTDOMAIN );
+            echo "<div style=\"clear:both;\"><p>" . __( 'WP-Table by Alex Rabe seems to be installed, but no tables were found.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</p></div>";
         }
             ?>
         </div>
         <?php
-        $this->print_page_footer();
         } else {
             // one of the WP-Table tables was not found in database, so nothing to show here
         }
+        $this->print_page_footer();
     }
 
     // ###################################################################################################################
