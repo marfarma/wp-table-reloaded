@@ -160,8 +160,8 @@ JSSCRIPT;
     // enqueue tablesorter-js-file, if it exists
     function add_head_tablesorter_js() {
         $jsfile =  'jquery.tablesorter.min.js';
-        if ( file_exists( dirname ( __FILE__ ) . '/js/' . $jsfile ) ) {
-            wp_enqueue_script( 'wp-table-reloaded-tablesorter-js', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/js/' . $jsfile, array( 'jquery' ) );
+        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'js/' . $jsfile ) ) {
+            wp_enqueue_script( 'wp-table-reloaded-tablesorter-js', WP_TABLE_RELOADED_URL . 'js/' . $jsfile, array( 'jquery' ) );
         }
     }
     
@@ -169,9 +169,9 @@ JSSCRIPT;
     // enqueue global-css-file, if it exists, may be modified by user
     function add_head_global_css() {
         $cssfile =  'global-frontend-style.css';
-        if ( file_exists( dirname ( __FILE__ ) . '/css/' . $cssfile ) ) {
+        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'css/' . $cssfile ) ) {
             if ( function_exists( 'wp_enqueue_style' ) ) {
-                wp_enqueue_style( 'wp-table-reloaded-global-css', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile );
+                wp_enqueue_style( 'wp-table-reloaded-global-css', WP_TABLE_RELOADED_URL . 'css/' . $cssfile );
                 // WP < 2.7 does not contain call to add_action( 'wp_head', 'wp_print_styles' ) in default-filters.php (Core Trac Ticket #7720)
                 if ( false == has_action( 'wp_head', 'wp_print_styles' ) )
                     add_action( 'wp_head', array( &$this, 'print_styles' ) );
@@ -188,7 +188,7 @@ JSSCRIPT;
         if ( function_exists( 'wp_print_styles' ) )
             wp_print_styles( 'wp-table-reloaded-global-css' );
         else
-            echo "<link rel='stylesheet' href='" . WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile . "' type='text/css' media='' />\n";
+            echo "<link rel='stylesheet' href='" . WP_TABLE_RELOADED_URL . 'css/' . $cssfile . "' type='text/css' media='' />\n";
     }
 
 } // class WP_Table_Reloaded_Frontend

@@ -1207,8 +1207,8 @@ class WP_Table_Reloaded_Admin {
     // enqueue javascript-file, with some jQuery stuff
     function add_manage_page_js() {
         $jsfile =  'admin.js';
-        if ( file_exists( dirname( __FILE__ ) . '/js/' . $jsfile ) ) {
-            wp_enqueue_script( 'wp-table-reloaded-admin-js', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/js/' . $jsfile, array( 'jquery' ) );
+        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'js/' . $jsfile ) ) {
+            wp_enqueue_script( 'wp-table-reloaded-admin-js', WP_TABLE_RELOADED_URL . 'js/' . $jsfile, array( 'jquery' ) );
         }
     }
 
@@ -1216,9 +1216,9 @@ class WP_Table_Reloaded_Admin {
     // enqueue css-stylesheet-file for admin, if it exists
     function add_manage_page_css() {
         $cssfile =  'admin-style.css';
-        if ( file_exists( dirname ( __FILE__ ) . '/css/' . $cssfile ) ) {
+        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'css/' . $cssfile ) ) {
             if ( function_exists( 'wp_enqueue_style' ) ) {
-                wp_enqueue_style( 'wp-table-reloaded-admin-css', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile );
+                wp_enqueue_style( 'wp-table-reloaded-admin-css', WP_TABLE_RELOADED_URL . 'css/' . $cssfile );
             } else {
                 add_action( 'admin_head', array( &$this, 'print_styles' ) );
             }
@@ -1229,7 +1229,7 @@ class WP_Table_Reloaded_Admin {
     // print our style in wp-admin-head (only needed for WP < 2.6)
     function print_styles() {
         $cssfile =  'admin-style.css';
-        echo "<link rel='stylesheet' href='" . WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile . "' type='text/css' media='' />\n";
+        echo "<link rel='stylesheet' href='" . WP_TABLE_RELOADED_URL . 'css/' . $cssfile . "' type='text/css' media='' />\n";
     }
 
 } // class WP_Table_Reloaded_Admin
