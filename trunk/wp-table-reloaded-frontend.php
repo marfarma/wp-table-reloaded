@@ -101,14 +101,18 @@ class WP_Table_Reloaded_Frontend {
 
             foreach( $table['data'] as $row_idx => $row ) {
                 if ( true == $table['options']['alternating_row_colors'] )
-                    $row_class = ( 1 == ($row_idx % 2) ) ? ' class="even"' : ' class="odd"';
+                    $row_class = ( 1 == ($row_idx % 2) ) ? ' class="even row-' . ( $row_idx + 1 ) . '"' : ' class="odd row-' . ( $row_idx + 1 ) . '"';
+                else
+                    $row_class = ' class="row-' . ( $row_idx + 1 ) . '"';
+                    
                 if( 0 == $row_idx ) {
                     if ( true == $table['options']['first_row_th'] ) {
                         $output .= "<thead>\n";
                         $output .= "\t<tr{$row_class}>\n\t\t";
                         foreach( $row as $col_idx => $cell_content ) {
+                            $col_class = ' class="column-' . ( $col_idx + 1 ) . '"';
                             $cell_content = $this->safe_output( $cell_content );
-                            $output .= "<th>" . "{$cell_content}" . "</th>";
+                            $output .= "<th{$col_class}>" . "{$cell_content}" . "</th>";
                         }
                         $output .= "\n\t</tr>\n";
                         $output .= "</thead>\n";
@@ -117,16 +121,18 @@ class WP_Table_Reloaded_Frontend {
                         $output .= "<tbody>\n";
                         $output .= "\t<tr{$row_class}>\n\t\t";
                         foreach( $row as $col_idx => $cell_content ) {
+                            $col_class = ' class="column-' . ( $col_idx + 1 ) . '"';
                             $cell_content = $this->safe_output( $cell_content );
-                            $output .= "<td>" . "{$cell_content}" . "</td>";
+                            $output .= "<td{$col_class}>" . "{$cell_content}" . "</td>";
                         }
                         $output .= "\n\t</tr>\n";
                     }
                 } else {
                     $output .= "\t<tr{$row_class}>\n\t\t";
                     foreach( $row as $col_idx => $cell_content ) {
+                        $col_class = ' class="column-' . ( $col_idx + 1 ) . '"';
                         $cell_content = $this->safe_output( $cell_content );
-                        $output .= "<td>" . "{$cell_content}" . "</td>";
+                        $output .= "<td{$col_class}>" . "{$cell_content}" . "</td>";
                     }
                     $output .= "\n\t</tr>\n";
                 }

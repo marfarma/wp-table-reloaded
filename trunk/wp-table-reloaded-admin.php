@@ -72,6 +72,9 @@ class WP_Table_Reloaded_Admin {
         $min_needed_capability = 'publish_posts'; // user needs at least this capability to show WP-Table Reloaded config page
         $hook = add_management_page( 'WP-Table Reloaded', 'WP-Table Reloaded', $min_needed_capability, 'wp_table_reloaded_manage_page', array( &$this, 'show_manage_page' ) );
         add_action('load-' . $hook, array( &$this, 'load_manage_page' ) );
+        
+        if ( true == function_exists( 'add_contextual_help' ) ) // then WP version is >= 2.7
+            add_contextual_help( $hook, $this->get_contextual_help_string() );
     }
     
     // ###################################################################################################################
@@ -1019,6 +1022,11 @@ class WP_Table_Reloaded_Admin {
         </ul>
         <br class="clear" />
         <?php
+    }
+
+    // ###################################################################################################################
+    function get_contextual_help_string() {
+        return __( 'More information can be found on the <a href="http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/">plugin\'s website</a>. A documentation and certain support and help request possibilities will be available soon.', WP_TABLE_RELOADED_TEXTDOMAIN );
     }
 
     // ###################################################################################################################

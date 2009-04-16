@@ -94,14 +94,27 @@ class WP_Table_Reloaded_Import {
             $temp_data = $this->import_data;
         elseif ( 'file-upload' == $this->import_from )
             $temp_data = file_get_contents( $this->tempname );
+
+        // extract table from html, pattern: <table> (with eventually class, id, ...
+        // . means any charactery (except newline),
+        // * means in any number
+        // ? means non-gready (shortest possible)
+        // is at the end: i: case-insensitive, s: include newline (in .)
+        if ( 1 == preg_match( '/<table.*?>.*?<\/table>/is', $temp_data, $matches ) )
+            $temp_data = $matches[0]; // if found, take match as table to import
+        else {
+            $this->imported_table = array();
+            $this->error = true;
+            return;
+        }
             
         // most inner items have to be escaped, so we can get their contents as a string not as array elements
-        $temp_data = preg_replace('#<td(.*?)>#', '<td><![CDATA[' , $temp_data); //eventually later <td$1>
-        $temp_data = preg_replace('#</td>#', ']]></td>' , $temp_data);
-        $temp_data = preg_replace('#<thead(.*?)>#', '<_thead>' , $temp_data); // temporaray, otherwise <thead> will be affected by replacement of <th
-        $temp_data = preg_replace('#<th(.*?)>#', '<th><![CDATA[' , $temp_data); //eventually later <th$1>
-        $temp_data = preg_replace('#<_thead>#', '<thead>' , $temp_data); // revert from 2 lines above
-        $temp_data = preg_replace('#</th>#', ']]></th>' , $temp_data);
+        $temp_data = preg_replace( '#<td(.*?)>#', '<td><![CDATA[' , $temp_data ); //eventually later <td$1>
+        $temp_data = preg_replace( '#</td>#', ']]></td>' , $temp_data );
+        $temp_data = preg_replace( '#<thead(.*?)>#', '<_thead>' , $temp_data ); // temporaray, otherwise <thead> will be affected by replacement of <th
+        $temp_data = preg_replace( '#<th(.*?)>#', '<th><![CDATA[' , $temp_data ); //eventually later <th$1>
+        $temp_data = preg_replace( '#<_thead(.*?)>#', '<thead>' , $temp_data ); // revert from 2 lines above
+        $temp_data = preg_replace( '#</th>#', ']]></th>' , $temp_data );
         $temp_data = $simpleXML->xml_load_string( $temp_data, 'array' );
 
         if ( false == is_array( $temp_data ) ) {
