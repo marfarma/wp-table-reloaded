@@ -8,3 +8,5 @@ table.wp-table-reloaded-options th {
 	padding: 5px 10px 5px 0px;
 	vertical-align: middle;
 }
+/* overwrite 980px max-width in WP < 2.7 */
+div.wrap { max-width: 100%!important; }

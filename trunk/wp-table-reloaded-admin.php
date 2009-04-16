@@ -424,8 +424,20 @@ class WP_Table_Reloaded_Admin {
     // ###################################################################################################################
     function do_action_uninstall() {
         check_admin_referer( $this->get_nonce( 'uninstall' ) );
-        $this->plugin_uninstall();
-        $this->print_success_message( __( 'Plugin uninstalled successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+
+        // everything shall be deleted (manual uninstall)
+        $this->options['uninstall_upon_deactivation'] = true;
+        $this->update_options();
+
+        $plugin = WP_TABLE_RELOADED_BASENAME;
+        deactivate_plugins( $plugin );
+        if ( false !== get_option( 'recently_activated', false ) )
+            update_option( 'recently_activated', array( $plugin => time()) + (array)get_option( 'recently_activated' ) );
+
+        $this->print_page_header( __( 'WP-Table Reloaded', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        $this->print_success_message( __( 'Plugin deactivated successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+        echo "<p>" . __( "All tables, data and options were deleted. You may now remove the plugin's subfolder from your WordPress plugin folder.", WP_TABLE_RELOADED_TEXTDOMAIN ) . "</p>";
+        $this->print_page_footer();
     }
     
     // ###################################################################################################################
@@ -520,7 +532,7 @@ class WP_Table_Reloaded_Admin {
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table[description]"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><textarea name="table[description]" id="table[description]" style="width:250px;height:85px;"><?php echo _c( 'Enter Description|Default Table Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></textarea></td>
+            <td><textarea name="table[description]" id="table[description]" rows="15" cols="40" style="width:250px;height:85px;"><?php echo _c( 'Enter Description|Default Table Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></textarea></td>
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table[rows]"><?php _e( 'Number of Rows', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
@@ -568,7 +580,7 @@ class WP_Table_Reloaded_Admin {
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table[description]"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><textarea name="table[description]" id="table[description]" style="width:250px;height:85px;"><?php echo $this->safe_output( $table['description'] ); ?></textarea></td>
+            <td><textarea name="table[description]" id="table[description]" rows="15" cols="40" style="width:250px;height:85px;"><?php echo $this->safe_output( $table['description'] ); ?></textarea></td>
         </tr>
         </table>
         </div>
@@ -756,7 +768,7 @@ class WP_Table_Reloaded_Admin {
         </tr>
         <tr valign="top" class="tr-import-data">
             <th scope="row" style="vertical-align:top;"><label for="import_data"><?php _e( 'Paste data with Table to Import', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><textarea  name="import_data" id="import_data" style="width:600px;height:300px;"></textarea></td>
+            <td><textarea  name="import_data" id="import_data" rows="15" cols="40" style="width:600px;height:300px;"></textarea></td>
         </tr>
         </table>
         <input type="hidden" name="action" value="import" />
@@ -890,7 +902,7 @@ class WP_Table_Reloaded_Admin {
         <input type="submit" name="submit" class="button-primary" value="<?php _e( 'Export Table', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
         </p>
         <?php if ( false != $output ) { ?>
-        <textarea style="width:600px;height:300px;"><?php echo htmlspecialchars( $output ); ?></textarea>
+        <textarea rows="15" cols="40" style="width:600px;height:300px;"><?php echo htmlspecialchars( $output ); ?></textarea>
         <?php } ?>
         </form>
         </div>
@@ -921,7 +933,7 @@ class WP_Table_Reloaded_Admin {
         <table class="wp-table-reloaded-options">
         <tr valign="top" id="options_uninstall">
             <th scope="row"><?php _e( 'Uninstall Plugin upon Deactivation?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
-            <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin! Otherwise everything will be deleted upon an automatic update of the plugin by WordPress!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+            <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin from the WordPress plugins page! It has no effect on the "Manually Uninstall Plugin" button below!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
         <tr valign="top">
             <th scope="row"><?php _e( 'Enable Tablesorter-JavaScript?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
@@ -942,9 +954,9 @@ class WP_Table_Reloaded_Admin {
         </form>
         </div>
 
-        <h2><?php _e( 'Uninstall Plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></h2>
+        <h2><?php _e( 'Manually Uninstall Plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></h2>
         <div style="clear:both;">
-            <p><?php _e( 'You may uninstall the plugin here. This will delete all tables, data, options, etc., that belong to the plugin, including all tables you added or imported.<br/> Be very careful with this and only click the button if you know what you are doing!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+            <p><?php _e( 'You may uninstall the plugin here. This <strong>will delete</strong> all tables, data, options, etc., that belong to the plugin, including all tables you added or imported.<br/> Be very careful with this and only click the button if you know what you are doing!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
         <?php
             $uninstall_url = $this->get_action_url( array( 'action' => 'uninstall' ), true );
             echo " <a class=\"button-secondary delete\" href=\"{$uninstall_url}\" onclick=\"javascript:if ( confirm( '".__( 'Do you really want to uninstall the plugin and delete ALL data?', WP_TABLE_RELOADED_TEXTDOMAIN )."' ) ) { return confirm( '".__( 'Are you really sure?', WP_TABLE_RELOADED_TEXTDOMAIN )."' ); } else { return false; }\">" . __( 'Uninstall Plugin WP-Table Reloaded', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
@@ -1146,8 +1158,13 @@ class WP_Table_Reloaded_Admin {
         $this->options = get_option( $this->optionname['options'] );
    		$this->tables = get_option( $this->optionname['tables'] );
         if ( false !== $this->options && isset( $this->options['uninstall_upon_deactivation'] ) ) {
-            if ( true == $this->options['uninstall_upon_deactivation'] )
-                $this->plugin_uninstall();
+            if ( true == $this->options['uninstall_upon_deactivation'] ) {
+                // delete all options and tables
+                foreach ( $this->tables as $id => $tableoptionname )
+                    delete_option( $tableoptionname );
+                delete_option( $this->optionname['tables'] );
+                delete_option( $this->optionname['options'] );
+            }
         }
     }
 
@@ -1184,16 +1201,6 @@ class WP_Table_Reloaded_Admin {
             $new_table['options'] = array_intersect_key( $new_table['options'], $this->default_table['options'] );
             $this->save_table( $new_table );
         }
-    }
-
-    // ###################################################################################################################
-    function plugin_uninstall() {
-        // delete all options and tables
-        foreach ( $this->tables as $id => $tableoptionname ) {
-            delete_option( $tableoptionname );
-        }
-        delete_option( $this->optionname['tables'] );
-        delete_option( $this->optionname['options'] );
     }
     
     // ###################################################################################################################
