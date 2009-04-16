@@ -170,7 +170,16 @@ JSSCRIPT;
         $cssfile =  'global-frontend-style.css';
         if ( file_exists( dirname ( __FILE__ ) . '/css/' . $cssfile ) ) {
             wp_enqueue_style( 'wp-table-reloaded-global-css', WP_PLUGIN_URL . '/' . basename( dirname( __FILE__ ) ) . '/css/' . $cssfile );
+            // WP < 2.7 does not contain call to add_action( 'wp_head', 'wp_print_styles' ) in default-filters.php (Core Trac Ticket #7720)
+            if ( false == has_action( 'wp_head', 'wp_print_styles' ) )
+                add_action( 'wp_head', array( &$this, 'print_style' ) );
         }
+    }
+
+    // ###################################################################################################################
+    // print our style in wp-head (only done in WP < 2.7)
+    function print_style() {
+        wp_print_styles( 'wp-table-reloaded-global-css' );
     }
 
 } // class WP_Table_Reloaded_Frontend
