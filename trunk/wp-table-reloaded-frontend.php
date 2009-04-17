@@ -144,7 +144,8 @@ class WP_Table_Reloaded_Frontend {
                 $output .= '<span class="wp-table-reloaded-table-description">' . $this->safe_output( $table['description'] ) . "</span>\n";
 
             $widgets = ( true == $table['options']['alternating_row_colors'] ) ? "{widgets: ['zebra']}" : '';
-            if ( true == $table['options']['use_tablesorter'] ) {
+            
+            if ( true == $table['options']['use_tablesorter'] && true == $table['options']['first_row_th'] && true == $this->options['enable_tablesorter'] ) {
                 $output .= <<<JSSCRIPT
 <script type="text/javascript">
 jQuery(document).ready(function($){
@@ -174,7 +175,10 @@ JSSCRIPT;
     // ###################################################################################################################
     // enqueue global-css-file, if it exists, may be modified by user
     function add_head_global_css() {
-        $cssfile =  'global-frontend-style.css';
+    
+        // load css filename from options, if option doesnt exist, use default
+        $cssfile = ( isset( $this->options['css_filename'] ) && !empty( $this->options['css_filename'] ) ) ? $this->options['css_filename'] : 'example-style.css';
+        
         if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'css/' . $cssfile ) ) {
             if ( function_exists( 'wp_enqueue_style' ) ) {
                 wp_enqueue_style( 'wp-table-reloaded-global-css', WP_TABLE_RELOADED_URL . 'css/' . $cssfile );

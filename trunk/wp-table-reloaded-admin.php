@@ -33,6 +33,7 @@ class WP_Table_Reloaded_Admin {
         'uninstall_upon_deactivation' => false,
         'enable_tablesorter' => true,
         'use_global_css' => true,
+        'css_filename' => 'example-style.css',
         'last_id' => 0
     );
     var $default_tables = array();
@@ -417,6 +418,7 @@ class WP_Table_Reloaded_Admin {
             $this->options['uninstall_upon_deactivation'] = isset( $new_options['uninstall_upon_deactivation'] );
             $this->options['enable_tablesorter'] = isset( $new_options['enable_tablesorter'] );
             $this->options['use_global_css'] = isset( $new_options['use_global_css'] );
+            $this->options['css_filename'] = isset( $new_options['css_filename'] ) ? $new_options['css_filename'] : $this->options['css_filename'];
             $this->update_options();
 
             $this->print_success_message( __( 'Options saved successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
@@ -687,7 +689,7 @@ class WP_Table_Reloaded_Admin {
             <th scope="row"><?php _e( 'Alternating row colors', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="table[options][alternating_row_colors]" id="table[options][alternating_row_colors]"<?php echo ( true == $table['options']['alternating_row_colors'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][alternating_row_colors]"><?php _e( 'Every second row will have an alternating background color.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
-        <tr valign="top">
+        <tr valign="top" id="options_use_tableheadline">
             <th scope="row"><?php _e( 'Use Table Headline', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="table[options][first_row_th]" id="table[options][first_row_th]"<?php echo ( true == $table['options']['first_row_th'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][first_row_th]"><?php _e( 'The first row of your table will use the [th] tag.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
@@ -699,14 +701,14 @@ class WP_Table_Reloaded_Admin {
             <th scope="row"><?php _e( 'Print Table Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="table[options][print_description]" id="table[options][print_description]"<?php echo ( true == $table['options']['print_description'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="table[options][print_description]"><?php _e( 'The Table Description will be written under the table.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
-        <tr valign="top">
+        <tr valign="top" id="options_use_tablesorter">
             <th scope="row"><?php _e( 'Use Tablesorter', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
-            <td><input type="checkbox" name="table[options][use_tablesorter]" id="table[options][use_tablesorter]"<?php echo ( true == $table['options']['use_tablesorter'] ) ? ' checked="checked"': '' ;?><?php echo ( false == $this->options['enable_tablesorter'] ) ? ' disabled="disabled"': '' ;?> value="true" /> <label for="table[options][use_tablesorter]"><?php _e( 'You may sort a table using the <a href="http://www.tablesorter.com/">Tablesorter-jQuery-Plugin</a>. <small>Attention: You must have Tablesorter enabled on the "Plugin Options" page and the option "Use Table Headline" has to be enabled above for this to work!</small>', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+            <td><input type="checkbox" name="table[options][use_tablesorter]" id="table[options][use_tablesorter]"<?php echo ( true == $table['options']['use_tablesorter'] ) ? ' checked="checked"': '' ;?><?php echo ( false == $this->options['enable_tablesorter'] || false == $table['options']['first_row_th'] ) ? ' disabled="disabled"': '' ;?> value="true" /> <label for="table[options][use_tablesorter]"><?php _e( 'You may sort a table using the <a href="http://www.tablesorter.com/">Tablesorter-jQuery-Plugin</a>. <small>Attention: You must have Tablesorter enabled on the "Plugin Options" page and the option "Use Table Headline" has to be enabled above for this to work!</small>', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
         </table>
         </div>
         </div>
-                
+        <input type="hidden" id="tablesorter_enabled" value="<?php echo $this->options['enable_tablesorter']; ?>" />
         <input type="hidden" name="table[id]" value="<?php echo $table['id']; ?>" />
         <input type="hidden" name="action" value="edit" />
         <p class="submit">
@@ -932,21 +934,50 @@ class WP_Table_Reloaded_Admin {
         <div style="clear:both;">
         <form method="post" action="<?php echo $this->get_action_url(); ?>">
         <?php wp_nonce_field( $this->get_nonce( 'options' ) ); ?>
-
+        <div class="postbox">
+<h3 class="hndle"><span><?php _e( 'Frontend Options', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+<div class="inside">
         <table class="wp-table-reloaded-options">
-        <tr valign="top" id="options_uninstall">
-            <th scope="row"><?php _e( 'Uninstall Plugin upon Deactivation?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
-            <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin from the WordPress plugins page! It has no effect on the "Manually Uninstall Plugin" button below!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
-        </tr>
         <tr valign="top">
             <th scope="row"><?php _e( 'Enable Tablesorter-JavaScript?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="options[enable_tablesorter]" id="options[enable_tablesorter]"<?php echo ( true == $this->options['enable_tablesorter'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[enable_tablesorter]"><?php _e( 'Yes, enable <a href="http://www.tablesorter.com/">Tablesorter-jQuery-Plugin</a> to be used to make table sortable (can be changed for every table separatly).', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
-        <tr valign="top">
+        <tr valign="top" id="options_use_global_css">
             <th scope="row"><?php _e( 'Use global CSS-file?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
-            <td><input type="checkbox" name="options[use_global_css]" id="options[use_global_css]"<?php echo ( true == $this->options['use_global_css'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[use_global_css]"><?php _e( 'Yes, load the global CSS-file wp-table-reloaded.css, which contains basic styles and graphics for the Tablesorter. (File "global-frontend-style.css" in subfolder "css")', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+            <td><input type="checkbox" name="options[use_global_css]" id="options[use_global_css]"<?php echo ( true == $this->options['use_global_css'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[use_global_css]"><?php _e( 'Yes, load a CSS-file, which contains basic styles for the table. The CSS-files must be located in subfolder "css". To change styles, please copy the file "example-style.css", edit the copied file with your style changes and place it in the same folder. You may then select it below. ', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
+        <tr valign="top" id="options_css_filename">
+            <th scope="row">&nbsp;</th>
+            <td><label for="options[css_filename]"><?php _e( 'Select CSS file to use', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label><select id="options[css_filename]"<?php echo ( false == $this->options['use_global_css'] ) ? ' disabled="disabled"': '' ;?> name="options[css_filename]">
+        <?php
+            // get all files the extension ".css" from the css-subfolder,
+            // remove all folders and unwanted css-files and print them in a select-list
+            $directory = scandir( WP_TABLE_RELOADED_ABSPATH . 'css/' );
+            $directory = array_diff( $directory, array( '.', '..', 'admin-style.css' ) ); // remove ., .., and admin-style.css from the array
+            foreach ($directory as $key => $filename ) {
+                $extension = substr( $filename, strrpos( $filename, '.' ) + 1 );
+                if( ( 'css' == $extension ) && !is_dir( WP_TABLE_RELOADED_ABSPATH . 'css/' . $filename ) )
+                    echo "<option" . ( ( $filename == $this->options['css_filename'] ) ? ' selected="selected"': '' ) . " value=\"{$filename}\">{$filename}</option>";
+            }
+        ?>
+        </select> <?php _e( '(These files are located in the subfolder "css" of the plugin folder.)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></td>
         </tr>
         </table>
+        </div
+        </div>
+        
+                <div class="postbox">
+<h3 class="hndle"><span><?php _e( 'Admin Options', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+<div class="inside">
+<table class="wp-table-reloaded-options">
+        <tr valign="top" id="options_uninstall">
+            <th scope="row"><?php _e( 'Uninstall Plugin upon Deactivation?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
+            <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin from the WordPress plugins page! (It does not influence the "Manually Uninstall Plugin" button below!)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
+        </tr>
+        </table>
+</div>
+</div>
+
         <input type="hidden" name="options[installed_version]" value="<?php echo $this->options['installed_version']; ?>" />
         <input type="hidden" name="options[last_id]" value="<?php echo $this->options['last_id']; ?>" />
         <input type="hidden" name="action" value="options" />
@@ -1000,7 +1031,6 @@ class WP_Table_Reloaded_Admin {
         echo "<div class='wrap'>
               <h2>{$text}</h2>
               <div id='poststuff'>";
-              
     }
 
     // ###################################################################################################################
@@ -1195,6 +1225,12 @@ class WP_Table_Reloaded_Admin {
         $new_options = array_intersect_key( $new_options, $this->default_options );
         // 3. step: update installed version number
         $new_options['installed_version'] = $this->plugin_version;
+        
+        // 3b., take care of css filename (added in version 1.0)
+        $old_global_css = 'global-frontend-style.css';
+        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'css/' . $old_global_css ) && !isset( $this->options['css_filename'] ) )
+            $new_options['css_filename'] = $old_global_css;
+        
         // 4. step: save the new options
         $this->options = $new_options;
         $this->update_options();
@@ -1221,9 +1257,9 @@ class WP_Table_Reloaded_Admin {
     // ###################################################################################################################
     // enqueue javascript-file, with some jQuery stuff
     function add_manage_page_js() {
-        $jsfile =  'admin.js';
-        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'js/' . $jsfile ) ) {
-            wp_enqueue_script( 'wp-table-reloaded-admin-js', WP_TABLE_RELOADED_URL . 'js/' . $jsfile, array( 'jquery' ) );
+        $jsfile =  'admin-script.js';
+        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'admin/' . $jsfile ) ) {
+            wp_enqueue_script( 'wp-table-reloaded-admin-js', WP_TABLE_RELOADED_URL . 'admin/' . $jsfile, array( 'jquery' ) );
         }
     }
 
@@ -1231,9 +1267,9 @@ class WP_Table_Reloaded_Admin {
     // enqueue css-stylesheet-file for admin, if it exists
     function add_manage_page_css() {
         $cssfile =  'admin-style.css';
-        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'css/' . $cssfile ) ) {
+        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'admin/' . $cssfile ) ) {
             if ( function_exists( 'wp_enqueue_style' ) ) {
-                wp_enqueue_style( 'wp-table-reloaded-admin-css', WP_TABLE_RELOADED_URL . 'css/' . $cssfile );
+                wp_enqueue_style( 'wp-table-reloaded-admin-css', WP_TABLE_RELOADED_URL . 'admin/' . $cssfile );
             } else {
                 add_action( 'admin_head', array( &$this, 'print_styles' ) );
             }
@@ -1244,7 +1280,7 @@ class WP_Table_Reloaded_Admin {
     // print our style in wp-admin-head (only needed for WP < 2.6)
     function print_styles() {
         $cssfile =  'admin-style.css';
-        echo "<link rel='stylesheet' href='" . WP_TABLE_RELOADED_URL . 'css/' . $cssfile . "' type='text/css' media='' />\n";
+        echo "<link rel='stylesheet' href='" . WP_TABLE_RELOADED_URL . 'admin/' . $cssfile . "' type='text/css' media='' />\n";
     }
 
 } // class WP_Table_Reloaded_Admin

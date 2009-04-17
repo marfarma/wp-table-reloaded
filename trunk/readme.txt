@@ -63,7 +63,7 @@ In short: WordPress 2.5 or higher
 The plugin currently includes the following languages:
 English (by me, German (by me), Turkish (thanks to Semih) and Swedish (thanks to ZuperZed).
 
-I'd really appreciate it, if you want to translate the plugin into your language! Using Heiko Rabe's WordPress plugin [Codestyling Localization](http://www.code-styling.de/english/development/wordpress-plugin-codestyling-localization-en) that really is as easy as pie. Just install the plugin, add your language, create the .po-file, translate the strings in the comfortable editor and create the .mo-file. It will automatically be saved in WP-Table Reloaded's plugin folder. If you send me the .mo- and .po-file, I will gladly include them into future plugin releases.
+I'd really appreciate it, if you would translate the plugin into your language! Using Heiko Rabe's WordPress plugin [Codestyling Localization](http://www.code-styling.de/english/development/wordpress-plugin-codestyling-localization-en) that really is as easy as pie. Just install the plugin, add your language, create the .po-file, translate the strings in the comfortable editor and create the .mo-file. It will automatically be saved in WP-Table Reloaded's plugin folder. If you send me the .mo- and .po-file, I will gladly include them into future plugin releases.
 
 = Where can I get more information? =
 
@@ -92,7 +92,7 @@ I kindly ask you for link somewhere on your website http://tobias.baethge.com/. 
 
 == Changelog ==
 
-* 0.9.3-beta: Language files, more import/export, shortcode supported in text widgets
+* 1.0-beta: Language files, more import/export, shortcode supported in text widgets
 * 0.9.2: fixed bug with plugin deactivation hook, added missing css-file
 * 0.9.1: first good release with all mentioned functions working well
 * 0.9 beta 1b: small bug which prevented showing of tables (but still not everything implemented)
