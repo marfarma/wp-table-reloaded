@@ -3,7 +3,7 @@
 File Name: WP-Table Reloaded - Admin Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
 Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "WP-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 0.9.3-beta2
+Version: 1.0
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -11,7 +11,7 @@ Author URI: http://tobias.baethge.com/
 class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
-    var $plugin_version = '0.9.3-beta2';
+    var $plugin_version = '1.0';
     // nonce for security of links/forms, try to prevent "CSRF"
     var $nonce_base = 'wp-table-reloaded-nonce';
     // names for the options which are stored in the WP database
@@ -109,6 +109,8 @@ class WP_Table_Reloaded_Admin {
     // ##########################################                   ######################################################
     // ##########################################      ACTIONS      ######################################################
     // ##########################################                   ######################################################
+    // ###################################################################################################################
+
     // ###################################################################################################################
     // list all tables
     function do_action_list()  {
@@ -456,6 +458,7 @@ class WP_Table_Reloaded_Admin {
     // ##########################################                     ####################################################
     // ###################################################################################################################
 
+    // ###################################################################################################################
     // list all tables
     function print_list_tables_form()  {
         $this->print_page_header( __( 'List of Tables', WP_TABLE_RELOADED_TEXTDOMAIN ) );
@@ -522,10 +525,9 @@ class WP_Table_Reloaded_Admin {
         $this->print_page_header( __( 'Add new Table', WP_TABLE_RELOADED_TEXTDOMAIN ) );
         $this->print_submenu_navigation( 'add' );
         ?>
-        <p></p>
-        <div style="clear:both;"><p>
-        <?php _e( 'You can add a new table here. Just enter it\'s name, a description (optional) and the number of rows and columns.<br/>You may add, insert or delete rows and columns later.', WP_TABLE_RELOADED_TEXTDOMAIN ) ?><br />
-		</p></div>
+        <div style="clear:both;">
+        <p><?php _e( 'You can add a new table here. Just enter it\'s name, a description (optional) and the number of rows and columns.<br/>You may add, insert or delete rows and columns later.', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></p>
+        </div>
 		<div style="clear:both;">
         <form method="post" action="<?php echo $this->get_action_url(); ?>">
         <?php wp_nonce_field( $this->get_nonce( 'add' ) ); ?>
@@ -533,11 +535,11 @@ class WP_Table_Reloaded_Admin {
         <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><label for="table[name]"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><input type="text" name="table[name]" value="<?php echo _c( 'Enter Table Name|Default Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" style="width:250px;" /></td>
+            <td><input type="text" name="table[name]" value="<?php _e( 'Enter Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" style="width:250px;" /></td>
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table[description]"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><textarea name="table[description]" id="table[description]" rows="15" cols="40" style="width:250px;height:85px;"><?php echo _c( 'Enter Description|Default Table Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></textarea></td>
+            <td><textarea name="table[description]" id="table[description]" rows="15" cols="40" style="width:250px;height:85px;"><?php _e( 'Enter Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></textarea></td>
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table[rows]"><?php _e( 'Number of Rows', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
@@ -570,14 +572,16 @@ class WP_Table_Reloaded_Admin {
 
         $this->print_page_header( __( sprintf( 'Edit Table "%s"', $this->safe_output( $table['name'] ) ), WP_TABLE_RELOADED_TEXTDOMAIN ) );
         $this->print_submenu_navigation( 'edit' );
-        ?><div style="clear:both;"><p><?php _e( 'You may edit the content of the table here. It is also possible to add or delete columns and rows.', WP_TABLE_RELOADED_TEXTDOMAIN ) ?><br />
+
+        ?>
+        <div style="clear:both;"><p><?php _e( 'You may edit the content of the table here. It is also possible to add or delete columns and rows.', WP_TABLE_RELOADED_TEXTDOMAIN ) ?><br />
 		<?php _e( sprintf( 'If you want to show a table in your pages, posts or text-widgets, use this shortcode: <strong>[table id=%s /]</strong>', $this->safe_output( $table_id ) ), WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p></div>
         <form method="post" action="<?php echo $this->get_action_url(); ?>">
         <?php wp_nonce_field( $this->get_nonce( 'edit' ) ); ?>
 
         <div class="postbox">
-<h3 class="hndle"><span><?php _e( 'Table Information', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
-<div class="inside">
+        <h3 class="hndle"><span><?php _e( 'Table Information', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+        <div class="inside">
         <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><label for="table[name]"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
@@ -592,10 +596,9 @@ class WP_Table_Reloaded_Admin {
         </div>
 
         <?php if ( 0 < $cols && 0 < $rows ) { ?>
-                <div class="postbox">
-<h3 class="hndle"><span><?php _e( 'Table Contents', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
-<div class="inside">
-<!--        <h3><?php _e( 'Table Contents', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></h3>-->
+            <div class="postbox">
+            <h3 class="hndle"><span><?php _e( 'Table Contents', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+            <div class="inside">
             <table class="widefat" style="width:auto;">
                 <thead>
                     <tr>
@@ -650,40 +653,49 @@ class WP_Table_Reloaded_Admin {
         </div>
         <?php } //endif ?>
         <div style="clear:both;">
-        <?php if ( 1 < $rows ) { // swap rows form?>
-            <?php _e( 'Swap rows', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
-            <select name="swap[row][1]">
-            <?php   foreach ( $table['data'] as $row_idx => $table_row )
-                       echo "<option value=\"{$row_idx}\">" . ( $row_idx + 1 ) . "</option>"; ?>
-            </select>
-            <?php _e( 'and', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
-            <select name="swap[row][2]">
-            <?php   foreach ( $table['data'] as $row_idx => $table_row )
-                      echo "<option value=\"{$row_idx}\">" . ( $row_idx + 1 ) . "</option>"; ?>
-            </select>
+        <?php if ( 1 < $rows ) { // swap rows form
+
+            $row1_select = '<select name="swap[row][1]">';
+            foreach ( $table['data'] as $row_idx => $table_row )
+                       $row1_select .= "<option value=\"{$row_idx}\">" . ( $row_idx + 1 ) . "</option>";
+            $row1_select .= '</select>';
+
+            $row2_select = '<select name="swap[row][2]">';
+            foreach ( $table['data'] as $row_idx => $table_row )
+                      $row2_select .=  "<option value=\"{$row_idx}\">" . ( $row_idx + 1 ) . "</option>";
+            $row2_select .= '</select>';
+            
+            echo sprintf( __( 'Swap rows %s and %s', WP_TABLE_RELOADED_TEXTDOMAIN ), $row1_select, $row2_select );
+
+            ?>
             <input type="submit" name="submit[swap_rows]" class="button-primary" value="<?php _e( 'Swap', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
         <?php } // end if form swap rows ?>
 
         <?php if ( 1 < $cols ) { // swap cols form ?>
             <br/>
-            <?php _e( 'Swap columns', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
-            <select name="swap[col][1]">
-            <?php   foreach ( $table['data'][0] as $col_idx => $cell_content )
-                echo "<option value=\"{$col_idx}\">" . ( chr( ord( 'A' ) + $col_idx ) ) . "</option>"; ?>
-            </select>
-            <?php _e( 'and', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
-            <select name="swap[col][2]">
-            <?php   foreach ( $table['data'][0] as $col_idx => $cell_content )
-                        echo "<option value=\"{$col_idx}\">" . ( chr( ord( 'A' ) + $col_idx ) ) . "</option>"; ?>
-            </select>
+            <?php
+            
+            $col1_select = '<select name="swap[col][1]">';
+            foreach ( $table['data'][0] as $col_idx => $cell_content )
+                $col1_select .= "<option value=\"{$col_idx}\">" . ( chr( ord( 'A' ) + $col_idx ) ) . "</option>";
+            $col1_select .= '</select>';
+
+            $col2_select = '<select name="swap[col][2]">';
+            foreach ( $table['data'][0] as $col_idx => $cell_content )
+                $col2_select .= "<option value=\"{$col_idx}\">" . ( chr( ord( 'A' ) + $col_idx ) ) . "</option>";
+            $col2_select .= '</select>';
+
+            echo sprintf( __( 'Swap columns %s and %s', WP_TABLE_RELOADED_TEXTDOMAIN ), $col1_select, $col2_select );
+
+            ?>
             <input type="submit" name="submit[swap_cols]" class="button-primary" value="<?php _e( 'Swap', WP_TABLE_RELOADED_TEXTDOMAIN ) ?>" />
         <?php } // end if form swap cols ?>
         </div>
         <br/>
         <div class="postbox">
-<!--<div title="<?php //_ //_( 'Click to toggle', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" class="handlediv"><br/></div>--><h3 class="hndle"><span><?php _e( 'Table Settings', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
-<div class="inside">
-             <p><?php _e( 'These settings will only be used for this table.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        <h3 class="hndle"><span><?php _e( 'Table Settings', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+        <div class="inside">
+        <p><?php _e( 'These settings will only be used for this table.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
         <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><?php _e( 'Alternating row colors', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
@@ -737,7 +749,7 @@ class WP_Table_Reloaded_Admin {
         $this->print_submenu_navigation( 'import' );
         ?>
         <div style="clear:both;">
-            <p><?php _e( 'You may import a table from existing data here.<br/>It may be a CSV, XML oder HTML file. It needs a certrain structure though. Please consult the documentation.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        <p><?php _e( 'You may import a table from existing data here.<br/>It may be a CSV, XML oder HTML file. It needs a certrain structure though. Please consult the documentation.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
         </div>
         <div style="clear:both;">
         <form method="post" enctype="multipart/form-data" action="<?php echo $this->get_action_url(); ?>">
@@ -855,7 +867,7 @@ class WP_Table_Reloaded_Admin {
         $this->print_submenu_navigation( 'export' );
         ?>
         <div style="clear:both;">
-            <p><?php _e( 'You may export a table here. Just select the table, your desired export format and a delimiter (needed for CSV only).<br/>You may opt to download the export file. Otherwise it will be shown on this page.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        <p><?php _e( 'You may export a table here. Just select the table, your desired export format and a delimiter (needed for CSV only).<br/>You may opt to download the export file. Otherwise it will be shown on this page.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
         </div>
         <?php if( 0 < count( $this->tables ) ) { ?>
         <div style="clear:both;">
@@ -928,7 +940,7 @@ class WP_Table_Reloaded_Admin {
         $this->print_submenu_navigation( 'options' );
         ?>
         <div style="clear:both;">
-            <p><?php _e( 'You may change these global options.<br/>They will effect all tables or the general plugin behaviour.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        <p><?php _e( 'You may change these global options.<br/>They will effect all tables or the general plugin behaviour.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
         </div>
 
         <div style="clear:both;">
@@ -966,17 +978,17 @@ class WP_Table_Reloaded_Admin {
         </div
         </div>
         
-                <div class="postbox">
-<h3 class="hndle"><span><?php _e( 'Admin Options', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
-<div class="inside">
-<table class="wp-table-reloaded-options">
+        <div class="postbox">
+        <h3 class="hndle"><span><?php _e( 'Admin Options', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+        <div class="inside">
+        <table class="wp-table-reloaded-options">
         <tr valign="top" id="options_uninstall">
             <th scope="row"><?php _e( 'Uninstall Plugin upon Deactivation?', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</th>
             <td><input type="checkbox" name="options[uninstall_upon_deactivation]" id="options[uninstall_upon_deactivation]"<?php echo ( true == $this->options['uninstall_upon_deactivation'] ) ? ' checked="checked"': '' ;?> value="true" /> <label for="options[uninstall_upon_deactivation]"><?php _e( 'Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin from the WordPress plugins page! (It does not influence the "Manually Uninstall Plugin" button below!)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></label></td>
         </tr>
         </table>
-</div>
-</div>
+        </div>
+        </div>
 
         <input type="hidden" name="options[installed_version]" value="<?php echo $this->options['installed_version']; ?>" />
         <input type="hidden" name="options[last_id]" value="<?php echo $this->options['last_id']; ?>" />
@@ -1006,10 +1018,47 @@ class WP_Table_Reloaded_Admin {
         $this->print_page_header( __( 'Information about the plugin', WP_TABLE_RELOADED_TEXTDOMAIN ) );
         $this->print_submenu_navigation( 'info' );
         ?>
+
         <div style="clear:both;">
-            <p><?php _e( 'This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
-            <p><?php _e( 'More information can be found on the <a href="http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/">plugin\'s website</a>. A documentation and certain support and help request possibilities will be available soon.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
-            <p><?php _e( 'This plugin was written by <a href="http://tobias.baethge.com/">Tobias B&auml;thge</a>. It is licenced as Free Software under GPL 2.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        <div class="postbox">
+        <h3 class="hndle"><span><?php _e( 'Plugin Purpose', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+        <div class="inside">
+        <p><?php _e( 'This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        </div>
+        </div>
+
+        <div class="postbox">
+        <h3 class="hndle"><span><?php _e( 'Usage', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+        <div class="inside">
+        <p><?php _e( 'At first you should add or import a table. Then edit your data and select the options you want. To include the table into your posts, pages or text widgets, write the shortcode [table id=&lt;table-id&gt;] into them. You may then style your table via CSS. Every table has the CSS-class "wp-table-reloaded". A table also has the class "wp-table-reloaded-&lt;table-id&gt;". You can also use the classes "column-&lt;number&gt;" and "row-&lt;number&gt;" to style rows and columns individually. Use this to style columns width and text alignment.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        </div>
+        </div>
+        <div class="postbox">
+        <h3 class="hndle"><span><?php _e( 'More Information and Documentation', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+        <div class="inside">
+        <p><?php _e( 'More information can be found on the <a href="http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/">plugin\'s website</a> or on its page in the <a href="http://wordpress.org/extend/plugins/wp-table-reloaded/">WordPress Plugin Directory</a>. A documentation and certain support and help request possibilities will be available soon.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        </div>
+        </div>
+
+        <div class="postbox">
+        <h3 class="hndle"><span><?php _e( 'Author and Licence', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+        <div class="inside">
+        <p><?php _e( 'This plugin was written by <a href="http://tobias.baethge.com/">Tobias B&auml;thge</a>. It is licenced as Free Software under GPL 2.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/><?php _e( 'If you like the plugin, please consider <a href="http://tobias.baethge.com/wordpress-plugins/donate/">donating</a> or rating it at the <a href="http://wordpress.org/extend/plugins/wp-table-reloaded/">WordPress Plugin Directory</a>. Thanks!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
+        </div>
+        </div>
+
+        <div class="postbox">
+        <h3 class="hndle"><span><?php _e( 'Credits and Thanks', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
+        <div class="inside">
+        <p>
+            <?php _e( 'Thanks go to <a href="http://alexrabe.boelinger.com/">Alex Rabe</a> for the original WP-Table plugin,', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
+            <?php _e( 'Christian Bach for the <a href="http://www.tablesorter.com/">Tablesorter-jQuery-Plugin</a>,', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
+            <?php _e( 'the submitters of translations: <br/>&middot; Turkish (thanks to <a href="http://www.wpuzmani.com/">Semih</a>)<br/>&middot; Swedish (thanks to <a href="http://www.zuperzed.se/">ZuperZed</a>)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
+            <?php _e( 'and all contributors, supporters, reviewers and users of the plugin!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+        </p>
+        </div>
+        </div>
+
         </div>
         <?php
         $this->print_page_footer();
@@ -1159,9 +1208,8 @@ class WP_Table_Reloaded_Admin {
     function create_class_instance( $class, $file) {
         if ( !class_exists( $class ) ) {
             include_once ( WP_TABLE_RELOADED_ABSPATH . 'php/' . $file );
-            if ( class_exists( $class ) )  {
+            if ( class_exists( $class ) )
                 return new $class;
-            }
         }
     }
 
@@ -1170,9 +1218,8 @@ class WP_Table_Reloaded_Admin {
         // load options and table information from database, if not available: default
 		$this->options = get_option( $this->optionname['options'] );
 		$this->tables = get_option( $this->optionname['tables'] );
-        if ( false === $this->options || false === $this->tables ) {
+        if ( false === $this->options || false === $this->tables )
             $this->plugin_install();
-        }
     }
 
     // ###################################################################################################################
@@ -1258,9 +1305,8 @@ class WP_Table_Reloaded_Admin {
     // enqueue javascript-file, with some jQuery stuff
     function add_manage_page_js() {
         $jsfile =  'admin-script.js';
-        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'admin/' . $jsfile ) ) {
+        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'admin/' . $jsfile ) )
             wp_enqueue_script( 'wp-table-reloaded-admin-js', WP_TABLE_RELOADED_URL . 'admin/' . $jsfile, array( 'jquery' ) );
-        }
     }
 
     // ###################################################################################################################
@@ -1268,11 +1314,10 @@ class WP_Table_Reloaded_Admin {
     function add_manage_page_css() {
         $cssfile =  'admin-style.css';
         if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'admin/' . $cssfile ) ) {
-            if ( function_exists( 'wp_enqueue_style' ) ) {
+            if ( function_exists( 'wp_enqueue_style' ) )
                 wp_enqueue_style( 'wp-table-reloaded-admin-css', WP_TABLE_RELOADED_URL . 'admin/' . $cssfile );
-            } else {
+            else
                 add_action( 'admin_head', array( &$this, 'print_styles' ) );
-            }
         }
     }
 

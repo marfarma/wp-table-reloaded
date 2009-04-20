@@ -1,8 +1,22 @@
-/* Global CSS definitions for WP-Table Reloaded
-inspired by "blue" theme of Tablesorter 2.0 Plugin
-(won't be used unless option checked on plugin-options-screen!) */
-/* on how to change column widths, see below */
+/************************************************
+*                                               *
+* This CSS file contains EXAMPLE styles for the *
+*   plugin WP-Table Reloaded by Tobias Bäthge!  *
+*                                               * 
+*    PLEASE DO NOT MODIFY THIS FILE DIRECTLY!   *
+* PLEASE COPY IT, THEN EDIT THE COPY AND SELECT *
+*     THE COPIED FILE IN THE PLUGIN OPTIONS!    *
+* OTHERWISE YOUR CHANGES MIGHT GET OVERWRITTEN  *
+*          WHEN UPDATING THE PLUGIN!            *
+*                                               *
+*                   Thank you!                  *
+*                                               *
+************************************************/
 
+/* Global CSS definitions for WP-Table Reloaded
+inspired by "blue" theme of TableSorter 2.0 Plugin */
+
+/* on how to change column widths, see below */
 
 /* general table styles */
 table.wp-table-reloaded {
@@ -62,8 +76,6 @@ table.wp-table-reloaded-5 .column-3
 }
 
 */
-
-
 
 
 /* Styles for the sorting (if Tablesorter is enabled) */

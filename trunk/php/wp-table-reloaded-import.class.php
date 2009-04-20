@@ -42,7 +42,7 @@ class WP_Table_Reloaded_Import {
             'html' => __( 'HTML - Hypertext Markup Language', TB_WP_TABLE_TEXTDOMAIN ),
             'xml' => __( 'XML - eXtended Markup Language', TB_WP_TABLE_TEXTDOMAIN )
             // don't have this show up in list, as handled in separate table
-            //'wp_table' => __( 'WP-Table plugin database', TB_WP_TABLE_TEXTDOMAIN )
+            //'wp_table' => _ _( 'WP-Table plugin database', TB_WP_TABLE_TEXTDOMAIN )
         );
     }
 
