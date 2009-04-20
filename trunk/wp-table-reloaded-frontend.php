@@ -194,7 +194,10 @@ JSSCRIPT;
     // ###################################################################################################################
     // print our style in wp-head (only needed for WP < 2.7)
     function print_styles() {
-        $cssfile =  'global-frontend-style.css';
+    
+        // load css filename from options, if option doesnt exist, use default
+        $cssfile = ( isset( $this->options['css_filename'] ) && !empty( $this->options['css_filename'] ) ) ? $this->options['css_filename'] : 'example-style.css';
+
         if ( function_exists( 'wp_print_styles' ) )
             wp_print_styles( 'wp-table-reloaded-global-css' );
         else
