@@ -13,14 +13,14 @@ This plugin allows you to create and manage tables in your WP's admin-area. You 
 This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "WP-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin. You may also have both plugins installed at the same time and you can also import your tables from the WP-Table plugin!
 
 = More information =
-Please see the plugin website http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/english/
+Please see the English plugin website http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/ .
 
 If you like this plugin, please rate it here in the WordPress Plugin Directory. Thank you!
 
 = Informationen auf Deutsch =
 Dieses Plugin erlaubt die Verwaltung von Tabellen in WordPress.
 
-Weitere Informationen auf Deutsch: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/deutsch/
+Weitere Informationen auf Deutsch: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-deutsch/
 
 Wenn die das Plugin gef&auml;llt, bewerte es bitte hier im WordPress Plugin Directory. Danke!
 
@@ -74,9 +74,9 @@ I'd really appreciate it, if you would translate the plugin into your language! 
 
 = Where can I get more information? =
 
-Please visit the [official plugin website](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/english/) for the latest information on this plugin.
+Please visit the [official plugin website](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/) for the latest information on this plugin.
 
-Die Webseite des Plugins ist auch [auf Deutsch](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/deutsch/) verf&uuml;gbar.
+Die Webseite des Plugins ist auch [auf Deutsch](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-deutsch/) verf&uuml;gbar.
 
 == Usage ==
 
