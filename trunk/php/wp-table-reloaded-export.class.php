@@ -27,14 +27,14 @@ class WP_Table_Reloaded_Export {
     function WP_Table_Reloaded_Export() {
         // initiate here, because function call __() not allowed outside function
         $this->export_formats = array(
-            'csv' => __( 'CSV - Character-Separated Values', TB_WP_TABLE_TEXTDOMAIN ),
-            'html' => __( 'HTML - Hypertext Markup Language', TB_WP_TABLE_TEXTDOMAIN ),
-            'xml' => __( 'XML - eXtended Markup Language', TB_WP_TABLE_TEXTDOMAIN )
+            'csv' => __( 'CSV - Character-Separated Values', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'html' => __( 'HTML - Hypertext Markup Language', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'xml' => __( 'XML - eXtended Markup Language', WP_TABLE_RELOADED_TEXTDOMAIN )
         );
         $this->delimiters = array(
-            ';' => __( '; (semicolon)', TB_WP_TABLE_TEXTDOMAIN ),
-            ',' => __( ', (comma)', TB_WP_TABLE_TEXTDOMAIN ),
-            ':' => __( ': (colon)', TB_WP_TABLE_TEXTDOMAIN )
+            ';' => __( '; (semicolon)', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            ',' => __( ', (comma)', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            ':' => __( ': (colon)', WP_TABLE_RELOADED_TEXTDOMAIN )
         );
     }
 

@@ -4,7 +4,7 @@ Donate link: http://tobias.baethge.com/donate/
 Tags: html,table,editor,csv,import,export,excel,widget,admin,sidebar
 Requires at least: 2.5
 Tested up to: 2.8
-Stable tag: 1.0
+Stable tag: 1.0.1
 	
 This plugin allows you to create and manage tables in your WP's admin-area. You can then show them in your posts, on pages or in text widgets by using a shortcode.
 

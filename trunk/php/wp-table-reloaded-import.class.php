@@ -33,16 +33,16 @@ class WP_Table_Reloaded_Import {
     function WP_Table_Reloaded_Import() {
         // initiate here, because function call __() not allowed outside function
         $this->delimiters = array(
-            ';' => __( '; (semicolon)', TB_WP_TABLE_TEXTDOMAIN ),
-            ',' => __( ', (comma)', TB_WP_TABLE_TEXTDOMAIN ),
-            ':' => __( ': (colon)', TB_WP_TABLE_TEXTDOMAIN )
+            ';' => __( '; (semicolon)', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            ',' => __( ', (comma)', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            ':' => __( ': (colon)', WP_TABLE_RELOADED_TEXTDOMAIN )
         );
         $this->import_formats = array(
-            'csv' => __( 'CSV - Character-Separated Values', TB_WP_TABLE_TEXTDOMAIN ),
-            'html' => __( 'HTML - Hypertext Markup Language', TB_WP_TABLE_TEXTDOMAIN ),
-            'xml' => __( 'XML - eXtended Markup Language', TB_WP_TABLE_TEXTDOMAIN )
+            'csv' => __( 'CSV - Character-Separated Values', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'html' => __( 'HTML - Hypertext Markup Language', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'xml' => __( 'XML - eXtended Markup Language', WP_TABLE_RELOADED_TEXTDOMAIN )
             // don't have this show up in list, as handled in separate table
-            //'wp_table' => _ _( 'WP-Table plugin database', TB_WP_TABLE_TEXTDOMAIN )
+            //'wp_table' => _ _( 'WP-Table plugin database', WP_TABLE_RELOADED_TEXTDOMAIN )
         );
     }
 
