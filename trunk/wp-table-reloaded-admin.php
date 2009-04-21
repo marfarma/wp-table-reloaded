@@ -11,7 +11,7 @@ Author URI: http://tobias.baethge.com/
 class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
-    var $plugin_version = '1.0';
+    var $plugin_version = '1.0.1';
     // nonce for security of links/forms, try to prevent "CSRF"
     var $nonce_base = 'wp-table-reloaded-nonce';
     // names for the options which are stored in the WP database
