@@ -1,0 +1,471 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Table Reloaded (sv_SE)\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-04-10 20:20+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: ZuperZed <info@zuperzed.se>\n"
+"Language-Team: www.zuperzed.se <info@zuperzed.se>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-Language: Swedish\n"
+"X-Poedit-Country: SWEDEN\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: D:/Hemsida/ZuperZed.se/wp-content/plugins/wp-table-reloaded\n"
+": "
+
+#: wp-table-reloaded-admin.php:123
+#, php-format
+msgid "Table \"%s\" added successfully."
+msgstr "Tabellen \"%s\" tillagd framgångsrikt."
+
+#: wp-table-reloaded-admin.php:146
+msgid "Table edited successfully."
+msgstr "Tabell redigerad framgångsrikt."
+
+#: wp-table-reloaded-admin.php:162
+msgid "Rows swapped successfully."
+msgstr "Rader bytte plats framgångsrikt."
+
+#: wp-table-reloaded-admin.php:181
+msgid "Columns swapped successfully."
+msgstr "Kolumner bytte plats framgångsrikt."
+
+#: wp-table-reloaded-admin.php:214
+#, php-format
+msgid "Table \"%s\" copied successfully."
+msgstr "Tabellen \"%s\" kopierades framgångsrikt."
+
+#: wp-table-reloaded-admin.php:233
+#, php-format
+msgid "Table \"%s\" deleted successfully."
+msgstr "Tabellen \"%s\" raderades framgångsrikt."
+
+#: wp-table-reloaded-admin.php:243
+msgid "Row deleted successfully."
+msgstr "Rad raderades framgångsrikt."
+
+#: wp-table-reloaded-admin.php:256
+msgid "Column deleted successfully."
+msgstr "Kolumn raderades framgångsrikt."
+
+#: wp-table-reloaded-admin.php:261
+msgid "Delete failed."
+msgstr "Radering misslyckades."
+
+#: wp-table-reloaded-admin.php:285
+msgid "Row inserted successfully."
+msgstr "Infoga rad lyckades."
+
+#: wp-table-reloaded-admin.php:294
+msgid "Column inserted successfully."
+msgstr "Infoga kolumn lyckades."
+
+#: wp-table-reloaded-admin.php:297
+msgid "Insert failed."
+msgstr "Infogning misslyckades."
+
+#: wp-table-reloaded-admin.php:327
+msgid "Table imported successfully."
+msgstr "Tabellimport lyckades."
+
+#: wp-table-reloaded-admin.php:347
+#, php-format
+msgid "Table \"%s\" exported successfully."
+msgstr "Tabellen \"%s\" exporterades framgångsrikt."
+
+#: wp-table-reloaded-admin.php:366
+msgid "Options saved successfully."
+msgstr "Ändringarna sparades framgångsrikt."
+
+#: wp-table-reloaded-admin.php:375
+msgid "Plugin uninstalled successfully."
+msgstr "Tillägget avinstallerades framgångsrikt."
+
+#: wp-table-reloaded-admin.php:391
+msgid "List of Tables"
+msgstr "Tabellista"
+
+#: wp-table-reloaded-admin.php:394
+msgid "This is a list of all available tables. You may add, edit, copy or delete tables here."
+msgstr "Detta är en lista över alla tillgängliga tabeller. Du kan lägga till, redigera, kopiera eller radera tabeller här."
+
+#: wp-table-reloaded-admin.php:395
+msgid "If you want to show a table in your pages or posts, use the shortcode: <strong>[table id=&lt;the_table_ID&gt; /]</strong>"
+msgstr "Om du vill visa en tabell på en sida eller i ett inlägg, använd snabbkoden: <strong>[table id=&lt;the_table_ID&gt; /]</strong>"
+
+#: wp-table-reloaded-admin.php:403
+msgid "ID"
+msgstr "ID"
+
+#: wp-table-reloaded-admin.php:404
+#: wp-table-reloaded-admin.php:465
+#: wp-table-reloaded-admin.php:512
+msgid "Table Name"
+msgstr "Tabellnamn"
+
+#: wp-table-reloaded-admin.php:405
+#: wp-table-reloaded-admin.php:469
+#: wp-table-reloaded-admin.php:516
+msgid "Description"
+msgstr "Beskrivning"
+
+#: wp-table-reloaded-admin.php:406
+msgid "Action"
+msgstr "Åtgärd"
+
+#: wp-table-reloaded-admin.php:431
+msgid "Edit"
+msgstr "Redigera"
+
+#: wp-table-reloaded-admin.php:432
+msgid "Do you want to copy this table?"
+msgstr "Vill du kopiera denna tabell?"
+
+#: wp-table-reloaded-admin.php:432
+msgid "Copy"
+msgstr "Kopiera"
+
+#: wp-table-reloaded-admin.php:433
+msgid "Export"
+msgstr "Exportera"
+
+#: wp-table-reloaded-admin.php:434
+#: wp-table-reloaded-admin.php:646
+msgid "The complete table and all content will be erased. Do you really want to delete it?"
+msgstr "Tabellen och dess inehåll kommer raderas. Vill du verkligen radera den?"
+
+#: wp-table-reloaded-admin.php:434
+msgid "Delete"
+msgstr "Radera"
+
+#: wp-table-reloaded-admin.php:444
+#: wp-table-reloaded-admin.php:761
+msgid "No tables found."
+msgstr "Inga tabeller hittades."
+
+#: wp-table-reloaded-admin.php:444
+#: wp-table-reloaded-admin.php:761
+#, php-format
+msgid "You might <a href=\"%s\">add</a> or <a href=\"%s\">import</a> one!"
+msgstr "Du kan <a href=\"%s\">lägga till</a> eller <a href=\"%s\">importera</a> en!"
+
+#: wp-table-reloaded-admin.php:452
+#: wp-table-reloaded-admin.php:859
+msgid "Add new Table"
+msgstr "Lägg till ny Tabell"
+
+#: wp-table-reloaded-admin.php:457
+msgid "You can add a new table here. Just enter it's name, a description (optional) and the number of rows and columns.<br/>You may add, insert or delete rows and columns later."
+msgstr "Du kan lägga till en tabell här. Ange tabellens namn, en beskrivning (valfritt) och antal rader och kolumner.<br/>Du kan även lägga till, infoga eller radera rader och kolumner senare."
+
+#: wp-table-reloaded-admin.php:473
+msgid "Number of Rows"
+msgstr "Antal Rader"
+
+#: wp-table-reloaded-admin.php:477
+msgid "Number of Columns"
+msgstr "Antal Kolumner"
+
+#: wp-table-reloaded-admin.php:484
+msgid "Add Table"
+msgstr "Lägg till Tabell"
+
+#: wp-table-reloaded-admin.php:503
+msgid "You may edit the content of the table here. It is also possible to add or delete columns and rows."
+msgstr "Du kan redigera tabellens innehåll här. Det är även möjligt att lägga till eller radera kolumner och rader."
+
+#: wp-table-reloaded-admin.php:509
+msgid "Table Information"
+msgstr "Tabellinformation"
+
+#: wp-table-reloaded-admin.php:523
+msgid "Table Contents"
+msgstr "Tabellinnehåll"
+
+#: wp-table-reloaded-admin.php:550
+msgid "Insert Row"
+msgstr "Lägg till Rad"
+
+#: wp-table-reloaded-admin.php:552
+msgid "Do you really want to delete this row?"
+msgstr "Vill du verkligen radera denna rad?"
+
+#: wp-table-reloaded-admin.php:552
+msgid "Delete Row"
+msgstr "Radera Rad"
+
+#: wp-table-reloaded-admin.php:562
+msgid "Insert Column"
+msgstr "Infoga Kolumn"
+
+#: wp-table-reloaded-admin.php:564
+msgid "Do you really want to delete this column?"
+msgstr "Vill du verkligen radera denna kolumn?"
+
+#: wp-table-reloaded-admin.php:564
+msgid "Delete Column"
+msgstr "Radera Kolumn"
+
+#: wp-table-reloaded-admin.php:569
+msgid "Add Row"
+msgstr "Lägg till Rad"
+
+#: wp-table-reloaded-admin.php:569
+msgid "Add Column"
+msgstr "Lägg till Kolumn"
+
+#: wp-table-reloaded-admin.php:579
+msgid "Swap rows"
+msgstr "Byt plats på rader"
+
+#: wp-table-reloaded-admin.php:584
+#: wp-table-reloaded-admin.php:599
+msgid "and"
+msgstr "och"
+
+#: wp-table-reloaded-admin.php:589
+#: wp-table-reloaded-admin.php:604
+msgid "Swap"
+msgstr "Byt plats"
+
+#: wp-table-reloaded-admin.php:594
+msgid "Swap columns"
+msgstr "Byt plats på kolumner"
+
+#: wp-table-reloaded-admin.php:608
+msgid "Table Settings"
+msgstr "Tabellinställningar"
+
+#: wp-table-reloaded-admin.php:609
+msgid "These settings will only be used for this table."
+msgstr "Dessa inställningar kommer endast användas för denna tabell."
+
+#: wp-table-reloaded-admin.php:612
+msgid "Alternating row colors"
+msgstr "Växlande radfärg"
+
+#: wp-table-reloaded-admin.php:613
+msgid "Every second row will have an alternating background color."
+msgstr "Varannan rad kommer att ha en alternativ bakgrundsfärg."
+
+#: wp-table-reloaded-admin.php:616
+msgid "Use Table Headline"
+msgstr "Använd Tabellrubrik"
+
+#: wp-table-reloaded-admin.php:617
+msgid "The first row of your table will use the [th] tag."
+msgstr "Första raden i din tabell kommer använda etiketten [th]."
+
+#: wp-table-reloaded-admin.php:620
+msgid "Print Table Name"
+msgstr "Visa Tabellnamn"
+
+#: wp-table-reloaded-admin.php:621
+msgid "The Table Name will be written above the table in a [h2] tag."
+msgstr "Tabellens namn kommer att visas ovanför tabellen med etiketten [h2]."
+
+#: wp-table-reloaded-admin.php:624
+msgid "Print Table Description"
+msgstr "Visa Tabellbeskrivning"
+
+#: wp-table-reloaded-admin.php:625
+msgid "The Table Description will be written under the table."
+msgstr "Tabellens beskrivning kommer att visas under tabellen."
+
+#: wp-table-reloaded-admin.php:628
+msgid "Use Tablesorter"
+msgstr "Använd Tabellsortering"
+
+#: wp-table-reloaded-admin.php:629
+msgid "You may sort a table using the <a href=\"http://www.tablesorter.com/\">Tablesorter-jQuery-Plugin</a>. <small>Attention: You must have Tablesorter enabled on the \"Plugin Options\" page and the option \"Use Table Headline\" has to be enabled above for this to work!</small>"
+msgstr "Du kan använda tabellsortering med hjälp av <a href=\"http://www.tablesorter.com/\">Tablesorter-jQuery-Plugin</a>. <small>OBS!: Tablesorter måste aktiveras på \"Alternativ\"sidan och \"Använd Tabellrubrik\" ovan måste vara förbockat för att detta ska fungera!</small>"
+
+#: wp-table-reloaded-admin.php:637
+msgid "Update Changes"
+msgstr "Spara Ändringar"
+
+#: wp-table-reloaded-admin.php:638
+msgid "Save and go back"
+msgstr "Spara och gå tillbaka"
+
+#: wp-table-reloaded-admin.php:641
+msgid "Cancel"
+msgstr "Ångra"
+
+#: wp-table-reloaded-admin.php:643
+msgid "Other actions"
+msgstr "Andra åtgärder"
+
+#: wp-table-reloaded-admin.php:646
+msgid "Delete Table"
+msgstr "Radera Tabell"
+
+#: wp-table-reloaded-admin.php:647
+#: wp-table-reloaded-admin.php:750
+msgid "Export Table"
+msgstr "Exportera Tabell"
+
+#: wp-table-reloaded-admin.php:658
+#: wp-table-reloaded-admin.php:860
+msgid "Import a Table"
+msgstr "Importera en Tabell"
+
+#: wp-table-reloaded-admin.php:662
+msgid "You may import a table from existing data here.<br/>It has to be a CSV file. You can select the used delimiter below."
+msgstr "Du kan importera en tabell från existerande data här.<br/>Det måste vara en CSV fil. Du kan välja avgränsare nedan."
+
+#: wp-table-reloaded-admin.php:669
+msgid "Select File with Table to Import"
+msgstr "Välj tabellfil som ska importeras"
+
+#: wp-table-reloaded-admin.php:673
+msgid "Used Delimiter"
+msgstr "Välj Avgränsare"
+
+#: wp-table-reloaded-admin.php:685
+msgid "Import Table"
+msgstr "Importera Tabell"
+
+#: wp-table-reloaded-admin.php:701
+#: wp-table-reloaded-admin.php:861
+msgid "Export a Table"
+msgstr "Exportera en Tabell"
+
+#: wp-table-reloaded-admin.php:705
+msgid "You may export a table here."
+msgstr "Du kan exportera en tabell här."
+
+#: wp-table-reloaded-admin.php:713
+msgid "Select Table to Export"
+msgstr "Välj Tabell som ska exporteras"
+
+#: wp-table-reloaded-admin.php:728
+msgid "Select Export Format"
+msgstr "Välj exportformat"
+
+#: wp-table-reloaded-admin.php:738
+msgid "Select Delimiter to use"
+msgstr "Välj Avgränsare"
+
+#: wp-table-reloaded-admin.php:770
+msgid "General Plugin Options"
+msgstr "Allmänna Alternativ"
+
+#: wp-table-reloaded-admin.php:774
+msgid "You may change these global options.<br/>They will effect all tables or the general plugin behaviour."
+msgstr "Detta är globala alternativ.<br/>De kommer påverka alla tabeller eller tilläggets generella beteende."
+
+#: wp-table-reloaded-admin.php:783
+msgid "Uninstall Plugin upon Deactivation?"
+msgstr "Avinstallera Tillägget vid Avaktivering?"
+
+#: wp-table-reloaded-admin.php:787
+msgid "Enable Tablesorter-JavaScript?"
+msgstr "Aktivera Tablesorter-JavaScript?"
+
+#: wp-table-reloaded-admin.php:788
+msgid "Yes, enable <a href=\"http://www.tablesorter.com/\">Tablesorter-jQuery-Plugin</a> to be used to make table sortable (can be changed for every table separatly)."
+msgstr "Ja, aktivera <a href=\"http://www.tablesorter.com/\">Tablesorter-jQuery-Plugin</a> för att möjliggöra tabellsortering (kan ställas in separat för varje tabell)."
+
+#: wp-table-reloaded-admin.php:791
+msgid "Use global CSS-file?"
+msgstr "Använd global CSS-fil?"
+
+#: wp-table-reloaded-admin.php:792
+msgid "Yes, load the global CSS-file wp-table-reloaded.css, which contains basic styles and graphics for the Tablesorter. (File \"global-frontend-style.css\" in subfolder \"css\")"
+msgstr "Ja, ladda den globala CSS-filen wp-table-reloaded.css, som innehåller grundläggande stil och grafik för Tablesorter. (Filen \"global-frontend-style.css\" i undermappen \"css\")"
+
+#: wp-table-reloaded-admin.php:799
+msgid "Save Options"
+msgstr "Spara"
+
+#: wp-table-reloaded-admin.php:805
+msgid "Uninstall Plugin"
+msgstr "Avinstallera Tillägget"
+
+#: wp-table-reloaded-admin.php:807
+msgid "You may uninstall the plugin here. This will delete all tables, data, options, etc., that belong to the plugin, including all tables you added or imported.<br/> Be very careful with this and only click the button if you know what you are doing!"
+msgstr "Du kan avinstallera tillägget här. Detta kommer att radera alla tabeller, data, inställningar, etc. som hör till tillägget, inklusive alla tabeller som lagts till och importerats.<br/>Var väldigt försiktig med detta och klicka på knappen bara om du vet vad du gör!"
+
+#: wp-table-reloaded-admin.php:810
+msgid "Do you really want to uninstall the plugin and delete ALL data?"
+msgstr "Vill du verkligen avinstallera tillägget och radera ALL data?"
+
+#: wp-table-reloaded-admin.php:810
+msgid "Are you really sure?"
+msgstr "Är du riktigt säker?"
+
+#: wp-table-reloaded-admin.php:820
+msgid "Information about the plugin"
+msgstr "Information om tillägget"
+
+#: wp-table-reloaded-admin.php:824
+msgid "This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin \"WP-Table\" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin."
+msgstr "Med detta tillägg kan du skapa och hantera tabeller i adminpanelen i WordPress. Du kan sedan visa dem i dina inlägg eller på dina sidor genom att använda en snabbkod. Tillägget är baserat på \"WP-Table\" av Alex Rabe men är fullständigt omskrivet och använder WordPress förstklassiga teknik vilket gör det snabbare och lättare än originalet."
+
+#: wp-table-reloaded-admin.php:825
+msgid "More information can be found on the <a href=\"http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/\">plugin's website</a>. A documentation and certain support and help request possibilities will be available soon."
+msgstr "Mer information hittar du på <a href=\"http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/\">tilläggets hemsida</a>. Dokumentation och viss support och möjlighet att få hjälp finns tillgängligt inom kort."
+
+#: wp-table-reloaded-admin.php:826
+msgid "This plugin was written by <a href=\"http://tobias.baethge.com/\">Tobias B&auml;thge</a>. It is licenced as Free Software under GPL 2."
+msgstr "Tillägget är skrivet av <a href=\"http://tobias.baethge.com/\">Tobias B&auml;thge</a>. Det är licensierat som Gratis Programvara under GPL 2."
+
+#: wp-table-reloaded-admin.php:858
+msgid "List Tables"
+msgstr "Visa Tabeller"
+
+#: wp-table-reloaded-admin.php:863
+msgid "Plugin Options"
+msgstr "Alternativ"
+
+#: wp-table-reloaded-admin.php:864
+msgid "About the Plugin"
+msgstr "Om Tillägget"
+
+#: wp-table-reloaded-export.php:30
+msgid "CSV - Character-Separated Values"
+msgstr "CSV - Character-Separated Values"
+
+#: wp-table-reloaded-export.php:34
+#: wp-table-reloaded-import.php:31
+msgid "; (semicolon)"
+msgstr "; (semikolon)"
+
+#: wp-table-reloaded-export.php:35
+#: wp-table-reloaded-import.php:32
+msgid ", (comma)"
+msgstr ", (komma)"
+
+#: wp-table-reloaded-export.php:36
+#: wp-table-reloaded-import.php:33
+msgid ": (colon)"
+msgstr ": (kolon)"
+
+#: wp-table-reloaded-export.php:84
+msgid "The Table could not be exported due to a wrong export format."
+msgstr "Tabellen kunde inte exporteras på grund av fel exportformat."
+
+#: wp-table-reloaded-admin.php:466
+msgid "Enter Table Name|Default Table Name"
+msgstr "Tabellnamn|Default Table Name"
+
+#: wp-table-reloaded-admin.php:470
+msgid "Enter Description|Default Table Description"
+msgstr "Beskrivning|Default Table Description"
+
+#: wp-table-reloaded-admin.php:784
+msgid "Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin! Otherwise everything will be deleted upon an automatic update of the plugin by WordPress!"
+msgstr ""
+
+#: wp-table-reloaded-admin.php:810
+msgid "Uninstall Plugin WP-Table Reloaded"
+msgstr ""
+
+#: wp-table-reloaded-export.php:31
+msgid "XML - eXtended Markup Language"
+msgstr ""
+

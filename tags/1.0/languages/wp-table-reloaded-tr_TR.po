@@ -1,0 +1,471 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Table Reloaded\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-04-10 19:37+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Semih Aksu <bilgi@wpuzmani.com>\n"
+"Language-Team: wpuzmani.com <bilgi@wpuzmani.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Turkish\n"
+"X-Poedit-Country: TURKEY\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: .\n"
+": "
+
+#: wp-table-reloaded-admin.php:123
+#, php-format
+msgid "Table \"%s\" added successfully."
+msgstr "Tablo \"%s\" başarıyla eklendi."
+
+#: wp-table-reloaded-admin.php:146
+msgid "Table edited successfully."
+msgstr "Tablo başarıyla düzenlendi."
+
+#: wp-table-reloaded-admin.php:162
+msgid "Rows swapped successfully."
+msgstr "Satırlar başarıyla değiştirildi."
+
+#: wp-table-reloaded-admin.php:181
+msgid "Columns swapped successfully."
+msgstr "Sütunlar başarıyla değiştirildi."
+
+#: wp-table-reloaded-admin.php:214
+#, php-format
+msgid "Table \"%s\" copied successfully."
+msgstr "Tablo \"%s\" başarıyla kopyalandı."
+
+#: wp-table-reloaded-admin.php:233
+#, php-format
+msgid "Table \"%s\" deleted successfully."
+msgstr "Tablo \"%s\" başarıyla silindi."
+
+#: wp-table-reloaded-admin.php:243
+msgid "Row deleted successfully."
+msgstr "Satır başarıyla silindi."
+
+#: wp-table-reloaded-admin.php:256
+msgid "Column deleted successfully."
+msgstr "Sütun başarıyla silindi."
+
+#: wp-table-reloaded-admin.php:261
+msgid "Delete failed."
+msgstr "Silme başarısız."
+
+#: wp-table-reloaded-admin.php:285
+msgid "Row inserted successfully."
+msgstr "Satır başarıyla eklendi."
+
+#: wp-table-reloaded-admin.php:294
+msgid "Column inserted successfully."
+msgstr "Sütun başarıyla eklendi."
+
+#: wp-table-reloaded-admin.php:297
+msgid "Insert failed."
+msgstr "Ekleme başarısız."
+
+#: wp-table-reloaded-admin.php:327
+msgid "Table imported successfully."
+msgstr "Tablo başarıyla içe aktarıldı."
+
+#: wp-table-reloaded-admin.php:347
+#, php-format
+msgid "Table \"%s\" exported successfully."
+msgstr "Tablo \"%s\" başarıyla dışa aktarıldı."
+
+#: wp-table-reloaded-admin.php:366
+msgid "Options saved successfully."
+msgstr "Seçenekler başarıyla kaydedildi."
+
+#: wp-table-reloaded-admin.php:375
+msgid "Plugin uninstalled successfully."
+msgstr "Eklenti başarıyla kaldırıldı."
+
+#: wp-table-reloaded-admin.php:391
+msgid "List of Tables"
+msgstr "Tablo Listesi"
+
+#: wp-table-reloaded-admin.php:394
+msgid "This is a list of all available tables. You may add, edit, copy or delete tables here."
+msgstr "Kullanılabileceğiniz bütün tabloların listesidir. Buradan tablolar ekleyebilir, düzenleyebilir veya silebilirsiniz."
+
+#: wp-table-reloaded-admin.php:395
+msgid "If you want to show a table in your pages or posts, use the shortcode: <strong>[table id=&lt;the_table_ID&gt; /]</strong>"
+msgstr "Eğer yazılarınızda veya sayfalarınızda tablo göstermek isterseniz, şu kısayolu kullanın: <strong>[table id=&lt;the_table_ID&gt; /]</strong>"
+
+#: wp-table-reloaded-admin.php:403
+msgid "ID"
+msgstr "ID"
+
+#: wp-table-reloaded-admin.php:404
+#: wp-table-reloaded-admin.php:465
+#: wp-table-reloaded-admin.php:512
+msgid "Table Name"
+msgstr "Tablo Adı"
+
+#: wp-table-reloaded-admin.php:405
+#: wp-table-reloaded-admin.php:469
+#: wp-table-reloaded-admin.php:516
+msgid "Description"
+msgstr "Açıklama"
+
+#: wp-table-reloaded-admin.php:406
+msgid "Action"
+msgstr "Eylem"
+
+#: wp-table-reloaded-admin.php:431
+msgid "Edit"
+msgstr "Düzenle"
+
+#: wp-table-reloaded-admin.php:432
+msgid "Do you want to copy this table?"
+msgstr "Bu tabloyu kopyalamak ister misiniz?"
+
+#: wp-table-reloaded-admin.php:432
+msgid "Copy"
+msgstr "Kopyala"
+
+#: wp-table-reloaded-admin.php:433
+msgid "Export"
+msgstr "Dışa aktar"
+
+#: wp-table-reloaded-admin.php:434
+#: wp-table-reloaded-admin.php:646
+msgid "The complete table and all content will be erased. Do you really want to delete it?"
+msgstr "Tüm tablo ve içeriği silinecek. Gerçekten silmek istiyor musunuz?"
+
+#: wp-table-reloaded-admin.php:434
+msgid "Delete"
+msgstr "Sil"
+
+#: wp-table-reloaded-admin.php:444
+#: wp-table-reloaded-admin.php:761
+msgid "No tables found."
+msgstr "Tablo bulunamadı."
+
+#: wp-table-reloaded-admin.php:444
+#: wp-table-reloaded-admin.php:761
+#, php-format
+msgid "You might <a href=\"%s\">add</a> or <a href=\"%s\">import</a> one!"
+msgstr "Yeni bir tane <a href=\"%s\">ekleyebilir</a> veya <a href=\"%s\">içe aktarabilirsiniz</a>!"
+
+#: wp-table-reloaded-admin.php:452
+#: wp-table-reloaded-admin.php:859
+msgid "Add new Table"
+msgstr "Yeni Tablo Ekle"
+
+#: wp-table-reloaded-admin.php:457
+msgid "You can add a new table here. Just enter it's name, a description (optional) and the number of rows and columns.<br/>You may add, insert or delete rows and columns later."
+msgstr "Buradan yeni bir tablo ekleyebilirsiniz. Sadece ismini, açıklamasını ve satır sütun numarasını yazın.<br/>Daha sonra satır yada sütun ekleyebilir ve silebilirsiniz."
+
+#: wp-table-reloaded-admin.php:473
+msgid "Number of Rows"
+msgstr "Satır Sayısı"
+
+#: wp-table-reloaded-admin.php:477
+msgid "Number of Columns"
+msgstr "Sütun Sayısı"
+
+#: wp-table-reloaded-admin.php:484
+msgid "Add Table"
+msgstr "Tabloyu Ekle"
+
+#: wp-table-reloaded-admin.php:503
+msgid "You may edit the content of the table here. It is also possible to add or delete columns and rows."
+msgstr "Tablo içeriğini buradan düzenleyebilirsiniz. Tabi ki satır ve sütünları da buradan ekleyebilir yada silebilirsiniz."
+
+#: wp-table-reloaded-admin.php:509
+msgid "Table Information"
+msgstr "Tablo Bilgisi"
+
+#: wp-table-reloaded-admin.php:523
+msgid "Table Contents"
+msgstr "Tablo İçeriği"
+
+#: wp-table-reloaded-admin.php:550
+msgid "Insert Row"
+msgstr "Satır Ekle"
+
+#: wp-table-reloaded-admin.php:552
+msgid "Do you really want to delete this row?"
+msgstr "Bu satırı gerçekten silmek istiyor musunuz?"
+
+#: wp-table-reloaded-admin.php:552
+msgid "Delete Row"
+msgstr "Satırı Sil"
+
+#: wp-table-reloaded-admin.php:562
+msgid "Insert Column"
+msgstr "Sütun Ekle"
+
+#: wp-table-reloaded-admin.php:564
+msgid "Do you really want to delete this column?"
+msgstr "Bu sütunu gerçekten silmek istiyor musunuz?"
+
+#: wp-table-reloaded-admin.php:564
+msgid "Delete Column"
+msgstr "Sütun Sil"
+
+#: wp-table-reloaded-admin.php:569
+msgid "Add Row"
+msgstr "Satır Ekle"
+
+#: wp-table-reloaded-admin.php:569
+msgid "Add Column"
+msgstr "Sütun Ekle"
+
+#: wp-table-reloaded-admin.php:579
+msgid "Swap rows"
+msgstr "Satırları değiştir"
+
+#: wp-table-reloaded-admin.php:584
+#: wp-table-reloaded-admin.php:599
+msgid "and"
+msgstr "ve"
+
+#: wp-table-reloaded-admin.php:589
+#: wp-table-reloaded-admin.php:604
+msgid "Swap"
+msgstr "Değiştir"
+
+#: wp-table-reloaded-admin.php:594
+msgid "Swap columns"
+msgstr "Sütunları değiştir"
+
+#: wp-table-reloaded-admin.php:608
+msgid "Table Settings"
+msgstr "Tablo Ayarları"
+
+#: wp-table-reloaded-admin.php:609
+msgid "These settings will only be used for this table."
+msgstr "Bu ayarlar sadece bu tablo için kullanılacaktır."
+
+#: wp-table-reloaded-admin.php:612
+msgid "Alternating row colors"
+msgstr "Değişken satır renkleri"
+
+#: wp-table-reloaded-admin.php:613
+msgid "Every second row will have an alternating background color."
+msgstr "Her ikinci satır farklı bir arkaplan renginde olacak."
+
+#: wp-table-reloaded-admin.php:616
+msgid "Use Table Headline"
+msgstr "Tablo Başlığı Kullan"
+
+#: wp-table-reloaded-admin.php:617
+msgid "The first row of your table will use the [th] tag."
+msgstr "Tablonuzun ilk satırı [th] etiketini kullanacak."
+
+#: wp-table-reloaded-admin.php:620
+msgid "Print Table Name"
+msgstr "Tablo Adını Göster"
+
+#: wp-table-reloaded-admin.php:621
+msgid "The Table Name will be written above the table in a [h2] tag."
+msgstr "Tablo İsmi, tablonun üzerine [h2] etiketi ile yazılacak."
+
+#: wp-table-reloaded-admin.php:624
+msgid "Print Table Description"
+msgstr "Tablo Açıklamasını Göster"
+
+#: wp-table-reloaded-admin.php:625
+msgid "The Table Description will be written under the table."
+msgstr "Tablo Açıklaması tablonun altına yazılacak."
+
+#: wp-table-reloaded-admin.php:628
+msgid "Use Tablesorter"
+msgstr "Tablo Listeleyici Kullan"
+
+#: wp-table-reloaded-admin.php:629
+msgid "You may sort a table using the <a href=\"http://www.tablesorter.com/\">Tablesorter-jQuery-Plugin</a>. <small>Attention: You must have Tablesorter enabled on the \"Plugin Options\" page and the option \"Use Table Headline\" has to be enabled above for this to work!</small>"
+msgstr "Belki <a href=\"http://www.tablesorter.com/\">Tablo-Sıralayıcı-jQuery-Eklentisi</a> kullanarak tablolarınızı sıralamak istersiniz. <small>Dikkat: Bu seçeneğin çalışması için \"Eklenti Seçenekleri\" sayfasından \"Tablo Sıralayıcı için JS\" seçeneğini etkinleştirmeniz gerekli!</small>"
+
+#: wp-table-reloaded-admin.php:637
+msgid "Update Changes"
+msgstr "Değişiklikleri Güncelle"
+
+#: wp-table-reloaded-admin.php:638
+msgid "Save and go back"
+msgstr "Kaydet ve geri git"
+
+#: wp-table-reloaded-admin.php:641
+msgid "Cancel"
+msgstr "İptal"
+
+#: wp-table-reloaded-admin.php:643
+msgid "Other actions"
+msgstr "Diğer Eylemler"
+
+#: wp-table-reloaded-admin.php:646
+msgid "Delete Table"
+msgstr "Tabloyu Sil"
+
+#: wp-table-reloaded-admin.php:647
+#: wp-table-reloaded-admin.php:750
+msgid "Export Table"
+msgstr "Tabloyu Dışa Aktar"
+
+#: wp-table-reloaded-admin.php:658
+#: wp-table-reloaded-admin.php:860
+msgid "Import a Table"
+msgstr "İçeriye Tablo Aktar"
+
+#: wp-table-reloaded-admin.php:662
+msgid "You may import a table from existing data here.<br/>It has to be a CSV file. You can select the used delimiter below."
+msgstr "Burada kullanmak için, içeriye bir tablo aktarabilirsiniz.<br/>Tablo CSV dosyası olmalı. Aşağıda kullanılacak sınırlandırıcıyı seçebilirsiniz."
+
+#: wp-table-reloaded-admin.php:669
+msgid "Select File with Table to Import"
+msgstr "İçe Aktarılacak Dosyayı Seçin"
+
+#: wp-table-reloaded-admin.php:673
+msgid "Used Delimiter"
+msgstr "Sınırlayıcı Kullan"
+
+#: wp-table-reloaded-admin.php:685
+msgid "Import Table"
+msgstr "İçe Tablo Aktar"
+
+#: wp-table-reloaded-admin.php:701
+#: wp-table-reloaded-admin.php:861
+msgid "Export a Table"
+msgstr "Tabloyu Dışa Aktar"
+
+#: wp-table-reloaded-admin.php:705
+msgid "You may export a table here."
+msgstr "Tabloyu buradan dışa aktarabilirsiniz."
+
+#: wp-table-reloaded-admin.php:713
+msgid "Select Table to Export"
+msgstr "Dışa Aktarılacak Tabloyu Seçin"
+
+#: wp-table-reloaded-admin.php:728
+msgid "Select Export Format"
+msgstr "Dışa Aktarma Türünü Seçin"
+
+#: wp-table-reloaded-admin.php:738
+msgid "Select Delimiter to use"
+msgstr "Kullanıcılacak sınırlayıcıyı seçin"
+
+#: wp-table-reloaded-admin.php:770
+msgid "General Plugin Options"
+msgstr "Genel Eklenti Seçenekleri"
+
+#: wp-table-reloaded-admin.php:774
+msgid "You may change these global options.<br/>They will effect all tables or the general plugin behaviour."
+msgstr "Buradan genel seçenekleri değiştirebilirsiniz.<br/>Bu değişiklikler bütün tabloları veya genel eklenti kullanımını etkileyecektir."
+
+#: wp-table-reloaded-admin.php:783
+msgid "Uninstall Plugin upon Deactivation?"
+msgstr "Pasif hale getirilince eklentiyi sil?"
+
+#: wp-table-reloaded-admin.php:787
+msgid "Enable Tablesorter-JavaScript?"
+msgstr "Tablo Sıralayıcı için JavaScript aktifleştir?"
+
+#: wp-table-reloaded-admin.php:788
+msgid "Yes, enable <a href=\"http://www.tablesorter.com/\">Tablesorter-jQuery-Plugin</a> to be used to make table sortable (can be changed for every table separatly)."
+msgstr "Evet, tabloları belli niteliklerine göre sıralamak için <a href=\"http://www.tablesorter.com/\">Tablo-Sıralayıcı-jQuery-Eklentisi</a>ni etkinleştir."
+
+#: wp-table-reloaded-admin.php:791
+msgid "Use global CSS-file?"
+msgstr "Genel CSS-dosyasını Kullan?"
+
+#: wp-table-reloaded-admin.php:792
+msgid "Yes, load the global CSS-file wp-table-reloaded.css, which contains basic styles and graphics for the Tablesorter. (File \"global-frontend-style.css\" in subfolder \"css\")"
+msgstr "Evet, Tablo Sıralayıcı için temel stilleri ve grafikleri içeren, genel CSS-dosyası olan wp-table-reloaded.css dosyasını yükle. (Dosya \"css\" alt klasöründeki \"global-frontend-style.css\")"
+
+#: wp-table-reloaded-admin.php:799
+msgid "Save Options"
+msgstr "Seçenekleri Kaydet"
+
+#: wp-table-reloaded-admin.php:805
+msgid "Uninstall Plugin"
+msgstr "Eklentiyi Sil"
+
+#: wp-table-reloaded-admin.php:807
+msgid "You may uninstall the plugin here. This will delete all tables, data, options, etc., that belong to the plugin, including all tables you added or imported.<br/> Be very careful with this and only click the button if you know what you are doing!"
+msgstr "Eklentiyi buradan silebilirsiniz. Bu işlem bütün tabloları, bilgileri, seçenekleri ve diğerlerini, eklentiye bağlı olarak, içeri aktardığınız tablolaları da silecek.<br/>Burada çok dikkatli olun ve eğer ne yaptığınızı biliyorsanız butona basın!"
+
+#: wp-table-reloaded-admin.php:810
+msgid "Do you really want to uninstall the plugin and delete ALL data?"
+msgstr "Eklenti kaldırmak ve TÜM bilgileri silmek istediğinize emin misiniz?"
+
+#: wp-table-reloaded-admin.php:810
+msgid "Are you really sure?"
+msgstr "Gerçekten emin misiniz?"
+
+#: wp-table-reloaded-admin.php:820
+msgid "Information about the plugin"
+msgstr "Eklenti Bilgileri"
+
+#: wp-table-reloaded-admin.php:824
+msgid "This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin \"WP-Table\" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin."
+msgstr "Bu eklenti WordPress yönetim panelinden tablo oluşturmanıza ve tabloları yönetmenize imkan sağlıyor. Daha sonra kısayol kodu ile bu tabloları yazılarınızda veya sayfalarınızda gösterebilirsiniz. Bu eklenti Alex Rabe tarafından yazılan WP-Table eklentisinin yeniden yazılmış şeklidir."
+
+#: wp-table-reloaded-admin.php:825
+msgid "More information can be found on the <a href=\"http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/\">plugin's website</a>. A documentation and certain support and help request possibilities will be available soon."
+msgstr "Daha fazla bilgiyi <a href=\"http://tobias.baethge.com/wordpress-plugins/wp-table-roladed/\">eklentinin websitesinde</a> bulabilirsiniz. Belgeler, eklenti desteği ve yardım istekleri çok yakında hazır olacak."
+
+#: wp-table-reloaded-admin.php:826
+msgid "This plugin was written by <a href=\"http://tobias.baethge.com/\">Tobias B&auml;thge</a>. It is licenced as Free Software under GPL 2."
+msgstr "Bu eklenti <a href=\"http://tobias.baethge.com/\">Tobias B&auml;thge</a> tarafından yazılmıştır. GPL 2 ile Ücretsiz Yazılım olarak lisanslanmıştır."
+
+#: wp-table-reloaded-admin.php:858
+msgid "List Tables"
+msgstr "Tabloları Listele"
+
+#: wp-table-reloaded-admin.php:863
+msgid "Plugin Options"
+msgstr "Eklenti Seçenekleri"
+
+#: wp-table-reloaded-admin.php:864
+msgid "About the Plugin"
+msgstr "Eklenti Hakkında"
+
+#: wp-table-reloaded-export.php:30
+msgid "CSV - Character-Separated Values"
+msgstr "CSV - Excel CSV uzantılı Dosyalar"
+
+#: wp-table-reloaded-export.php:34
+#: wp-table-reloaded-import.php:31
+msgid "; (semicolon)"
+msgstr "; (noktalı virgül)"
+
+#: wp-table-reloaded-export.php:35
+#: wp-table-reloaded-import.php:32
+msgid ", (comma)"
+msgstr ", (virgül)"
+
+#: wp-table-reloaded-export.php:36
+#: wp-table-reloaded-import.php:33
+msgid ": (colon)"
+msgstr ": (iki nokta)"
+
+#: wp-table-reloaded-export.php:84
+msgid "The Table could not be exported due to a wrong export format."
+msgstr "Tablo, dışa aktarma türü yanlış olduğundan dışa aktarılamadı."
+
+#: wp-table-reloaded-admin.php:466
+msgid "Enter Table Name|Default Table Name"
+msgstr "Tablo Adı|Default Table Name"
+
+#: wp-table-reloaded-admin.php:470
+msgid "Enter Description|Default Table Description"
+msgstr "Açıklama|Default Table Description"
+
+#: wp-table-reloaded-admin.php:784
+msgid "Yes, uninstall everything when plugin is deactivated. Attention: You should only enable this checkbox directly before deactivating the plugin! Otherwise everything will be deleted upon an automatic update of the plugin by WordPress!"
+msgstr ""
+
+#: wp-table-reloaded-admin.php:810
+msgid "Uninstall Plugin WP-Table Reloaded"
+msgstr ""
+
+#: wp-table-reloaded-export.php:31
+msgid "XML - eXtended Markup Language"
+msgstr ""
+
