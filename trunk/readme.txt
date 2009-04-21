@@ -22,7 +22,7 @@ Dieses Plugin erlaubt die Verwaltung von Tabellen in WordPress.
 
 Weitere Informationen auf Deutsch: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/deutsch/
 
-Wenn die das Plugin gefällt, bewerte es bitte hier im WordPress Plugin Directory. Danke!
+Wenn die das Plugin gef&auml;llt, bewerte es bitte hier im WordPress Plugin Directory. Danke!
 
 == Screenshots ==
 
@@ -76,7 +76,7 @@ I'd really appreciate it, if you would translate the plugin into your language! 
 
 Please visit the [official plugin website](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/english/) for the latest information on this plugin.
 
-Die Webseite des Plugins ist auch [auf Deutsch](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/deutsch/) verfügbar.
+Die Webseite des Plugins ist auch [auf Deutsch](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/deutsch/) verf&uuml;gbar.
 
 == Usage ==
 
