@@ -4,7 +4,7 @@ Donate link: http://tobias.baethge.com/donate/
 Tags: html,table,editor,csv,import,export,excel,widget,admin,sidebar
 Requires at least: 2.5
 Tested up to: 2.8
-Stable tag: 0.9.2
+Stable tag: 1.0
 	
 This plugin allows you to create and manage tables in your WP's admin-area. You can then show them in your posts, on pages or in text widgets by using a shortcode.
 
@@ -12,10 +12,17 @@ This plugin allows you to create and manage tables in your WP's admin-area. You 
 
 This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "WP-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin. You may also have both plugins installed at the same time and you can also import your tables from the WP-Table plugin!
 
-= More informatation =
-Please see the plugin website http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
+= More information =
+Please see the plugin website http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/english/
 
-If you like this plugin, please rate it in the WordPress Plugin Directory. Thank you!
+If you like this plugin, please rate it here in the WordPress Plugin Directory. Thank you!
+
+= Informationen auf Deutsch =
+Dieses Plugin erlaubt die Verwaltung von Tabellen in WordPress.
+
+Weitere Informationen auf Deutsch: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/deutsch/
+
+Wenn die das Plugin gefällt, bewerte es bitte hier im WordPress Plugin Directory. Danke!
 
 == Screenshots ==
 
@@ -67,7 +74,9 @@ I'd really appreciate it, if you would translate the plugin into your language! 
 
 = Where can I get more information? =
 
-Please visit the [official plugin website](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/) for the latest information on this plugin.
+Please visit the [official plugin website](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/english/) for the latest information on this plugin.
+
+Die Webseite des Plugins ist auch [auf Deutsch](http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/deutsch/) verfügbar.
 
 == Usage ==
 
@@ -76,7 +85,6 @@ Everything should be self-explaining there.
 To show one of your tables in a post, on a page or in a text widget, just include the shortcode [table id=&lt;the-id&gt; /] to your post/page/text-widget, where &lt;the-id&gt is the ID of your table (can be found on the left side of the "List tables" screen.)
 After that you might want to change the style of the table: Just copy the CSS-file "example-style.css" in the subfolder "css" of the plugin folder, edit the copy to fit your layout needs. Be sure to activate the option "Use global css-file?" in the plugin options and select your copied file for this to work!
 You may also add certain features (like table-sorting, alternating row colors, print name and/or description, ...) by checking the appropriate options in the "Edit table" screen.
-
 
 == Acknowledgements ==
 
@@ -87,7 +95,7 @@ Thanks to every supporter and bug reporter!
 
 == License ==
 
-This plugins is Free Software, released under the GPL version 2.
+This plugin is Free Software, released under the GPL version 2.
 You may use it free of charge for any purposes.
 I kindly ask you for link somewhere on your website http://tobias.baethge.com/. This is not required!
 
