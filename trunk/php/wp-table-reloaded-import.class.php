@@ -2,7 +2,7 @@
 /*
 File Name: WP-Table Reloaded - Import Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
-Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "WP-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
+Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "wp-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
 Version: 1.0
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
@@ -42,7 +42,7 @@ class WP_Table_Reloaded_Import {
             'html' => __( 'HTML - Hypertext Markup Language', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'xml' => __( 'XML - eXtended Markup Language', WP_TABLE_RELOADED_TEXTDOMAIN )
             // don't have this show up in list, as handled in separate table
-            //'wp_table' => _ _( 'WP-Table plugin database', WP_TABLE_RELOADED_TEXTDOMAIN )
+            //'wp_table' => _ _( 'wp-Table plugin database', WP_TABLE_RELOADED_TEXTDOMAIN )
         );
     }
 
@@ -181,7 +181,7 @@ class WP_Table_Reloaded_Import {
         $temp_data = array();
 
         if ( $wpdb->golftable == $wpdb->get_var( "show tables like '{$wpdb->golftable}'" ) && $wpdb->golfresult == $wpdb->get_var( "show tables like '{$wpdb->golfresult}'" ) ) {
-        // WP-Table tables exist -> the plugin might be installed, so we might try an export
+        // wp-Table tables exist -> the plugin might be installed, so we might try an export
 
         // get information form database
     	$current_table = $wpdb->get_row( "SELECT * FROM $wpdb->golftable WHERE table_aid = {$table_id}" );
@@ -192,7 +192,7 @@ class WP_Table_Reloaded_Import {
         $table['options']['first_row_th'] = ( 1 == $current_table->head_bold ) ? true : false;
         $table['options']['alternating_row_colors'] = ( 1 == $current_table->alternative ) ? true : false;
 
-        // WP-Table's config, contains information about tablesort
+        // wp-Table's config, contains information about tablesort
         $wptable_config = get_option( 'wptable' );
         if ( false !== $wptable_config )
             $table['options']['use_tablesorter'] = ( 1 == $wptable_config['use_sorting'] ) ? true : false;
@@ -210,7 +210,7 @@ class WP_Table_Reloaded_Import {
         $table['data'] = $this->pad_array_to_max_cols( $temp_rows );
         $this->imported_table = $table;
         } else {
-            // no tables from WP-Table found
+            // no tables from wp-Table found
             $this->imported_table = array();
             $this->error = true;
         }

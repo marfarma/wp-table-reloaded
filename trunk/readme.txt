@@ -10,7 +10,7 @@ This plugin allows you to create and manage tables in your WP's admin-area. You 
 
 == Description ==
 
-This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "WP-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin. You may also have both plugins installed at the same time and you can also import your tables from the WP-Table plugin!
+This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "wp-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin. You may also have both plugins installed at the same time and you can also import your tables from the wp-Table plugin!
 
 = More information =
 Please see the English plugin website http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/ .
@@ -52,10 +52,10 @@ Manual Installation works just as for most other WordPress plugins:
 
 == Frequently Asked Questions ==
 
-= Can I use WP-Table and WP-Table Reloaded together? =
+= Can I use wp-Table and WP-Table Reloaded together? =
 
-Yes! You can have both WP-Table and WP-Table Reloaded installed in your WordPress! They will not interfere (as they are not using anything together). They are completely independent from each other.
-If WP-Table Reloaded finds the WP-Table database tables, it can import the found tables into it's own format, so that you can completely upgrade from WP-Table to WP-Table Reloaded.
+Yes! You can have both wp-Table and WP-Table Reloaded installed in your WordPress! They will not interfere (as they are not using anything together). They are completely independent from each other.
+If WP-Table Reloaded finds the wp-Table database tables, it can import the found tables into it's own format, so that you can completely upgrade from wp-Table to WP-Table Reloaded.
 
 = Support? =
 
@@ -68,7 +68,7 @@ In short: WordPress 2.5 or higher
 = Languages and Localization? =
 
 The plugin currently includes the following languages:
-English (by me, German (by me), Turkish (thanks to Semih) and Swedish (thanks to ZuperZed).
+Albanian, English, French, German, Russian, Spanish, Swedish and Turkish.
 
 I'd really appreciate it, if you would translate the plugin into your language! Using Heiko Rabe's WordPress plugin [Codestyling Localization](http://www.code-styling.de/english/development/wordpress-plugin-codestyling-localization-en) that really is as easy as pie. Just install the plugin, add your language, create the .po-file, translate the strings in the comfortable editor and create the .mo-file. It will automatically be saved in WP-Table Reloaded's plugin folder. If you send me the .mo- and .po-file, I will gladly include them into future plugin releases.
 There is also a .pot-file available to use in the "languages subfolder.
@@ -90,7 +90,7 @@ You may also add certain features (like table-sorting, alternating row colors, p
 
 == Acknowledgements ==
 
-Thanks go to [Alex Rabe](http://alexrabe.boelinger.com/) for the initial WP-Table plugin!
+Thanks go to [Alex Rabe](http://alexrabe.boelinger.com/) for the initial wp-Table plugin!
 Thanks go to [Christian Bach](http://tablesorter.com/docs/) for the TableSorter-jQuery-plugin.
 Thanks to all language file translators!
 Thanks to every supporter and bug reporter!
@@ -103,7 +103,7 @@ I kindly ask you for link somewhere on your website http://tobias.baethge.com/. 
 
 == Changelog ==
 
-* 1.0: Language files, more import/export (including directly from WP-Table!), shortcode supported in text widgets
+* 1.0: Language files, more import/export (including directly from wp-Table!), shortcode supported in text widgets
 * 0.9.2: fixed bug with plugin deactivation hook, added missing css-file
 * 0.9.1: first good release with all mentioned functions working well
 * 0.9 beta 1b: small bug which prevented showing of tables (but still not everything implemented)

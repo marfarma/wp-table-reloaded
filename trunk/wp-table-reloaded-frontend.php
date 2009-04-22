@@ -2,7 +2,7 @@
 /*
 File Name: WP-Table Reloaded - Frontend Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
-Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "WP-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
+Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "wp-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
 Version: 1.0.1
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
@@ -149,9 +149,11 @@ class WP_Table_Reloaded_Frontend {
             if ( true == $table['options']['use_tablesorter'] && true == $table['options']['first_row_th'] && true == $this->options['enable_tablesorter'] ) {
                 $output .= <<<JSSCRIPT
 <script type="text/javascript">
+/* <![CDATA[ */
 jQuery(document).ready(function($){
     $(".wp-table-reloaded-id-{$table['id']}").tablesorter({$widgets});
 });
+/* ]]> */
 </script>
 JSSCRIPT;
             }

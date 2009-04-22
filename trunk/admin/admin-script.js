@@ -15,12 +15,6 @@ jQuery(document).ready(function($){
         })
         .change();
 
-    $("#options_uninstall input").click(function () {
-	  if( $('#options_uninstall input:checked').val() ) {
-		return confirm( 'Do you really want to activate this? You should only do that right before uninstallation!' );
-	  }
-	});
-
     $("#options_use_global_css input").click(function () {
 	  if( $('#options_use_global_css input:checked').val() ) {
         $('#options_css_filename select').removeAttr("disabled");

@@ -2,8 +2,8 @@
 /*
 File Name: WP-Table Reloaded - Admin Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
-Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "WP-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 1.0.1
+Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "wp-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
+Version: 1.1-beta
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -11,7 +11,7 @@ Author URI: http://tobias.baethge.com/
 class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
-    var $plugin_version = '1.0.1';
+    var $plugin_version = '1.1-beta';
     // nonce for security of links/forms, try to prevent "CSRF"
     var $nonce_base = 'wp-table-reloaded-nonce';
     // names for the options which are stored in the WP database
@@ -800,10 +800,10 @@ class WP_Table_Reloaded_Admin {
         $wpdb->golfresult = $wpdb->prefix . 'golfresult';
 
         if ( $wpdb->golftable == $wpdb->get_var( "show tables like '{$wpdb->golftable}'" ) && $wpdb->golfresult == $wpdb->get_var( "show tables like '{$wpdb->golfresult}'" ) ) {
-        // WP-Table tables exist -> the plugin might be installed, so we output all found tables
+        // wp-Table tables exist -> the plugin might be installed, so we output all found tables
 
         ?>
-        <h2><?php _e( 'Import from original WP-Table plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></h2>
+        <h2><?php _e( 'Import from original wp-Table plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></h2>
         <div style="clear:both;">
         <?php
         $tables = $wpdb->get_results("SELECT * FROM $wpdb->golftable ORDER BY 'table_aid' ASC ");
@@ -836,7 +836,7 @@ class WP_Table_Reloaded_Admin {
                 echo "\t<th scope=\"row\">{$table_id}</th>";
                 echo "<td>{$name}</td>";
                 echo "<td>{$description}</td>";
-                echo "<td><a href=\"{$import_url}\" onclick=\"javascript:return confirm( '".__( 'Do you really want to import this table from the WP-Table plugin?', WP_TABLE_RELOADED_TEXTDOMAIN )."' );\">" . __( 'Import', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a></td>\n";
+                echo "<td><a href=\"{$import_url}\" onclick=\"javascript:return confirm( '" . __( 'Do you really want to import this table from the wp-Table plugin?', WP_TABLE_RELOADED_TEXTDOMAIN ) . "' );\">" . __( 'Import', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a></td>\n";
                 echo "</tr>\n";
 
             }
@@ -844,13 +844,13 @@ class WP_Table_Reloaded_Admin {
             echo "</table>\n";
             
         } else { // end if $tables
-            echo "<div style=\"clear:both;\"><p>" . __( 'WP-Table by Alex Rabe seems to be installed, but no tables were found.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</p></div>";
+            echo "<div style=\"clear:both;\"><p>" . __( 'wp-Table by Alex Rabe seems to be installed, but no tables were found.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</p></div>";
         }
             ?>
         </div>
         <?php
         } else {
-            // one of the WP-Table tables was not found in database, so nothing to show here
+            // one of the wp-Table tables was not found in database, so nothing to show here
         }
         $this->print_page_footer();
     }
@@ -999,7 +999,15 @@ class WP_Table_Reloaded_Admin {
 
         </form>
         </div>
-
+<script type="text/javascript">
+/* <![CDATA[ */
+    $("#options_uninstall input").click(function () {
+	  if( $('#options_uninstall input:checked').val() ) {
+		return confirm( '<?php _e( 'Do you really want to activate this? You should only do that right before uninstallation!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>' );
+	  }
+	});
+/* ]]> */
+</script>
         <h2><?php _e( 'Manually Uninstall Plugin', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></h2>
         <div style="clear:both;">
             <p><?php _e( 'You may uninstall the plugin here. This <strong>will delete</strong> all tables, data, options, etc., that belong to the plugin, including all tables you added or imported.<br/> Be very careful with this and only click the button if you know what you are doing!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></p>
@@ -1051,10 +1059,16 @@ class WP_Table_Reloaded_Admin {
         <h3 class="hndle"><span><?php _e( 'Credits and Thanks', WP_TABLE_RELOADED_TEXTDOMAIN ) ?></span></h3>
         <div class="inside">
         <p>
-            <?php _e( 'Thanks go to <a href="http://alexrabe.boelinger.com/">Alex Rabe</a> for the original WP-Table plugin,', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
+            <?php _e( 'Thanks go to <a href="http://alexrabe.boelinger.com/">Alex Rabe</a> for the original wp-Table plugin,', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
             <?php _e( 'Christian Bach for the <a href="http://www.tablesorter.com/">Tablesorter-jQuery-Plugin</a>,', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
-            <?php _e( 'the submitters of translations: <br/>&middot; Turkish (thanks to <a href="http://www.wpuzmani.com/">Semih</a>)<br/>&middot; Swedish (thanks to <a href="http://www.zuperzed.se/">ZuperZed</a>)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
-            <?php _e( 'and all contributors, supporters, reviewers and users of the plugin!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <?php _e( 'the submitters of translations:', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <br/>&middot; <?php _e( 'Albanian (thanks to <a href="http://www.romeolab.com/">Romeo</a>)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <br/>&middot; <?php _e( 'French (thanks to <a href="http://ultratrailer.net/">Yin-Yin</a>)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <br/>&middot; <?php _e( 'Russian (thanks to <a href="http://wp-skins.info/">Truper</a>)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <br/>&middot; <?php _e( 'Spanish (thanks to <a href="http://theindependentproject.com/">Alejandro Urrutia</a>)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <br/>&middot; <?php _e( 'Swedish (thanks to <a href="http://www.zuperzed.se/">ZuperZed</a>)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <br/>&middot; <?php _e( 'Turkish (thanks to <a href="http://www.wpuzmani.com/">Semih</a>)', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
+            <br/><?php _e( 'and all contributors, supporters, reviewers and users of the plugin!', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>
         </p>
         </div>
         </div>
