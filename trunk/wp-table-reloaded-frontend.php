@@ -3,7 +3,7 @@
 File Name: WP-Table Reloaded - Frontend Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
 Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "WP-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 1.0
+Version: 1.0.1
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
