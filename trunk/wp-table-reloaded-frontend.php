@@ -1,9 +1,9 @@
 <?php
 /*
 File Name: WP-Table Reloaded - Frontend Class (see main file wp-table-reloaded.php)
-Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded/
+Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
 Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "wp-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 1.0.1
+Version: 1.1
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -40,21 +40,33 @@ class WP_Table_Reloaded_Frontend {
     		$this->add_head_tablesorter_js();
 
         // if global css shall be used
-		if ( true == $this->options['use_global_css'] )
-    		$this->add_head_global_css();
+		if ( true == $this->options['use_custom_css'] )
+            add_action( 'wp_head', array( &$this, 'add_custom_css' ) );
     }
 
     // ###################################################################################################################
     // handle [table id=<the_table_id> /] in the_content()
     function handle_content_shortcode( $attr ) {
-        $table_id = $attr['id'];
 
-        if ( !is_numeric( $table_id ) || 1 > $table_id || false == $this->is_table( $table_id ) )
+        // parse shortcode attributs, only allow those specified
+        $default_atts = array(
+                'id' => 0,
+                'output_id' => false,
+                'column_widths' => ''
+                );
+      	$atts = shortcode_atts( $default_atts, $atts );
+
+        // get atts from array to variables
+        $table_id = $attr['id'];
+        $output_id = (  true == $attr['output_id'] ) ? true : false;
+        $column_widths = explode( '|', $attr['column_widths'] );
+
+        if ( !is_numeric( $table_id ) || 1 > $table_id || false == $this->table_exists( $table_id ) )
             return "[table \"{$table_id}\" not found /]<br />\n";
 
         $table = $this->load_table( $table_id );
 
-        $output = $this->render_table( $table );
+        $output = $this->render_table( $table, $column_widths, $output_id );
 
         return $output;
     }
@@ -70,7 +82,7 @@ class WP_Table_Reloaded_Frontend {
 
     // ###################################################################################################################
     // check, if given table id really exists
-    function is_table( $table_id ) {
+    function table_exists( $table_id ) {
         return isset( $this->tables[ $table_id ] );
     }
 
@@ -83,13 +95,18 @@ class WP_Table_Reloaded_Frontend {
 
     // ###################################################################################################################
     // echo content of array
-    function render_table( $table ) {
+    function render_table( $table, $column_widths, $output_id ) {
         // classes that will be added to <table class=...>, can be used for css-styling
         $cssclasses = array( 'wp-table-reloaded', "wp-table-reloaded-id-{$table['id']}" );
         $cssclasses = implode( ' ', $cssclasses );
 
+        $id_output = ( true == $output_id ) ? " id=\"wp-table-reloaded-id-{$table['id']}\"" : '';
+
         $rows = count( $table['data'] );
         $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
+
+        // make array $column_widths have $cols entries
+        $column_widths = array_pad( $column_widths, $cols, '' );
 
         $output = '';
 
@@ -98,7 +115,7 @@ class WP_Table_Reloaded_Frontend {
             if ( true == $table['options']['print_name'] )
                 $output .= '<h2 class="wp-table-reloaded-table-name">' . $this->safe_output( $table['name'] ) . "</h2>\n";
         
-            $output .= "<table class=\"{$cssclasses}\" cellspacing=\"1\" cellpadding=\"0\" border=\"0\">\n";
+            $output .= "<table{$id_output} class=\"{$cssclasses}\" cellspacing=\"1\" cellpadding=\"0\" border=\"0\">\n";
 
             foreach( $table['data'] as $row_idx => $row ) {
                 if ( true == $table['options']['alternating_row_colors'] )
@@ -112,8 +129,9 @@ class WP_Table_Reloaded_Frontend {
                         $output .= "\t<tr{$row_class}>\n\t\t";
                         foreach( $row as $col_idx => $cell_content ) {
                             $col_class = ' class="column-' . ( $col_idx + 1 ) . '"';
+                            $width_style = ( !empty( $column_widths[$col_idx] ) ) ? " style=\"width:{$column_widths[$col_idx]};\"" : '';
                             $cell_content = $this->safe_output( $cell_content );
-                            $output .= "<th{$col_class}>" . "{$cell_content}" . "</th>";
+                            $output .= "<th{$col_class}{$width_style}>" . "{$cell_content}" . "</th>";
                         }
                         $output .= "\n\t</tr>\n";
                         $output .= "</thead>\n";
@@ -123,8 +141,9 @@ class WP_Table_Reloaded_Frontend {
                         $output .= "\t<tr{$row_class}>\n\t\t";
                         foreach( $row as $col_idx => $cell_content ) {
                             $col_class = ' class="column-' . ( $col_idx + 1 ) . '"';
+                            $width_style = ( !empty( $column_widths[$col_idx] ) ) ? " style=\"width:{$column_widths[$col_idx]};\"" : '';
                             $cell_content = $this->safe_output( $cell_content );
-                            $output .= "<td{$col_class}>" . "{$cell_content}" . "</td>";
+                            $output .= "<td{$col_class}{$width_style}>" . "{$cell_content}" . "</td>";
                         }
                         $output .= "\n\t</tr>\n";
                     }
@@ -175,35 +194,21 @@ JSSCRIPT;
     }
     
     // ###################################################################################################################
-    // enqueue global-css-file, if it exists, may be modified by user
-    function add_head_global_css() {
-    
+    // load and print css-style, (only called if enabled, by wp_head-action)
+    function add_custom_css() {
         // load css filename from options, if option doesnt exist, use default
-        $cssfile = ( isset( $this->options['css_filename'] ) && !empty( $this->options['css_filename'] ) ) ? $this->options['css_filename'] : 'example-style.css';
+        $css = ( isset( $this->options['custom_css'] ) ) ? $this->options['custom_css'] : '';
         
-        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'css/' . $cssfile ) ) {
-            if ( function_exists( 'wp_enqueue_style' ) ) {
-                wp_enqueue_style( 'wp-table-reloaded-global-css', WP_TABLE_RELOADED_URL . 'css/' . $cssfile );
-                // WP < 2.7 does not contain call to add_action( 'wp_head', 'wp_print_styles' ) in default-filters.php (Core Trac Ticket #7720)
-                if ( false == has_action( 'wp_head', 'wp_print_styles' ) )
-                    add_action( 'wp_head', array( &$this, 'print_styles' ) );
-            } else {
-                add_action( 'wp_head', array( &$this, 'print_styles' ) );
-            }
+        if ( !empty( $css ) ) {
+            $output .= <<<CSSSTYLE
+<style type="text/css" media="all">
+/* <![CDATA[ */
+{$css}
+/* ]]> */
+</style>
+CSSSTYLE;
+            echo $output;
         }
-    }
-
-    // ###################################################################################################################
-    // print our style in wp-head (only needed for WP < 2.7)
-    function print_styles() {
-    
-        // load css filename from options, if option doesnt exist, use default
-        $cssfile = ( isset( $this->options['css_filename'] ) && !empty( $this->options['css_filename'] ) ) ? $this->options['css_filename'] : 'example-style.css';
-
-        if ( function_exists( 'wp_print_styles' ) )
-            wp_print_styles( 'wp-table-reloaded-global-css' );
-        else
-            echo "<link rel='stylesheet' href='" . WP_TABLE_RELOADED_URL . 'css/' . $cssfile . "' type='text/css' media='' />\n";
     }
 
 } // class WP_Table_Reloaded_Frontend
