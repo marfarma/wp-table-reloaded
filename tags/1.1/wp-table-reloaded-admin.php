@@ -1345,7 +1345,7 @@ jQuery(document).ready(function($){
 		$this->options = get_option( $this->optionname['options'] );
         $new_options = array_merge( $this->default_options, $this->options );
         // 2. step: by removing options which are deprecated (and thus not in_array(default_options)
-        $new_options = array_intersect_key( $new_options, $this->default_options );
+        //$new_options = array_intersect_key( $new_options, $this->default_options );
         // 3. step: update installed version number
         $new_options['installed_version'] = $this->plugin_version;
         
@@ -1361,9 +1361,9 @@ jQuery(document).ready(function($){
         foreach ( $this->tables as $id => $tableoptionname ) {
             $table = $this->load_table( $id );
             $new_table = array_merge( $this->default_table, $table );
-            $new_table = array_intersect_key( $new_table, $this->default_table );
+            //$new_table = array_intersect_key( $new_table, $this->default_table );
             $new_table['options'] = array_merge( $this->default_table['options'], $new_table['options'] );
-            $new_table['options'] = array_intersect_key( $new_table['options'], $this->default_table['options'] );
+            // $new_table['options'] = array_intersect_key( $new_table['options'], $this->default_table['options'] );
             $this->save_table( $new_table );
         }
     }
