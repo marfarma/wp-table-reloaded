@@ -2,8 +2,8 @@
 /*
 File Name: WP-Table Reloaded - Frontend Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
-Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts, on your pages or in text widgets by using a shortcode. The plugin is a completely rewritten and extended version of Alex Rabe's "wp-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 1.1
+Description: Description: This plugin allows you to create and easily manage tables in the admin-area of WordPress. A comfortable backend allows an easy manipulation of table data. You can then include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
+Version: 1.2
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -22,6 +22,9 @@ class WP_Table_Reloaded_Frontend {
     );
     var $shortcode = 'table';
 
+    var $shown_tables = array();
+    var $tablesorter_tables = array();
+
     // ###################################################################################################################
     function WP_Table_Reloaded_Frontend() {
         // load options and table information from database, if not available: default
@@ -36,8 +39,10 @@ class WP_Table_Reloaded_Frontend {
         add_filter('widget_text', array( &$this, 'handle_widget_filter' ) );
 
         // if tablesorter enabled (globally) include javascript
-		if ( true == $this->options['enable_tablesorter'] )
-    		$this->add_head_tablesorter_js();
+		if ( true == $this->options['enable_tablesorter'] ) {
+    		$this->add_head_jquery_js(); // jquery needed in any case (it's too late to do this, when shortcode is executed
+            add_action( 'wp_footer', array( &$this, 'output_tablesorter_js' ) ); // but if we actually need the tablesorter script can be determined in the footer
+            }
 
         // if global css shall be used
 		if ( true == $this->options['use_custom_css'] )
@@ -46,27 +51,50 @@ class WP_Table_Reloaded_Frontend {
 
     // ###################################################################################################################
     // handle [table id=<the_table_id> /] in the_content()
-    function handle_content_shortcode( $attr ) {
-
+    function handle_content_shortcode( $atts ) {
         // parse shortcode attributs, only allow those specified
         $default_atts = array(
                 'id' => 0,
-                'output_id' => false,
-                'column_widths' => ''
-                );
+                'column_widths' => '',
+                'alternating_row_colors' => -1,
+                'first_row_th' => -1,
+                'print_name' => -1,
+                'print_description' => -1,
+                'use_tablesorter' => -1,
+                'row_offset' => 1,
+                'row_count' => null
+        );
       	$atts = shortcode_atts( $default_atts, $atts );
 
-        // get atts from array to variables
-        $table_id = $attr['id'];
-        $output_id = (  true == $attr['output_id'] ) ? true : false;
-        $column_widths = explode( '|', $attr['column_widths'] );
-
+        // check if table exists
+        $table_id = $atts['id'];
         if ( !is_numeric( $table_id ) || 1 > $table_id || false == $this->table_exists( $table_id ) )
             return "[table \"{$table_id}\" not found /]<br />\n";
 
+        // explode from string to array
+        $atts['column_widths'] = explode( '|', $atts['column_widths'] );
+
         $table = $this->load_table( $table_id );
 
-        $output = $this->render_table( $table, $column_widths, $output_id );
+        // determine options to use (if set in shortcode, use those, otherwise use options from "Edit Table" screen)
+        $output_options = array();
+        foreach ( $atts as $key => $value ) {
+            // have to check this, because strings 'true' or 'false' are not recognized as boolean!
+            if ( 'true' == strtolower( $value ) )
+                $output_options[ $key ] = true;
+            elseif ( 'false' == strtolower( $value ) )
+                $output_options[ $key ] = false;
+            else
+                $output_options[ $key ] = ( -1 !== $value ) ? $value : $table['options'][ $key ] ;
+        }
+        
+        // how often was table displayed on this page yet? get its HTML ID
+        $count = ( isset( $this->shown_tables[ $table_id ] ) ) ? $this->shown_tables[ $table['id'] ] : 0;
+        $count = $count + 1;
+        $this->shown_tables[ $table_id ] = $count;
+        $output_options[ 'html_id' ] = "wp-table-reloaded-id-{$table_id}-no-{$count}";
+        
+        $output = $this->render_table( $table, $output_options );
 
         return $output;
     }
@@ -95,36 +123,37 @@ class WP_Table_Reloaded_Frontend {
 
     // ###################################################################################################################
     // echo content of array
-    function render_table( $table, $column_widths, $output_id ) {
+    function render_table( $table, $output_options ) {
         // classes that will be added to <table class=...>, can be used for css-styling
         $cssclasses = array( 'wp-table-reloaded', "wp-table-reloaded-id-{$table['id']}" );
         $cssclasses = implode( ' ', $cssclasses );
 
-        $id_output = ( true == $output_id ) ? " id=\"wp-table-reloaded-id-{$table['id']}\"" : '';
-
         $rows = count( $table['data'] );
         $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
 
-        // make array $column_widths have $cols entries
-        $column_widths = array_pad( $column_widths, $cols, '' );
+        // make array $shortcode_atts['column_widths'] have $cols entries
+        $output_options['column_widths'] = array_pad( $output_options['column_widths'], $cols, '' );
+
+        // if row_offset or row_count were given, we cut that part from the table and show just that
+        $table['data'] = array_slice( $table['data'], $output_options['row_offset'] - 1 , $output_options['row_count'] ); // -1 because we start from 1
 
         $output = '';
 
         if ( 0 < $rows && 0 < $cols) {
         
-            if ( true == $table['options']['print_name'] )
+            if ( true == $output_options['print_name'] )
                 $output .= '<h2 class="wp-table-reloaded-table-name">' . $this->safe_output( $table['name'] ) . "</h2>\n";
         
-            $output .= "<table{$id_output} class=\"{$cssclasses}\" cellspacing=\"1\" cellpadding=\"0\" border=\"0\">\n";
+            $output .= "<table id=\"{$output_options['html_id']}\" class=\"{$cssclasses}\" cellspacing=\"1\" cellpadding=\"0\" border=\"0\">\n";
 
             foreach( $table['data'] as $row_idx => $row ) {
-                if ( true == $table['options']['alternating_row_colors'] )
+                if ( true == $output_options['alternating_row_colors'] )
                     $row_class = ( 1 == ($row_idx % 2) ) ? ' class="even row-' . ( $row_idx + 1 ) . '"' : ' class="odd row-' . ( $row_idx + 1 ) . '"';
                 else
                     $row_class = ' class="row-' . ( $row_idx + 1 ) . '"';
                     
                 if( 0 == $row_idx ) {
-                    if ( true == $table['options']['first_row_th'] ) {
+                    if ( true == $output_options['first_row_th'] ) {
                         $output .= "<thead>\n";
                         $output .= "\t<tr{$row_class}>\n\t\t";
                         foreach( $row as $col_idx => $cell_content ) {
@@ -160,23 +189,20 @@ class WP_Table_Reloaded_Frontend {
             $output .= "</tbody>\n";
             $output .= "</table>\n";
 
-            if ( true == $table['options']['print_description'] )
+            if ( true == $output_options['print_description'] )
                 $output .= '<span class="wp-table-reloaded-table-description">' . $this->safe_output( $table['description'] ) . "</span>\n";
 
-            $widgets = ( true == $table['options']['alternating_row_colors'] ) ? "{widgets: ['zebra']}" : '';
-            
-            if ( true == $table['options']['use_tablesorter'] && true == $table['options']['first_row_th'] && true == $this->options['enable_tablesorter'] ) {
-                $output .= <<<JSSCRIPT
-<script type="text/javascript">
-/* <![CDATA[ */
-jQuery(document).ready(function($){
-    $(".wp-table-reloaded-id-{$table['id']}").tablesorter({$widgets});
-});
-/* ]]> */
-</script>
-JSSCRIPT;
+            // if alternating row colors, we want to keep those when sorting
+            $widgets = ( true == $output_options['alternating_row_colors'] ) ? "{widgets: ['zebra']}" : '';
+
+            // eventually add this table to list of tables which will be tablesorted and thus be included in the script call in wp_footer
+            if ( true == $output_options['use_tablesorter'] && true == $output_options['first_row_th'] ) {
+                // check if tablesorter is generally enabled already done
+                $this->tablesorter_tables[ $output_options['html_id'] ] = $widgets;
             }
-        }
+            
+        } // endif rows and cols exist
+        
         return $output;
     }
 
@@ -184,30 +210,55 @@ JSSCRIPT;
     function safe_output( $string ) {
         return stripslashes( $string );
     }
-    
+
     // ###################################################################################################################
-    // enqueue tablesorter-js-file, if it exists
-    function add_head_tablesorter_js() {
-        $jsfile =  'jquery.tablesorter.min.js';
-        if ( file_exists( WP_TABLE_RELOADED_ABSPATH . 'js/' . $jsfile ) )
-            wp_enqueue_script( 'wp-table-reloaded-tablesorter-js', WP_TABLE_RELOADED_URL . 'js/' . $jsfile, array( 'jquery' ) );
+    // enqueue jquery-js-file
+    function add_head_jquery_js() {
+        wp_enqueue_script( 'jquery' );
     }
-    
+
     // ###################################################################################################################
     // load and print css-style, (only called if enabled, by wp_head-action)
     function add_custom_css() {
         // load css filename from options, if option doesnt exist, use default
         $css = ( isset( $this->options['custom_css'] ) ) ? $this->options['custom_css'] : '';
-        
+        $css = stripslashes( $css );
+
         if ( !empty( $css ) ) {
-            $output .= <<<CSSSTYLE
+            echo <<<CSSSTYLE
 <style type="text/css" media="all">
 /* <![CDATA[ */
 {$css}
 /* ]]> */
 </style>
 CSSSTYLE;
-            echo $output;
+        }
+    }
+
+    // ###################################################################################################################
+    // output tablesorter execution js for all tables in wp_footer
+    function output_tablesorter_js() {
+        $jsfile =  'jquery.tablesorter.min.js'; // filename of the tablesorter script
+
+        if ( 0 < count( $this->tablesorter_tables ) && file_exists( WP_TABLE_RELOADED_ABSPATH . 'js/' . $jsfile ) ) {
+        
+            // we have tables that shall be sortable, so we load the js
+            wp_register_script( 'wp-table-reloaded-tablesorter-js', WP_TABLE_RELOADED_URL . 'js/' . $jsfile, array( 'jquery' ) );
+            wp_print_scripts( 'wp-table-reloaded-tablesorter-js' );
+
+            // generate the commands to make them sortable
+            $commands = "\n";
+            foreach ( $this->tablesorter_tables as $html_id => $widgets )
+                $commands .= "\t$(\"#{$html_id}\").tablesorter({$widgets});\n";
+
+            // and echo the commands
+            echo <<<JSSCRIPT
+<script type="text/javascript">
+/* <![CDATA[ */
+jQuery(document).ready(function($){{$commands}});
+/* ]]> */
+</script>
+JSSCRIPT;
         }
     }
 
