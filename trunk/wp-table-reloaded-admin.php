@@ -1575,6 +1575,9 @@ class WP_Table_Reloaded_Admin {
     // add button to visual editor
     function add_editor_button() {
         if ( 0 < count( $this->tables ) )
+            // init language support
+            $this->init_language_support();
+        
             add_action( 'admin_footer', array( &$this, 'add_editor_button_js' ) );
     }
 
