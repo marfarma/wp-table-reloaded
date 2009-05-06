@@ -56,6 +56,9 @@ class WP_Table_Reloaded_Admin {
     // class instances
     var $export_instance;
     var $import_instance;
+    
+    // temp variables
+    var $hook = '';
 
     // ###################################################################################################################
     // add admin-page to sidebar navigation, function called by PHP when class is constructed
@@ -87,11 +90,8 @@ class WP_Table_Reloaded_Admin {
     // add page, and what happens when page is loaded or shown
     function add_manage_page() {
         $min_needed_capability = 'publish_posts'; // user needs at least this capability to show WP-Table Reloaded config page
-        $hook = add_management_page( 'WP-Table Reloaded', 'WP-Table Reloaded', $min_needed_capability, 'wp_table_reloaded_manage_page', array( &$this, 'show_manage_page' ) );
-        add_action('load-' . $hook, array( &$this, 'load_manage_page' ) );
-        
-        if ( true == function_exists( 'add_contextual_help' ) ) // then WP version is >= 2.7
-            add_contextual_help( $hook, $this->get_contextual_help_string() );
+        $this->hook = add_management_page( 'WP-Table Reloaded', 'WP-Table Reloaded', $min_needed_capability, 'wp_table_reloaded_manage_page', array( &$this, 'show_manage_page' ) );
+        add_action('load-' . $this->hook, array( &$this, 'load_manage_page' ) );
     }
     
     // ###################################################################################################################
@@ -105,6 +105,9 @@ class WP_Table_Reloaded_Admin {
 
         // init language support
         $this->init_language_support();
+        
+        if ( true == function_exists( 'add_contextual_help' ) ) // then WP version is >= 2.7
+            add_contextual_help( $this->hook, $this->get_contextual_help_string() );
     }
 
     // ###################################################################################################################
