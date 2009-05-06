@@ -8,12 +8,12 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-table-reloaded\n"
-"POT-Creation-Date: 2009-05-05 18:16+0000\n"
+"POT-Creation-Date: 2009-05-06 08:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
@@ -831,7 +831,7 @@ msgstr ""
 #: wp-table-reloaded-admin.php:1256
 msgid ""
 "Spanish (thanks to <a href=\"http://theindependentproject.com/\">Alejandro "
-"Urrutia</a> and <a href=\"http://halles.cl/\">Matas Halles</a>)"
+"Urrutia</a> and <a href=\"http://halles.cl/\">Matias Halles</a>)"
 msgstr ""
 
 #: wp-table-reloaded-admin.php:1257
