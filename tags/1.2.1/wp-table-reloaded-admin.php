@@ -172,6 +172,7 @@ class WP_Table_Reloaded_Admin {
                 $table['options']['first_row_th'] = isset( $_POST['table']['options']['first_row_th'] );
                 $table['options']['print_name'] = isset( $_POST['table']['options']['print_name'] );
                 $table['options']['print_description'] = isset( $_POST['table']['options']['print_description'] );
+                $table['options']['use_tablesorter'] = isset( $_POST['table']['options']['use_tablesorter'] );
                 $this->save_table( $table );
                 $message = __( 'Table edited successfully.', WP_TABLE_RELOADED_TEXTDOMAIN );
                 break;
