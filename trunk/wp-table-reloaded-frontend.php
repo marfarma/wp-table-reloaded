@@ -3,7 +3,7 @@
 File Name: WP-Table Reloaded - Frontend Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
 Description: Description: This plugin allows you to create and easily manage tables in the admin-area of WordPress. A comfortable backend allows an easy manipulation of table data. You can then include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
-Version: 1.2.1
+Version: 1.3
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -103,7 +103,11 @@ class WP_Table_Reloaded_Frontend {
     // handle [table id=<the_table_id> /] in widget texts
     function handle_widget_filter( $text ) {
         // pattern to search for in widget text (only our plugin's shortcode!)
-        $pattern = '\[(' . preg_quote( $this->shortcode ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\1\])?';
+        if ( version_compare( '2.7.1', $wp_version, '>') ) {
+            $pattern = '(.?)\[(' . preg_quote( $this->shortcode ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)';
+        } else {
+            $pattern = '\[(' . preg_quote( $this->shortcode ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\1\])?';
+        }
         // search for it, if found, handle as if it were a shortcode
         return preg_replace_callback( '/'.$pattern.'/s', 'do_shortcode_tag', $text );
     }
@@ -162,7 +166,7 @@ class WP_Table_Reloaded_Frontend {
                         foreach( $row as $col_idx => $cell_content ) {
                             $col_class = ' class="column-' . ( $col_idx + 1 ) . '"';
                             $width_style = ( !empty( $output_options['column_widths'][$col_idx] ) ) ? " style=\"width:{$output_options['column_widths'][$col_idx]};\"" : '';
-                            $cell_content = $this->safe_output( $cell_content );
+                            $cell_content = do_shortcode( $this->safe_output( $cell_content ) );
                             $output .= "<th{$col_class}{$width_style}>" . "{$cell_content}" . "</th>";
                         }
                         $output .= "\n\t</tr>\n";
@@ -174,7 +178,7 @@ class WP_Table_Reloaded_Frontend {
                         foreach( $row as $col_idx => $cell_content ) {
                             $col_class = ' class="column-' . ( $col_idx + 1 ) . '"';
                             $width_style = ( !empty( $output_options['column_widths'][$col_idx] ) ) ? " style=\"width:{$output_options['column_widths'][$col_idx]};\"" : '';
-                            $cell_content = $this->safe_output( $cell_content );
+                            $cell_content = do_shortcode( $this->safe_output( $cell_content ) );
                             $output .= "<td{$col_class}{$width_style}>" . "{$cell_content}" . "</td>";
                         }
                         $output .= "\n\t</tr>\n";
@@ -183,7 +187,7 @@ class WP_Table_Reloaded_Frontend {
                     $output .= "\t<tr{$row_class}>\n\t\t";
                     foreach( $row as $col_idx => $cell_content ) {
                         $col_class = ' class="column-' . ( $col_idx + 1 ) . '"';
-                        $cell_content = $this->safe_output( $cell_content );
+                        $cell_content = do_shortcode( $this->safe_output( $cell_content ) );
                         $output .= "<td{$col_class}>" . "{$cell_content}" . "</td>";
                     }
                     $output .= "\n\t</tr>\n";
@@ -211,7 +215,7 @@ class WP_Table_Reloaded_Frontend {
 
     // ###################################################################################################################
     function safe_output( $string ) {
-        return stripslashes( $string );
+        return nl2br( stripslashes( $string ) );
     }
 
     // ###################################################################################################################
