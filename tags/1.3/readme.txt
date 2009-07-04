@@ -111,12 +111,49 @@ I kindly ask you for link somewhere on your website http://tobias.baethge.com/. 
 
 == Changelog ==
 
-* 1.3: fixed bug with shortcode in text widgets for WP 2.8; added Brazilian Portuguese language file; fixed small bug with "Table" button in editor toolbar; table ID can now be changed and existing tables can be replaced upon import; possibility to add multiple rows/columns; import from URLs/webserver; WordPress shortcodes are supported within table cells; inputs are now textareas to allow easier editing of larger texts
-* 1.2.1: fixed syntax errors that appeared for some users, added Polish language file
-* 1.2: editor toolbar button to insert tables; bulk actions; improved CSS and JS loading and performance; template tag function; new CSV import/export class; table specific settings can be overwritten by shortcode parameters; new language: Czech; fixed a few minor bugs; smaller enhancements and text corrections
-* 1.1: changed way of CSS handling (database option instead of file), fixed bug for users with PHP4 (certain function doesn't exist there), added two additional shortcode parameters, added buttons to easily add links and images
-* 1.0(.1): Language files, more import/export (including directly from wp-Table!), shortcode supported in text widgets
-* 0.9.2: fixed bug with plugin deactivation hook, added missing css-file
-* 0.9.1: first good release with all mentioned functions working well
-* 0.9 beta 1b: small bug which prevented showing of tables (but still not everything implemented)
-* 0.9 beta 1: First release (not everything functional)
+= Version 1.3 =
+* fixed bug with shortcode in text widgets for WP 2.8
+* added Brazilian Portuguese language file
+* fixed small bug with "Table" button in editor toolbar
+* table ID can now be changed and existing tables can be replaced upon import
+* possibility to add multiple rows/columns; import from URLs/webserver
+* WordPress shortcodes are supported within table cells
+* inputs are now textareas to allow easier editing of larger texts
+
+= Version 1.2.1 =
+* fixed syntax errors that appeared for some users
+* added Polish language file
+
+= Version 1.2 =
+* editor toolbar button to insert tables
+* bulk actions
+* improved CSS and JS loading and performance
+* template tag function; new CSV import/export class
+* table specific settings can be overwritten by shortcode parameters
+* new language: Czech
+* fixed a few minor bugs
+* smaller enhancements and text corrections
+
+= Version 1.1 =
+* changed way of CSS handling (database option instead of file)
+* fixed bug for users with PHP4 (certain function doesn't exist there)
+* added two additional shortcode parameters
+* added buttons to easily add links and images
+
+= Version 1.0(.1) =
+* Language files
+* more import/export (including directly from wp-Table!)
+* shortcode supported in text widgets
+
+= Version 0.9.2 =
+* fixed bug with plugin deactivation hook
+* added missing css-file
+
+= Version 0.9.1 =
+* first good release with all mentioned functions working well
+
+= Version 0.9 beta 1b =
+* small bug which prevented showing of tables (but still not everything implemented)
+
+= Version 0.9 beta 1 =
+* First release (not everything functional)
