@@ -3,9 +3,10 @@
 File Name: WP-Table Reloaded - Frontend Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
 Description: Description: This plugin allows you to create and easily manage tables in the admin-area of WordPress. A comfortable backend allows an easy manipulation of table data. You can then include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
-Version: 1.3
+Version: 1.4-beta1
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
+Donate URI: http://tobias.baethge.com/donate/
 */
 
 class WP_Table_Reloaded_Frontend {
@@ -20,8 +21,10 @@ class WP_Table_Reloaded_Frontend {
         'options' => 'wp_table_reloaded_options',
         'table' => 'wp_table_reloaded_data'
     );
-    var $shortcode = 'table';
-
+    // shortcodes
+    var $shortcode_table = 'table';
+    var $shortcode_table_info = 'table-info';
+    
     var $shown_tables = array();
     var $tablesorter_tables = array();
 
@@ -35,8 +38,12 @@ class WP_Table_Reloaded_Frontend {
             return '';
 
 		// front-end function, shortcode for the_content, manual filter for widget_text
-		add_shortcode( $this->shortcode, array( &$this, 'handle_content_shortcode' ) );
-        add_filter( 'widget_text', array( &$this, 'handle_widget_filter' ) );
+		// shortcode "table-info" needs to be declared before "table"! Otherwise it will not be recognized!
+        add_shortcode( $this->shortcode_table_info, array( &$this, 'handle_content_shortcode_table_info' ) );
+        add_shortcode( $this->shortcode_table, array( &$this, 'handle_content_shortcode_table' ) );
+
+        add_filter( 'widget_text', array( &$this, 'handle_widget_filter_table_info' ) );
+        add_filter( 'widget_text', array( &$this, 'handle_widget_filter_table' ) );
 
         // if tablesorter enabled (globally) include javascript
 		if ( true == $this->options['enable_tablesorter'] ) {
@@ -50,8 +57,52 @@ class WP_Table_Reloaded_Frontend {
     }
 
     // ###################################################################################################################
+    // handle [table-info id=<the_table_id> field=<name> /] in the_content()
+    function handle_content_shortcode_table_info( $atts ) {
+
+        // parse shortcode attributs, only allow those specified
+        $default_atts = array(
+                'id' => 0,
+                'field' => '',
+                'format' => ''
+        );
+      	$atts = shortcode_atts( $default_atts, $atts );
+
+        // check if table exists
+        $table_id = $atts['id'];
+        if ( !is_numeric( $table_id ) || 1 > $table_id || false == $this->table_exists( $table_id ) )
+            return "[table \"{$table_id}\" not found /]<br />\n";
+
+        $field = $atts['field'];
+        $format = $atts['format'];
+        
+        $table = $this->load_table( $table_id );
+
+        switch ( $field ) {
+            case 'name':
+            case 'description':
+                $output = $table[ $field ];
+                break;
+            case 'last_modified':
+                $output = ( 'raw' == $format ) ?  $table['last_modified'] : $this->format_datetime( $table['last_modified'] );
+                break;
+            case 'last_editor':
+                $output = $this->get_last_editor( $table['last_editor_id'] );
+                break;
+            default:
+                if ( isset( $table['custom_fields'][ $field ] ) ) {
+                    $output = $table['custom_fields'][ $field ];
+                } else {
+                    $output = "[table-info field &quot;{$field}&quot; not found in table {$table_id} /]<br />\n";
+                }
+        }
+
+        return $output;
+    }
+
+    // ###################################################################################################################
     // handle [table id=<the_table_id> /] in the_content()
-    function handle_content_shortcode( $atts ) {
+    function handle_content_shortcode_table( $atts ) {
         // parse shortcode attributs, only allow those specified
         $default_atts = array(
                 'id' => 0,
@@ -61,18 +112,36 @@ class WP_Table_Reloaded_Frontend {
                 'print_name' => -1,
                 'print_description' => -1,
                 'use_tablesorter' => -1,
-                'row_offset' => 1,
-                'row_count' => null
+                'row_offset' => 1, // ATTENTION: MIGHT BE DROPPED IN FUTURE VERSIONS!
+                'row_count' => null, // ATTENTION: MIGHT BE DROPPED IN FUTURE VERSIONS!
+                'show_rows' => '',
+                'show_columns' => '',
+                'hide_rows' => '',
+                'hide_columns' => ''
         );
       	$atts = shortcode_atts( $default_atts, $atts );
 
         // check if table exists
         $table_id = $atts['id'];
         if ( !is_numeric( $table_id ) || 1 > $table_id || false == $this->table_exists( $table_id ) )
-            return "[table \"{$table_id}\" not found /]<br />\n";
+            return "[table &quot;{$table_id}&quot; not found /]<br />\n";
 
         // explode from string to array
         $atts['column_widths'] = explode( '|', $atts['column_widths'] );
+
+        // rows/columns are indexed from 0 internally
+        $atts['show_rows'] = ( !empty( $atts['show_rows'] ) ) ? explode( ',', $atts['show_rows'] ) : array();
+        foreach ( $atts['show_rows'] as $key => $value )
+            $atts['show_rows'][$key] = (string) ( $value - 1 );
+        $atts['show_columns'] = ( !empty( $atts['show_columns'] ) ) ? explode( ',', $atts['show_columns'] ) : array();
+        foreach ( $atts['show_columns'] as $key => $value )
+            $atts['show_columns'][$key] = (string) ( $value - 1 );
+        $atts['hide_rows'] = ( !empty( $atts['hide_rows'] ) ) ? explode( ',', $atts['hide_rows'] ) : array();
+        foreach ( $atts['hide_rows'] as $key => $value )
+            $atts['hide_rows'][$key] = (string) ( $value - 1 );
+        $atts['hide_columns'] = ( !empty( $atts['hide_columns'] ) ) ? explode( ',', $atts['hide_columns'] ) : array();
+        foreach ( $atts['hide_columns'] as $key => $value )
+            $atts['hide_columns'][$key] = (string) ( $value - 1 );
 
         $table = $this->load_table( $table_id );
 
@@ -80,7 +149,9 @@ class WP_Table_Reloaded_Frontend {
         $output_options = array();
         foreach ( $atts as $key => $value ) {
             // have to check this, because strings 'true' or 'false' are not recognized as boolean!
-            if ( 'true' == strtolower( $value ) )
+            if ( is_array( $value ) )
+                $output_options[ $key ] = $value;
+            elseif ( 'true' == strtolower( $value ) )
                 $output_options[ $key ] = true;
             elseif ( 'false' == strtolower( $value ) )
                 $output_options[ $key ] = false;
@@ -98,15 +169,27 @@ class WP_Table_Reloaded_Frontend {
 
         return $output;
     }
-    
+
     // ###################################################################################################################
-    // handle [table id=<the_table_id> /] in widget texts
-    function handle_widget_filter( $text ) {
+    // handle [table-info id=<the_table_id> field="name" /] in widget texts
+    function handle_widget_filter_table_info( $text ) {
         // pattern to search for in widget text (only our plugin's shortcode!)
         if ( version_compare( $GLOBALS['wp_version'], '2.8alpha', '>=') ) {
-            $pattern = '(.?)\[(' . preg_quote( $this->shortcode ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)';
+            $pattern = '(.?)\[(' . preg_quote( $this->shortcode_table_info ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)';
         } else {
-            $pattern = '\[(' . preg_quote( $this->shortcode ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\1\])?';
+            $pattern = '\[(' . preg_quote( $this->shortcode_table_info ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\1\])?';
+        }
+        // search for it, if found, handle as if it were a shortcode
+        return preg_replace_callback( '/'.$pattern.'/s', 'do_shortcode_tag', $text );
+    }
+
+    // handle [table id=<the_table_id> /] in widget texts
+    function handle_widget_filter_table( $text ) {
+        // pattern to search for in widget text (only our plugin's shortcode!)
+        if ( version_compare( $GLOBALS['wp_version'], '2.8alpha', '>=') ) {
+            $pattern = '(.?)\[(' . preg_quote( $this->shortcode_table ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)';
+        } else {
+            $pattern = '\[(' . preg_quote( $this->shortcode_table ) . ')\b(.*?)(?:(\/))?\](?:(.+?)\[\/\1\])?';
         }
         // search for it, if found, handle as if it were a shortcode
         return preg_replace_callback( '/'.$pattern.'/s', 'do_shortcode_tag', $text );
@@ -133,10 +216,34 @@ class WP_Table_Reloaded_Frontend {
         $cssclasses = implode( ' ', $cssclasses );
 
         // if row_offset or row_count were given, we cut that part from the table and show just that
+        // ATTENTION: MIGHT BE DROPPED IN FUTURE VERSIONS!
         if ( null === $output_options['row_count'] )
             $table['data'] = array_slice( $table['data'], $output_options['row_offset'] - 1 ); // -1 because we start from 1
         else
             $table['data'] = array_slice( $table['data'], $output_options['row_offset'] - 1, $output_options['row_count'] ); // -1 because we start from 1
+
+        // load information about hidden rows and columns
+        $hidden_rows = isset( $table['visibility']['rows'] ) ? array_keys( $table['visibility']['rows'], true ) : array();
+        $hidden_rows = array_merge( $hidden_rows, $output_options['hide_rows'] );
+        $hidden_rows = array_diff( $hidden_rows, $output_options['show_rows'] );
+        sort( $hidden_rows, SORT_NUMERIC );
+        $hidden_columns = isset( $table['visibility']['columns'] ) ? array_keys( $table['visibility']['columns'], true ) : array();
+        $hidden_columns = array_merge( $hidden_columns, $output_options['hide_columns'] );
+        $hidden_columns = array_merge( array_diff( $hidden_columns, $output_options['show_columns'] ) );
+        sort( $hidden_columns, SORT_NUMERIC );
+
+        // remove hidden rows and re-index
+        foreach( $hidden_rows as $row_idx ) {
+            unset( $table['data'][$row_idx] );
+        }
+        $table['data'] = array_merge( $table['data'] );
+        // remove hidden columns and re-index
+        foreach( $table['data'] as $row_idx => $row ) {
+            foreach( $hidden_columns as $col_idx ) {
+                unset( $row[$col_idx] );
+            }
+            $table['data'][$row_idx] = array_merge( $row );
+        }
 
         $rows = count( $table['data'] );
         $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
@@ -215,7 +322,21 @@ class WP_Table_Reloaded_Frontend {
 
     // ###################################################################################################################
     function safe_output( $string ) {
+        // replace any & with &amp; that is not already an encoded entity (from function htmlentities2 in WP 2.8)
+        $string = preg_replace( "/&(?![A-Za-z]{0,4}\w{2,3};|#[0-9]{2,4};)/", "&amp;", $string );
+        // then we only remove slashes and change line breaks, htmlspecialchars would encode <HTML> tags which we don't want
         return nl2br( stripslashes( $string ) );
+    }
+
+    // ###################################################################################################################
+    function format_datetime( $last_modified ) {
+        return mysql2date( get_option('date_format'), $last_modified ) . ' ' . mysql2date( get_option('time_format'), $last_modified );
+    }
+
+    // ###################################################################################################################
+    function get_last_editor( $last_editor_id ) {
+        $user = get_userdata( $last_editor_id );
+        return $user->nickname;
     }
 
     // ###################################################################################################################
@@ -245,7 +366,10 @@ CSSSTYLE;
     // ###################################################################################################################
     // output tablesorter execution js for all tables in wp_footer
     function output_tablesorter_js() {
-        $jsfile =  'jquery.tablesorter.min.js'; // filename of the tablesorter script
+        if ( isset( $this->options['use_tablesorter_extended'] ) && true == $this->options['use_tablesorter_extended'] )
+            $jsfile =  'jquery.tablesorter.extended.js'; // filename of the tablesorter extended script
+        else
+            $jsfile =  'jquery.tablesorter.min.js'; // filename of the tablesorter script
 
         if ( 0 < count( $this->tablesorter_tables ) && file_exists( WP_TABLE_RELOADED_ABSPATH . 'js/' . $jsfile ) ) {
         

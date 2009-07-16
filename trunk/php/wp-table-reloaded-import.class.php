@@ -3,7 +3,7 @@
 File Name: WP-Table Reloaded - Import Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
 Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "wp-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 1.3
+Version: 1.4-beta1
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -61,6 +61,9 @@ class WP_Table_Reloaded_Import {
             default:
                 $this->imported_table = array();
         }
+        
+        $this->fix_table_encoding();
+        
     }
 
     // ###################################################################################################################
@@ -79,11 +82,26 @@ class WP_Table_Reloaded_Import {
                 $temp_data = file_get_contents( $this->tempname );
                 break;
             default:
-                exit; // this should never happen
+                // this should never happen
+                $this->imported_table = array();
+                $this->error = true;
+                return;
+        }
+
+        if ( empty( $temp_data ) ) {
+            $this->imported_table = array();
+            $this->error = true;
+            return;
         }
 
         $parseCSV->heading = false; // means: treat first row like all others
-        $parseCSV->encoding( 'ISO-8859-1', 'UTF-8' ); // might need to play with this a little or offer an option
+        
+        // different things have worked, but don't always
+        // none of the following: 1 of 3
+        //$parseCSV->encoding( 'ISO-8859-1', 'ISO-8859-1//IGNORE' ); // might need to play with this a little or offer an option // 1 of 3
+        //$parseCSV->encoding( 'ISO-8859-1', 'UTF-8//IGNORE' ); // might need to play with this a little or offer an option // 0 of 3
+        //$parseCSV->encoding( 'ISO-8859-1', 'UTF-8' ); // might need to play with this a little or offer an option // 0 of 3
+        //$parseCSV->encoding( 'Windows-1252', 'UTF-8//IGNORE' ); // might need to play with this a little or offer an option // 1 of 3
         $parseCSV->load_data( $temp_data );
         $parseCSV->auto(); // let parsecsv do its magic (determine delimiter and parse the data)
 
@@ -99,10 +117,27 @@ class WP_Table_Reloaded_Import {
 
         $simpleXML = $this->create_class_instance( 'simplexml', 'simplexml.class.php' );
 
-        if ( 'form-field' == $this->import_from )
-            $temp_data = $this->import_data;
-        elseif ( 'file-upload' == $this->import_from )
-            $temp_data = file_get_contents( $this->tempname );
+        switch ( $this->import_from ) {
+            case 'form-field':
+            case 'url':
+                $temp_data = $this->import_data;
+                break;
+            case 'file-upload':
+            case 'server':
+                $temp_data = file_get_contents( $this->tempname );
+                break;
+            default:
+                // this should never happen
+                $this->imported_table = array();
+                $this->error = true;
+                return;
+        }
+
+        if ( empty( $temp_data ) ) {
+            $this->imported_table = array();
+            $this->error = true;
+            return;
+        }
 
         // extract table from html, pattern: <table> (with eventually class, id, ...
         // . means any charactery (except newline),
@@ -155,10 +190,21 @@ class WP_Table_Reloaded_Import {
 
         $simpleXML = $this->create_class_instance( 'simplexml', 'simplexml.class.php' );
 
-        if ( 'form-field' == $this->import_from )
-            $temp_data = $simpleXML->xml_load_string( $this->import_data, 'array' );
-        elseif ( 'file-upload' == $this->import_from )
-            $temp_data = $simpleXML->xml_load_file( $this->tempname, 'array' );
+        switch ( $this->import_from ) {
+            case 'form-field':
+            case 'url':
+                $temp_data = $simpleXML->xml_load_string( $this->import_data, 'array' );
+                break;
+            case 'file-upload':
+            case 'server':
+                $temp_data = $simpleXML->xml_load_file( $this->tempname, 'array' );
+                break;
+            default:
+                // this should never happen
+                $this->imported_table = array();
+                $this->error = true;
+                return;
+        }
 
         if ( false == is_array( $temp_data ) || false == isset( $temp_data['row'] ) || empty( $temp_data['row'] ) ) {
             $this->imported_table = array();
@@ -230,6 +276,8 @@ class WP_Table_Reloaded_Import {
     function pad_array_to_max_cols( $array_to_pad ){
         $rows = count( $array_to_pad );
         $max_columns = $this->count_max_columns( $array_to_pad );
+        $rows = ( 0 < $rows ) ? $rows : 1;
+        $max_columns = ( 0 < $max_columns ) ? $max_columns : 1;
         // array_map wants arrays as additional parameters (so we create one with the max_cols to pad to and one with the value to use (empty string)
         $max_columns_array = array_fill( 1, $rows, $max_columns );
         $pad_values_array =  array_fill( 1, $rows, '' );
@@ -241,19 +289,14 @@ class WP_Table_Reloaded_Import {
     function count_max_columns( $array ){
         $max_cols = 0 ;
         if ( is_array( $array ) && 0 < count( $array ) ) {
-                foreach ( $array as $row_idx => $row ) {
-                    $cols  = count( $row );
-                    $max_cols = ( $cols > $max_cols ) ? $cols : $max_cols;
-                }
+            foreach ( $array as $row_idx => $row ) {
+                $cols  = count( $row );
+                $max_cols = ( $cols > $max_cols ) ? $cols : $max_cols;
+            }
         }
         return 	$max_cols;
     }
 
-    // ###################################################################################################################
-    function add_slashes( $array ) {
-        return array_map( 'addslashes', $array );
-    }
-    
     // ###################################################################################################################
     function get_table_meta() {
         $table['name'] = $this->filename;
@@ -266,8 +309,25 @@ class WP_Table_Reloaded_Import {
     function create_class_instance( $class, $file) {
         if ( !class_exists( $class ) ) {
             include_once ( WP_TABLE_RELOADED_ABSPATH . 'php/' . $file );
-            if ( class_exists( $class ) )
-                return new $class;
+            return new $class;
+        }
+    }
+
+    // ###################################################################################################################
+    // fixes the encoding to UTF-8
+    function fix_encoding( $string ) {
+        return ( 'UTF-8' == mb_detect_encoding( $string ) && mb_check_encoding( $string, 'UTF-8' ) ) ? $string : utf8_encode( $string );
+    }
+
+    // ###################################################################################################################
+    // fixes the encoding to UTF-8
+    function fix_table_encoding() {
+        $data = $this->imported_table['data'];
+        if ( is_array( $data ) && 0 < count( $data ) ) {
+            foreach ( $data as $row_idx => $row ) {
+                $data[$row_idx] = array_map( array( &$this, 'fix_encoding' ), $row );
+            }
+            $this->imported_table['data'] = $data;
         }
     }
 

@@ -3,9 +3,10 @@
 Plugin Name: WP-Table Reloaded
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
 Description: This plugin allows you to create and easily manage tables in the admin-area of WordPress. A comfortable backend allows an easy manipulation of table data. You can then include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
-Version: 1.3
+Version: 1.4-beta1
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
+Donate URI: http://tobias.baethge.com/donate/
 */
 
 /*  Copyright 2009 Tobias B&auml;thge (email: wordpress@tobias.baethge.com )
@@ -25,14 +26,6 @@ Author URI: http://tobias.baethge.com/
 */
 
 // folder definitions as constants
-if ( !defined( 'WP_CONTENT_DIR' ) )
-    define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
-if ( !defined( 'WP_CONTENT_URL' ) )
-    define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content' );
-if ( !defined( 'WP_PLUGIN_URL' ) )
-	define( 'WP_PLUGIN_URL', WP_CONTENT_URL . '/plugins' );
-if ( !defined( 'WP_PLUGIN_DIR' ) )
-	define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins');
 if ( !defined( 'WP_TABLE_RELOADED_ABSPATH' ) )
     define( 'WP_TABLE_RELOADED_ABSPATH', WP_PLUGIN_DIR . '/' . basename( dirname ( __FILE__ ) ) . '/' );
 if ( !defined( 'WP_TABLE_RELOADED_URL' ) )
@@ -42,31 +35,31 @@ if ( !defined( 'WP_TABLE_RELOADED_BASENAME' ) )
 
 // decide whether admin or frontend
 if ( is_admin() ) {
-    // we are in admin mode
-    if ( !class_exists( 'WP_Table_Reloaded_Admin' ) ) {
-        include_once ( WP_TABLE_RELOADED_ABSPATH . 'wp-table-reloaded-admin.php' );
-        if ( class_exists( 'WP_Table_Reloaded_Admin' ) )  {
-            $WP_Table_Reloaded_Admin = new WP_Table_Reloaded_Admin();
-            register_activation_hook( __FILE__, array( &$WP_Table_Reloaded_Admin, 'plugin_activation_hook' ) );
-            register_deactivation_hook( __FILE__, array( &$WP_Table_Reloaded_Admin, 'plugin_deactivation_hook' ) );
-        }
-    }
+    // we are in admin mode, load admin class
+    include_once( WP_TABLE_RELOADED_ABSPATH . 'wp-table-reloaded-admin.php' );
+    $WP_Table_Reloaded_Admin = new WP_Table_Reloaded_Admin();
+
+    // actions to in admin, outside class
+    register_activation_hook( __FILE__, array( &$WP_Table_Reloaded_Admin, 'plugin_activation_hook' ) );
+    register_deactivation_hook( __FILE__, array( &$WP_Table_Reloaded_Admin, 'plugin_deactivation_hook' ) );
 } else {
-    // we are in frontend mode
-    if ( !class_exists( 'WP_Table_Reloaded_Frontend' ) ) {
-        include_once ( WP_TABLE_RELOADED_ABSPATH . 'wp-table-reloaded-frontend.php' );
-        if ( class_exists( 'WP_Table_Reloaded_Frontend' ) ) {
-            $WP_Table_Reloaded_Frontend = new WP_Table_Reloaded_Frontend();
-            
-            // ###################################################################################################################
-            // add template tag function to be used anywhere in the template
-            function wp_table_reloaded_print_table( $table_query ) {
-                global $WP_Table_Reloaded_Frontend;
-                parse_str( $table_query, $atts );
-                echo $WP_Table_Reloaded_Frontend->handle_content_shortcode( $atts );
-            }
-        }
+    // we are in frontend mode, load frontend class
+    include_once ( WP_TABLE_RELOADED_ABSPATH . 'wp-table-reloaded-frontend.php' );
+    $WP_Table_Reloaded_Frontend = new WP_Table_Reloaded_Frontend();
+
+    // add template tag function for "table" shortcode to be used anywhere in the template
+    function wp_table_reloaded_print_table( $table_query ) {
+        global $WP_Table_Reloaded_Frontend;
+        parse_str( $table_query, $atts );
+        echo $WP_Table_Reloaded_Frontend->handle_content_shortcode_table( $atts );
     }
+    // add template tag function for "table-info" shortcode to be used anywhere in the template
+    function wp_table_reloaded_print_table_info( $table_query ) {
+        global $WP_Table_Reloaded_Frontend;
+        parse_str( $table_query, $atts );
+        echo $WP_Table_Reloaded_Frontend->handle_content_shortcode_table_info( $atts );
+    }
+
 }
 
 ?>

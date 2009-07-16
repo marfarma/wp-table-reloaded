@@ -3,7 +3,7 @@
 File Name: WP-Table Reloaded - array sort Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
 Description: This plugin allows you to create and manage tables in the admin-area of WordPress. You can then show them in your posts or on your pages by using a shortcode. The plugin is greatly influenced by the plugin "wp-Table" by Alex Rabe, but was completely rewritten and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin.
-Version: 1.3
+Version: 1.4-beta1
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 */
@@ -30,12 +30,8 @@ class arraysort {
     {
         if ( -1 == $this->column )
             return 0;
-            
-        if ( $a[ $this->column ] == $b[ $this->column ] )
-            return 0;
 
-        return ( $a[ $this->column ] < $b[ $this->column ] ) ? -1 : 1;
-        // return strcmp( $a[ $this->column ], $b[ $this->column ] ); // doesn't work for integer columns obviously
+        return strnatcasecmp( $a[ $this->column ], $b[ $this->column ] );
     }
     
     function sort() {

@@ -16,12 +16,11 @@ jQuery(document).ready(function($){
     function wp_table_reloaded_button_click() {
 
         var title = 'WP-Table Reloaded';
-        var url = WP_Table_Reloaded_Admin.str_EditorButtonAjaxURL.replace(/&amp;/g, "&");
-        url = url.replace(/&#038;/g, "&");
+        var url = WP_Table_Reloaded_Admin.str_EditorButtonAjaxURL;
 
         tb_show( title, url, false);
         
-        $("#TB_ajaxContent").width("100%").height("100%")
+        $("#TB_ajaxContent").width("auto").height("94.5%")
         .click(function(event) {
             var $target = $(event.target);
             if ( $target.is('a.send_table_to_editor') ) {
