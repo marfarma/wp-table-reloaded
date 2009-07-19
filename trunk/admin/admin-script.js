@@ -129,9 +129,8 @@ jQuery(document).ready( function( $ ) {
     } );
 
 
-    // insert image / insert link functions
+    // insert link functions
     var insert_html = '';
-
     function add_html() {
         var current_content = $(this).val();
         $(this).val( current_content + insert_html );
@@ -152,19 +151,22 @@ jQuery(document).ready( function( $ ) {
 		return false;
     } );
 
-    $( '#a-insert-image' ).click( function () {
-        var image_url = prompt( WP_Table_Reloaded_Admin.str_DataManipulationImageInsertURL + ':', 'http://' );
-        if ( image_url ) {
-            var image_alt = prompt( WP_Table_Reloaded_Admin.str_DataManipulationImageInsertAlt + ':', '' );
-            // if ( image_alt ) { // won't check for alt, because there are cases where an empty one makes sense
-                insert_html = '<img src="' + image_url + '" alt="' + image_alt + '" />';
-                if ( true == confirm( WP_Table_Reloaded_Admin.str_DataManipulationImageInsertExplain + '\n\n' + insert_html ) ) {
-                    $("#table_contents textarea").bind('click', add_html);
-                }
-            // }
-        }
-		return false;
-    } );
+    // insert image functions
+    function call_media_library_thickbox() {
+        edCanvas = this;
+        $( '#table_contents textarea' ).unbind( 'click', call_media_library_thickbox );
+        var link = $( '#a-insert-image' );
+        tb_show( link.attr('title'), link.attr('href'), link.attr('rel') );
+        $(this).blur();
+    }
+
+    function add_image() {
+        $(this).unbind( 'click' ); // this unbind is for WP 2.8, where our script is added before thickbox.js
+        $(this).bind('click', add_image);
+        if ( true == confirm( WP_Table_Reloaded_Admin.str_DataManipulationImageInsertThickbox ) )
+            $("#table_contents textarea").bind( 'click', call_media_library_thickbox );
+    }
+    $( '#a-insert-image' ).unbind( 'click' ).bind('click', add_image); // this unbind is for WP < 2.8, where our script is added after thickbox.js
 
     // not all characters allowed for name of Custom Data Field
     $( '#insert_custom_field_name' ).keyup( function () {
@@ -179,6 +181,11 @@ jQuery(document).ready( function( $ ) {
     .blur( function () {
         if ( '' == $(this).val() )
             $(this).val( $(this).attr('title') );
+    } );
+
+    $( '#table_custom_fields textarea' ).focus( function() {
+        $( '#table_custom_fields .focus' ).removeClass('focus');
+        $(this).addClass('focus');
     } );
 
     // confirmation of certain actions

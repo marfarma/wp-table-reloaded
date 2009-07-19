@@ -3,7 +3,7 @@
 File Name: WP-Table Reloaded - Admin Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
 Description: Description: This plugin allows you to create and easily manage tables in the admin-area of WordPress. A comfortable backend allows an easy manipulation of table data. You can then include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
-Version: 1.4-beta1
+Version: 1.4-beta2
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 Donate URI: http://tobias.baethge.com/donate/
@@ -14,7 +14,7 @@ define( 'WP_TABLE_RELOADED_TEXTDOMAIN', 'wp-table-reloaded' );
 class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
-    var $plugin_version = '1.4-beta1';
+    var $plugin_version = '1.4-beta2';
     // nonce for security of links/forms, try to prevent "CSRF"
     var $nonce_base = 'wp-table-reloaded-nonce';
     var $page_slug = 'wp_table_reloaded';
@@ -1065,11 +1065,11 @@ class WP_Table_Reloaded_Admin {
         <table class="wp-table-reloaded-options">
         <tr valign="top">
             <th scope="row"><label for="table_name"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><input type="text" name="table[name]" id="table_name" class="focus-blur-change" value="<?php _e( 'Enter Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" style="width:250px;" title="<?php _e( 'Enter Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" /></td>
+            <td><input type="text" name="table[name]" id="table_name" class="focus-blur-change" value="<?php _e( 'Enter Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" style="width:100%;" title="<?php _e( 'Enter Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" /></td>
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table_description"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><textarea name="table[description]" id="table_description" class="focus-blur-change" rows="15" cols="40" style="width:250px;height:85px;" title="<?php _e( 'Enter Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>"><?php _e( 'Enter Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></textarea></td>
+            <td><textarea name="table[description]" id="table_description" class="focus-blur-change" rows="15" cols="40" style="width:100%;height:85px;" title="<?php _e( 'Enter Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>"><?php _e( 'Enter Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></textarea></td>
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table_rows"><?php _e( 'Number of Rows', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
@@ -1112,18 +1112,18 @@ class WP_Table_Reloaded_Admin {
         <div class="postbox">
         <h3 class="hndle"><span><?php _e( 'Table Information', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></span></h3>
         <div class="inside">
-        <table class="wp-table-reloaded-options wp-table-reloaded-table-information">
+        <table class="wp-table-reloaded-table-information">
         <tr valign="top">
             <th scope="row"><label for="table_id"><?php _e( 'Table ID', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><input type="text" name="table_id" id="table_id" value="<?php echo $this->safe_output( $table['id'] ); ?>" style="width:50px" /></td>
+            <td><input type="text" name="table_id" id="table_id" value="<?php echo $this->safe_output( $table['id'] ); ?>" style="width:80px" /></td>
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table_name"><?php _e( 'Table Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><input type="text" name="table[name]" id="table_name" value="<?php echo $this->safe_output( $table['name'] ); ?>" style="width:300px" /></td>
+            <td><input type="text" name="table[name]" id="table_name" value="<?php echo $this->safe_output( $table['name'] ); ?>" /></td>
         </tr>
         <tr valign="top">
             <th scope="row"><label for="table_description"><?php _e( 'Description', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>:</label></th>
-            <td><textarea name="table[description]" id="table_description" rows="15" cols="40" style="width:300px;height:85px;"><?php echo $this->safe_output( $table['description'] ); ?></textarea></td>
+            <td><textarea name="table[description]" id="table_description" rows="15" cols="40" style="height:84px;"><?php echo $this->safe_output( $table['description'] ); ?></textarea></td>
         </tr>
         <?php if ( !empty( $table['last_editor_id'] ) ) { ?>
         <tr valign="top">
@@ -1324,8 +1324,8 @@ class WP_Table_Reloaded_Admin {
         <?php } // end if form move col ?>
     </td></tr>
     <tr><td>
-        <a id="a-insert-link" class="button-primary" href=""><?php _e( 'Insert Link', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a>
-        <a id="a-insert-image" class="button-primary" href=""><?php _e( 'Insert Image', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a>
+        <a id="a-insert-link" class="button-primary" href="javascript:void(0);"><?php _e( 'Insert Link', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a>
+        <a id="a-insert-image" href="media-upload.php?type=image&amp;tab=library&amp;TB_iframe=true" class="thickbox button-primary" title="<?php _e( 'Insert Image', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" onclick="javascript:return false;"><?php _e( 'Insert Image', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></a>
     </td><td>
         <?php if ( 1 < $rows ) { // sort form
 
@@ -1406,7 +1406,7 @@ class WP_Table_Reloaded_Admin {
         <?php echo sprintf( __( 'You can show this data in the same way as tables by using the shortcode <strong>[table-info id=%s field="&lt;field-name&gt;" /]</strong>.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->safe_output( $table_id ) ); ?>
         <br/><br/>
         <?php if ( isset( $table['custom_fields'] ) && !empty ( $table['custom_fields'] ) ) { ?>
-            <table class="widefat" style="width:auto;" id="table_custom_fields">
+            <table class="widefat" style="width:100%" id="table_custom_fields">
                 <thead>
                     <tr>
                         <th scope="col"><?php _e( 'Field Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?></th>
@@ -1420,10 +1420,10 @@ class WP_Table_Reloaded_Admin {
                     $name = $this->safe_output( $name );
                     $value = $this->safe_output( $value );
                     echo "<tr>\n";
-                        echo "\t<td>{$name}</td>\n";
-                        echo "\t<td><input type=\"text\" name=\"table[custom_fields][{$name}]\" value=\"{$value}\" style=\"width:200px\" /></td>\n";
+                        echo "\t<td style=\"width:10%;\">{$name}</td>\n";
+                        echo "\t<td style=\"width:75%;\"><textarea rows=\"1\" cols=\"20\" name=\"table[custom_fields][{$name}]\" style=\"width:90%\">{$value}</textarea></td>\n";
                         $delete_cf_url = $this->get_action_url( array( 'action' => 'delete', 'table_id' => $table['id'], 'item' => 'custom_field', 'element_id' => $name ), true );
-                        echo "\t<td>";
+                        echo "\t<td style=\"width:15%;min-width:200px;\">";
                         echo "<a href=\"{$delete_cf_url}\">" . __( 'Delete Field', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
                         $shortcode = "[table-info id=" . $this->safe_output( $table_id ) . " field=&quot;{$name}&quot; /]";
                         echo " | <a href=\"javascript:void(0);\" class=\"cf_shortcode_link\" title=\"{$shortcode}\">" . __( 'View shortcode', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
@@ -1436,7 +1436,7 @@ class WP_Table_Reloaded_Admin {
             <br/>
         <?php } // endif custom_fields ?>
         <?php _e( 'To add a new Custom Data Field, enter its name (only lowercase letters, numbers, _ and -).', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
-        <?php _e( 'Custom Data Field Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>: <input type="text" id="insert_custom_field_name" name="insert[custom_field]" value="" style="width:150px" /> <input type="submit" name="submit[insert_cf]" class="button-primary" value="<?php _e( 'Add', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" />
+        <?php _e( 'Custom Data Field Name', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>: <input type="text" id="insert_custom_field_name" name="insert[custom_field]" value="" style="width:300px" /> <input type="submit" name="submit[insert_cf]" class="button-primary" value="<?php _e( 'Add', WP_TABLE_RELOADED_TEXTDOMAIN ); ?>" />
     </div>
     </div>
 
@@ -1736,7 +1736,7 @@ class WP_Table_Reloaded_Admin {
             <textarea name="options[custom_css]" id="options_custom_css" rows="15" cols="40" style="width:600px;height:300px;"<?php echo ( false == $this->options['use_custom_css'] ) ? ' disabled="disabled"': '' ; ?>><?php echo $this->safe_output( $this->options['custom_css'] ); ?></textarea><br/><br/>
             <?php
             $stylesheet = '/themes/' . get_stylesheet() . '/style.css';
-            $editor_uri = dirname( $_SERVER['PHP_SELF'] ) . '/theme-editor.php?file=' . $stylesheet;
+            $editor_uri = 'theme-editor.php?file=' . $stylesheet;
             echo sprintf( __( 'You might get a better website performance, if you add the CSS styling to your theme\'s "style.css" (located at <a href="%s">%s</a>) instead.', WP_TABLE_RELOADED_TEXTDOMAIN ), $editor_uri, $stylesheet ); ?><br/>
             <?php echo sprintf( __( 'See the <a href="%s">plugin website</a> for styling examples or use one of the following: <a href="%s">Example Style 1</a> <a href="%s">Example Style 2</a>', WP_TABLE_RELOADED_TEXTDOMAIN ), 'http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/', 'http://tobias.baethge.com/download/plugins/additional/example-style-1.css', 'http://tobias.baethge.com/download/plugins/additional/example-style-2.css' ); ?><br/><?php _e( 'Just copy the contents of a file into the textarea.', WP_TABLE_RELOADED_TEXTDOMAIN ); ?><br/>
             <?php echo sprintf( __( 'Another possibility is, to include a CSS file (e.g. from your theme folder) with the CSS @import command: %s', WP_TABLE_RELOADED_TEXTDOMAIN ), '<code>@import url( "YOUR-CSS-FILE.css" ) screen, print;</code>' ); ?>
@@ -2260,9 +2260,7 @@ TEXT;
 	  	        'str_DataManipulationLinkInsertURL' => __( 'URL of link to insert', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	        'str_DataManipulationLinkInsertText' => __( 'Text of link', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	        'str_DataManipulationLinkInsertExplain' => __( 'To insert the following link into a cell, just click the cell after closing this dialog.', WP_TABLE_RELOADED_TEXTDOMAIN ),
-	  	        'str_DataManipulationImageInsertURL' => __( 'URL of image to insert', WP_TABLE_RELOADED_TEXTDOMAIN ),
-	  	        'str_DataManipulationImageInsertAlt' => __( "&quot;alt&quot; text of the image", WP_TABLE_RELOADED_TEXTDOMAIN ),
-	  	        'str_DataManipulationImageInsertExplain' => __( 'To insert the following image into a cell, just click the cell after closing this dialog.', WP_TABLE_RELOADED_TEXTDOMAIN ),
+	  	        'str_DataManipulationImageInsertThickbox' => __( 'To insert an image, click the cell into which you want to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . __( 'The Media Library will open, from which you can select the desired image or insert the image URL.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . sprintf( __( 'Click the "%s" button to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ), attribute_escape( __('Insert into Post') ) ),
 	  	        'str_BulkCopyTablesLink' => __( 'Do you want to copy the selected tables?', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	        'str_BulkDeleteTablesLink' => __( 'The selected tables and all content will be erased. Do you really want to delete them?', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	        'str_BulkImportwpTableTablesLink' => __( 'Do you really want to import the selected tables from the wp-Table plugin?', WP_TABLE_RELOADED_TEXTDOMAIN ),
@@ -2307,7 +2305,7 @@ TEXT;
                 'page' => $this->page_slug,
                 'action' => 'ajax_list'
         );
-        $ajax_url = add_query_arg( $params, dirname( $_SERVER['PHP_SELF'] ) . '/tools.php' );
+        $ajax_url = add_query_arg( $params, 'tools.php' );
         $ajax_url = wp_nonce_url( $ajax_url, $this->get_nonce( $params['action'], false ) );
         $ajax_url = clean_url( $ajax_url );
 
