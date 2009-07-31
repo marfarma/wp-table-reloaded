@@ -3,7 +3,7 @@
 File Name: WP-Table Reloaded - Admin Class (see main file wp-table-reloaded.php)
 Plugin URI: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/
 Description: Description: This plugin allows you to create and easily manage tables in the admin-area of WordPress. A comfortable backend allows an easy manipulation of table data. You can then include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
-Version: 1.4-beta2
+Version: 1.4
 Author: Tobias B&auml;thge
 Author URI: http://tobias.baethge.com/
 Donate URI: http://tobias.baethge.com/donate/
@@ -14,7 +14,7 @@ define( 'WP_TABLE_RELOADED_TEXTDOMAIN', 'wp-table-reloaded' );
 class WP_Table_Reloaded_Admin {
 
     // ###################################################################################################################
-    var $plugin_version = '1.4-beta2';
+    var $plugin_version = '1.4';
     // nonce for security of links/forms, try to prevent "CSRF"
     var $nonce_base = 'wp-table-reloaded-nonce';
     var $page_slug = 'wp_table_reloaded';
@@ -40,7 +40,7 @@ class WP_Table_Reloaded_Admin {
         'enable_tablesorter' => true,
         'use_tablesorter_extended' => false,
         'use_custom_css' => true,
-        'custom_css' => '.wp-table-reloaded {width:100%;}',
+        'custom_css' => '',
         'install_time' => 0,
         'show_donate_nag' => true,
         'update_message' => array(),
@@ -82,12 +82,17 @@ class WP_Table_Reloaded_Admin {
         $this->init_plugin();
 
         // init variables to check whether we do valid AJAX
-        $doing_ajax = false;
+        $doing_ajax = defined( 'DOING_AJAX' ) ? DOING_AJAX : false;
         $valid_ajax_call = ( isset( $_GET['page'] ) && $this->page_slug == $_GET['page'] ) ? true : false;
+
+        // real WP AJAX actions (other AJAX calls can not be done like this, because they are GET-requests)
+        if ( $doing_ajax ) {
+            add_action( 'wp_ajax_delete-wp-table-reloaded-table', array( &$this, 'do_action_ajax_delete_table') );
+        }
 
         // have to check for possible export file download request this early,
         // because otherwise http-headers will be sent by WP before we can send download headers
-        if ( $valid_ajax_call && isset( $_POST['download_export_file'] ) && 'true' == $_POST['download_export_file'] ) {
+        if ( !$doing_ajax && $valid_ajax_call && isset( $_POST['download_export_file'] ) && 'true' == $_POST['download_export_file'] ) {
             // can be done in plugins_loaded, as no language support is needed
             add_action( 'plugins_loaded', array( &$this, 'do_action_export' ) );
             $doing_ajax = true;
@@ -121,7 +126,7 @@ class WP_Table_Reloaded_Admin {
         $this->hook = add_management_page( 'WP-Table Reloaded', 'WP-Table Reloaded', $min_needed_capability, $this->page_slug, array( &$this, 'show_manage_page' ) );
         add_action( 'load-' . $this->hook, array( &$this, 'load_manage_page' ) );
     }
-    
+
     // ###################################################################################################################
     // only load the scripts, stylesheets and language by hook, if this admin page will be shown
     // all of this will be done before the page is shown by show_manage_page()
@@ -444,7 +449,7 @@ class WP_Table_Reloaded_Admin {
             } else {
                 $this->print_edit_table_form( $table['id'] );
             }
-        } elseif ( isset( $_GET['table_id'] ) ) {
+        } elseif ( isset( $_GET['table_id'] ) && $this->table_exists( $_GET['table_id'] ) ) {
             $this->print_edit_table_form( $_GET['table_id'] );
         } else {
             $this->do_action_list();
@@ -862,7 +867,7 @@ class WP_Table_Reloaded_Admin {
             $bg_style_index = 0;
             foreach ( $this->tables as $id => $tableoptionname ) {
                 $bg_style_index++;
-                $bg_style = ( 0 == ($bg_style_index % 2) ) ? ' class="alternate"' : '';
+                $bg_style = ( 1 == ($bg_style_index % 2) ) ? ' class="alternate"' : '';
 
                 // get name and description to show in list
                 $table = $this->load_table( $id );
@@ -928,6 +933,14 @@ class WP_Table_Reloaded_Admin {
         // necessary to stop page building here!
         exit;
     }
+
+    // ###################################################################################################################
+    function do_action_ajax_delete_table() {
+        check_ajax_referer( $this->get_nonce( 'delete', 'table' ) );
+        $table_id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+        $this->delete_table( $table_id );
+        die('1');
+    }
     
     // ###################################################################################################################
     // user donated
@@ -986,11 +999,11 @@ class WP_Table_Reloaded_Admin {
                 </tr>
             </tfoot>
             <?php
-            echo "<tbody>\n";
+            echo "<tbody id=\"the-list\" class=\"list:wp-table-reloaded-table\">\n";
             $bg_style_index = 0;
             foreach ( $this->tables as $id => $tableoptionname ) {
                 $bg_style_index++;
-                $bg_style = ( 0 == ($bg_style_index % 2) ) ? ' class="alternate"' : '';
+                $bg_style = ( 1 == ($bg_style_index % 2) ) ? ' class="even"' : ' class="odd"';
 
                 // get name and description to show in list
                 $table = $this->load_table( $id );
@@ -1008,7 +1021,7 @@ class WP_Table_Reloaded_Admin {
                 $delete_url = $this->get_action_url( array( 'action' => 'delete', 'table_id' => $id, 'item' => 'table' ), true );
                 $preview_url = $this->get_action_url( array( 'action' => 'ajax_preview', 'table_id' => $id ), true );
 
-                echo "<tr{$bg_style}>\n";
+                echo "<tr id=\"wp-table-reloaded-table-{$id}\" {$bg_style}>\n";
                 echo "\t<th class=\"check-column no-wrap\" scope=\"row\"><input type=\"checkbox\" name=\"tables[]\" value=\"{$id}\" /></th>\n";
                 echo "\t<th scope=\"row\" class=\"no-wrap table-id\">{$id}</th>\n";
                 echo "\t<td>\n";
@@ -1019,7 +1032,7 @@ class WP_Table_Reloaded_Admin {
                 echo "<a href=\"javascript:void(0);\" class=\"table_shortcode_link\" title=\"{$shortcode}\">" . __( 'Shortcode', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>" . " | ";
                 echo "<a class=\"copy_table_link\" href=\"{$copy_url}\">" . __( 'Copy', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>" . " | ";
                 echo "<a href=\"{$export_url}\">" . __( 'Export', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>" . " | ";
-                echo "<a class=\"delete_table_link\" href=\"{$delete_url}\">" . __( 'Delete', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>" . " | ";
+                echo "<span class=\"delete\"><a class=\"delete:the-list:wp-table-reloaded-table-{$id} delete_table_link\" href=\"{$delete_url}\">" . __( 'Delete', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a></span>" . " | ";
                 $preview_title = sprintf( __( 'Preview of Table %s', WP_TABLE_RELOADED_TEXTDOMAIN ), $id );
                 echo "<a class=\"thickbox\" href=\"{$preview_url}\" title=\"{$preview_title}\">" . __( 'Preview', WP_TABLE_RELOADED_TEXTDOMAIN ) . "</a>";
                 echo "</div>\n";
@@ -1584,7 +1597,7 @@ class WP_Table_Reloaded_Admin {
             $bg_style_index = 0;
             foreach ( $tables as $table ) {
                 $bg_style_index++;
-                $bg_style = ( 0 == ($bg_style_index % 2) ) ? ' class="alternate"' : '';
+                $bg_style = ( 1 == ($bg_style_index % 2) ) ? ' class="alternate"' : '';
 
                 $table_id = $table->table_aid;
                 $name = $table->table_name;
@@ -2168,6 +2181,48 @@ TEXT;
         $this->options = $this->default_options;
         $this->options['installed_version'] = $this->plugin_version;
         $this->options['install_time'] = time();
+        $image_path = WP_TABLE_RELOADED_URL . 'img';
+        $this->options['custom_css'] = <<<CSS
+.wp-table-reloaded {
+	background-color:#CDCDCD;
+	margin:10px 0px 15px 0px;
+	font-size:8pt;
+	width:100%;
+	text-align:left;
+}
+.wp-table-reloaded th {
+	background-color:#E6EEEE;
+	border:1px solid #FFFFFF;
+	padding:4px;
+}
+.wp-table-reloaded td {
+	color:#3D3D3D;
+	padding:4px;
+	background-color:#FFFFFF;
+	vertical-align:top;
+}
+.wp-table-reloaded .even td {
+	background-color:#FFFFFF;
+}
+.wp-table-reloaded .odd td{
+	background-color:#F0F0F6;
+}
+.wp-table-reloaded .header {
+	background-image:url({$image_path}/bg.gif);
+	background-repeat:no-repeat;
+	background-position:center right;
+	cursor:pointer;
+}
+.wp-table-reloaded .headerSortUp {
+	background-color:#8DBDD8;
+	background-image:url({$image_path}/asc.gif);
+}
+
+.wp-table-reloaded .headerSortDown {
+	background-color:#8DBDD8;
+	background-image:url({$image_path}/desc.gif);
+}
+CSS;
         $this->update_options();
         $this->tables = $this->default_tables;
         $this->update_tables();
@@ -2325,17 +2380,34 @@ TEXT;
     // ###################################################################################################################
     // output tablesorter execution js for all tables in wp_footer
     function output_tablesorter_js() {
-        $jsfile =  'jquery.tablesorter.min.js'; // filename of the tablesorter script
-
         if ( 0 < count( $this->tables ) ) {
-            wp_register_script( 'wp-table-reloaded-tablesorter-js', WP_TABLE_RELOADED_URL . 'js/' . $jsfile, array( 'jquery' ) );
+        
+            $wpList = '';
+            if ( version_compare( $GLOBALS['wp_version'], '2.7alpha', '>=') ) {
+                wp_print_scripts( 'wp-lists' ); // for AJAX on list of tables
+                $wpList = <<<WPLIST
+
+var delBefore;
+delBefore = function(s) {
+    return confirm( WP_Table_Reloaded_Admin.str_DeleteTableLink ) ? s : false;
+}
+$('#the-list').wpList( { alt: 'even', delBefore: delBefore } );
+$('.delete a[class^="delete"]').click(function(){return false;});
+
+WPLIST;
+            }
+            
+            wp_register_script( 'wp-table-reloaded-tablesorter-js', WP_TABLE_RELOADED_URL . 'js/jquery.tablesorter.min.js', array( 'jquery' ) );
             wp_print_scripts( 'wp-table-reloaded-tablesorter-js' );
+
             echo <<<JSSCRIPT
 <script type="text/javascript">
 /* <![CDATA[ */
 jQuery(document).ready(function($){
+
 $('#wp-table-reloaded-list').tablesorter({widgets: ['zebra'], headers: {0: {sorter: false},4: {sorter: false}}})
 .find('.header').append('&nbsp;<span>&nbsp;&nbsp;&nbsp;</span>');
+{$wpList}
 });
 /* ]]> */
 </script>
