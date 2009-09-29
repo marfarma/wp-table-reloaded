@@ -111,7 +111,7 @@ I'm also happy about [donations](http://tobias.baethge.com/donate/) or something
 
 == Changelog ==
 
-= Version 1.4.2 =
+= Version 1.4.2a =
 * fixed bug: JavaScript errors in IE6 and 7 on Import screen
 * fixed bug: escapaping of delimiter when exporting was broken
 * added check for functions from mbstring library
