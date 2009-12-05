@@ -2,8 +2,8 @@
 Contributors: TobiasBg 
 Donate link: http://tobias.baethge.com/donate/
 Tags: html,table,data,editor,csv,import,export,excel,widget,admin,sidebar
-Requires at least: 2.6
-Tested up to: 2.8.6
+Requires at least: 2.7
+Tested up to: 2.9-beta-2
 Stable tag: 1.4.2a
 
 WP-Table Reloaded enables you to create and manage tables in your WP's admin area. No HTML knowledge is needed. A comfortable backend allows to easily edit table data. You can include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
@@ -69,12 +69,12 @@ You may also make feature requests using this method! Don't be shy!
 
 = Requirements? =
 
-In short: WordPress 2.6 or higher
+In short: WordPress 2.7 or higher
 
 = Languages and Localization? =
 
 The plugin currently includes the following languages:
-Albanian, Belorussian, Brazilian Portuguese, Czech, English, French, German, Italian, Japanese, Polish, Russian, Spanish, Swedish and Turkish.
+Albanian, Belorussian, Brazilian Portuguese, Czech, English, Finnish, French, German, Italian, Japanese, Polish, Russian, Slovak, Spanish, Swedish and Turkish.
 
 I'd really appreciate it, if you would translate the plugin into your language! Using Heiko Rabe's WordPress plugin [Codestyling Localization](http://www.code-styling.de/english/development/wordpress-plugin-codestyling-localization-en/) that really is as easy as pie. Just install the plugin, add your language, create the .po-file, translate the strings in the comfortable editor and create the .mo-file. It will automatically be saved in WP-Table Reloaded's plugin folder. If you send me the .mo- and .po-file, I will gladly include them into future plugin releases.
 There is also a .pot-file available to use in the "languages" subfolder.
@@ -98,7 +98,9 @@ You may also add certain features (like table-sorting, alternating row colors, p
 == Acknowledgements ==
 
 Thanks go to [Alex Rabe](http://alexrabe.boelinger.com/) for the initial wp-Table plugin!
+Thanks go to [Allan Jardine](http://www.datatables.net/) for the DataTables-jQuery-plugin.
 Thanks go to [Christian Bach](http://tablesorter.com/docs/) for the TableSorter-jQuery-plugin.
+Thanks go to [Sören Krings](http://tablesorter.openwerk.de/) for the TableSorter-Extended-jQuery-plugin.
 Thanks to all language file translators!
 Thanks to every donor, supporter and bug reporter!
 
@@ -110,6 +112,9 @@ I kindly ask you for link somewhere on your website to http://tobias.baethge.com
 I'm also happy about [donations](http://tobias.baethge.com/donate/) or something from [my wishlist](http://tobias.baethge.com/wishlist)! Thanks!
 
 == Changelog ==
+
+= Version 1.5 =
+* to be written...
 
 = Version 1.4.2a =
 * fixed bug: JavaScript errors in IE6 and 7 on Import screen
