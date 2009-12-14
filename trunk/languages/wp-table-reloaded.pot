@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-table-reloaded\n"
-"POT-Creation-Date: 2009-12-14 19:38+0000\n"
+"POT-Creation-Date: 2009-12-14 19:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -834,7 +834,7 @@ msgstr ""
 #: wp-table-reloaded-admin.php:1555
 #, php-format
 msgctxt "insert_delete"
-msgid "Selected rows: %s"
+msgid "Selected rows: %s %s"
 msgstr ""
 
 #: wp-table-reloaded-admin.php:1565
