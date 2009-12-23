@@ -206,7 +206,6 @@ div.closed .hide_link { display: none; }
 }
 
 .dataTables_wrapper {
-	position: relative;
 	clear: both;
 }
 
