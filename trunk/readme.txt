@@ -2,17 +2,15 @@
 Contributors: TobiasBg 
 Donate link: http://tobias.baethge.com/donate/
 Tags: html,table,data,editor,csv,import,export,excel,widget,admin,sidebar
-Requires at least: 2.7
-Tested up to: 2.9
+Requires at least: 2.8
+Tested up to: 2.9.1
 Stable tag: 1.5
 
 WP-Table Reloaded enables you to create and manage tables in your WP's admin area. No HTML knowledge is needed. A comfortable backend allows to easily edit table data. You can include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
 
 == Description ==
 
-WP-Table Reloaded enables you to create and manage tables in your WP's admin area. No HTML knowledge is needed. A comfortable backend allows to easily edit table data. You can include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
-
-The plugin is a completely rewritten and extended version of Alex Rabe's "wp-Table" and uses the state-of-the-art WordPress techniques which makes it faster and lighter than the original plugin. You may also have both plugins installed at the same time and you can also import your tables from the wp-Table plugin!
+WP-Table Reloaded enables you to create and manage tables in your WP's admin area. No HTML knowledge is needed. A comfortable backend allows to easily edit table data. Tables can contain any type of data and additional JavaScript libraries can be used to extend it with features like sorting, pagination, filtering, and more. You can include the tables into your posts, on your pages or in text widgets by using a shortcode or a template tag function. Tables can be imported and exported from/to CSV, XML and HTML.
 
 = More information =
 Please see the English plugin website http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-english/ .
@@ -20,7 +18,7 @@ Please see the English plugin website http://tobias.baethge.com/wordpress-plugin
 If you like this plugin, please rate it here in the WordPress Plugin Directory or make a [donation](http://tobias.baethge.com/donate/). Thank you!
 
 = Informationen auf Deutsch =
-Dieses Plugin erlaubt die Verwaltung von Tabellen in WordPress.
+Dieses Plugin erlaubt die komfortable Verwaltung von Tabellen in WordPress. Daf&uuml;r werden keine HTML-Kenntnisse ben&ouml;tigt. Die Daten werden in einer Eingabemaske eingegeben und mittels eines Shortcodes in Artikel, Seiten oder Text-Widgets eingebunden. Zus&auml;tzlich k&ouml;nnen einer Tabelle mit einer JavaScript-Bibliothek weitere F&auml;higkeiten, wie Sortieren, Paginierung und Filterung hinzugef&uuml;gt werden.
 
 Weitere Informationen auf Deutsch: http://tobias.baethge.com/wordpress-plugins/wp-table-reloaded-deutsch/
 
@@ -32,7 +30,7 @@ Screenshots are available on http://tobias.baethge.com/wordpress-plugins/wp-tabl
 
 == Installation ==
 
-The easiest way is through your WordPress admin area. Go to the plugin section and search for "WP-Table Reloaded" in the WordPress Plugin Directory. Then you can click "Install" and the following steps will be done for you automatically. You just have to activate the plugin (step 5).
+The easiest way is through your WordPress Admin area. Go to the plugin section and search for "WP-Table Reloaded" in the WordPress Plugin Directory. Then you can click "Install" and the following steps will be done for you automatically. You just have to activate the plugin (step 5).
 
 Manual Installation works just as for most other WordPress plugins:
 
@@ -44,7 +42,7 @@ Manual Installation works just as for most other WordPress plugins:
 
 1. Include a table by adding the shortcode [table id=&lt;your-table's-id&gt; /] to your post, page or text widget.
 
-1. You might want to add styling features via your blog's theme's CSS file (probably style.css) or via the option in the "Plugin Options" screen, where you can enter your CSS directly.
+1. You might want to add styling features via the option in the "Plugin Options" screen, where you can enter your CSS directly.
 
 == Frequently Asked Questions ==
 
@@ -64,12 +62,12 @@ You may also make feature requests using this method! Don't be shy!
 
 = Requirements? =
 
-In short: WordPress 2.7 or higher
+In short: WordPress 2.8 or higher
 
 = Languages and Localization? =
 
 The plugin currently includes the following languages:
-Brazilian Portuguese, Czech, English, German, Japanese, Slovak, and Swedish.
+Albanian, Belorussian, Brazilian Portuguese, Czech, English, Finnish, French, German, Hindi, Italian, Japanese, Polish, Russian, Slovak, Spanish, Swedish and Turkish.
 
 I'd really appreciate it, if you would translate the plugin into your language! Using Heiko Rabe's WordPress plugin [Codestyling Localization](http://www.code-styling.de/english/development/wordpress-plugin-codestyling-localization-en/) that really is as easy as pie. Just install the plugin, add your language, create the .po-file, translate the strings in the comfortable editor and create the .mo-file. It will automatically be saved in WP-Table Reloaded's plugin folder. If you send me the .mo- and .po-file, I will gladly include them into future plugin releases.
 There is also a .pot-file available to use in the "languages" subfolder.
@@ -87,8 +85,8 @@ Everything should be self-explaining there.
 
 To show one of your tables in a post, on a page or in a text widget, just include the shortcode [table id=&lt;the-id&gt; /] to your post/page/text-widget, where &lt;the-id&gt is the ID of your table (can be found on the left side of the "List tables" screen.)
 
-After that you might want to change the style of the table. You can do this by adding CSS to the "Custom CSS" textarea on the "Plugin Options" screen.
-You may also add certain features (like table-sorting, alternating row colors, print name and/or description, ...) by checking the appropriate options in the "Edit table" screen.
+After that you might want to change the style of the table. You can do this by entering CSS commands into the "Custom CSS" textarea on the "Plugin Options" screen.
+You may also add certain features (like sorting, pagination, filtering, alternating row colors, row highlighting, print name and/or description, ...) by checking the appropriate options on the "Edit table" screen.
 
 == Acknowledgements ==
 
@@ -107,6 +105,16 @@ I kindly ask you for link somewhere on your website to http://tobias.baethge.com
 I'm also happy about [donations](http://tobias.baethge.com/donate/) or something from [my wishlist](http://tobias.baethge.com/wishlist)! Thanks!
 
 == Changelog ==
+
+= Version 1.6 =
+* feature: Support for "colspan" and "colspan" in tables
+* feature: WP Search will now also search in tables
+* feature: Possibility to select the plugin language
+* feature: Highlight row (background-color change when hovering)
+* feature: Option to show an "Edit Table" link on the frontend
+* enhancement: select fields for position of name and description
+* internal plugin restructuring
+* dropped support for outdated WordPress 2.7
 
 = Version 1.5 =
 * added the DataTables JavaScript library with these features: sorting, pagination, filtering, TableTools
