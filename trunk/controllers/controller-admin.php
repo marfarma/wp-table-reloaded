@@ -300,6 +300,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             // the following will (as of currently) be made inactive because they are not up-to-date
             'sq_AL' => __( 'Albanian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'by_BY' => __( 'Belorussian', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'et'    => __( 'Estonian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'fi_FI' => __( 'Finnish', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'fr_FR' => __( 'French', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'it_IT' => __( 'Italian', WP_TABLE_RELOADED_TEXTDOMAIN ),
@@ -346,7 +347,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             $donated_true_url = $this->get_action_url( array( 'action' => 'hide_donate_nag', 'user_donated' => true ), true );
             $donated_false_url = $this->get_action_url( array( 'action' => 'hide_donate_nag', 'user_donated' => false ), true );
             $this->helper->print_header_message(
-                __( 'Thanks for using this plugin! You\'ve installed WP-Table Reloaded over a month ago.') . ' ' . sprintf( _n( 'If it works and you are satisfied with the results of managing your %s table, isn\'t it worth at least one dollar or euro?', 'If it works and you are satisfied with the results of managing your %s tables, isn\'t it worth at least one dollar or euro?', count( $this->tables ), WP_TABLE_RELOADED_TEXTDOMAIN ), count( $this->tables ) ) . '<br/><br/>' .
+                __( 'Thanks for using this plugin! You\'ve installed WP-Table Reloaded over a month ago.', WP_TABLE_RELOADED_TEXTDOMAIN ) . ' ' . sprintf( _n( 'If it works and you are satisfied with the results of managing your %s table, isn\'t it worth at least one dollar or euro?', 'If it works and you are satisfied with the results of managing your %s tables, isn\'t it worth at least one dollar or euro?', count( $this->tables ), WP_TABLE_RELOADED_TEXTDOMAIN ), count( $this->tables ) ) . '<br/><br/>' .
                 sprintf( __( '<a href="%s">Donations</a> help me to continue support and development of this <i>free</i> software - things for which I spend countless hours of my free time! Thank you!', WP_TABLE_RELOADED_TEXTDOMAIN ), $donate_url ) . '<br/><br/>' .
                 sprintf( '<a href="%s" target="_blank">%s</a>', $donate_url, __( 'Sure, no problem!', WP_TABLE_RELOADED_TEXTDOMAIN ) ) . '&nbsp;&nbsp;&middot;&nbsp;&nbsp;' .
                 sprintf( '<a href="%s" style="font-weight:normal;">%s</a>', $donated_true_url, __( 'I already donated.', WP_TABLE_RELOADED_TEXTDOMAIN ) ) . '&nbsp;&nbsp;&middot;&nbsp;&nbsp;' .
@@ -1687,7 +1688,8 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
     function add_manage_page_js() {
         $suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.dev' : '';
         $jsfile = "admin/admin-script{$suffix}.js";
-        wp_enqueue_script( 'wp-table-reloaded-admin-js', plugins_url( $jsfile, WP_TABLE_RELOADED__FILE__ ), array( 'jquery', 'thickbox' ), $this->options['installed_version'], true );
+        $js_url = plugins_url( $jsfile, WP_TABLE_RELOADED__FILE__ );
+        wp_enqueue_script( 'wp-table-reloaded-admin-js', $js_url, array( 'jquery', 'thickbox' ), $this->options['installed_version'], true );
         wp_localize_script( 'wp-table-reloaded-admin-js', 'WP_Table_Reloaded_Admin', array(
 	  	    'str_UninstallCheckboxActivation' => __( 'Do you really want to activate this? You should only do that right before uninstallation!', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_DataManipulationLinkInsertURL' => __( 'URL of link to insert', WP_TABLE_RELOADED_TEXTDOMAIN ),
@@ -1786,8 +1788,9 @@ WPLIST;
         $use_datatables = apply_filters( 'wp_table_reloaded_admin_use_datatables', $use_datatables );
         // sorting doesn't make sense, if there is only one table in the list
         if ( $use_datatables && 1 < count( $this->tables ) ) {
-            wp_register_script( 'wp-table-reloaded-tablesorter-js', plugins_url( 'js/jquery.datatables.min.js', WP_TABLE_RELOADED__FILE__ ), array( 'wp-table-reloaded-admin-js' ), $this->options['installed_version'] );
-            wp_print_scripts( 'wp-table-reloaded-tablesorter-js' );
+            $datatables_url = plugins_url( 'js/jquery.datatables.min.js', WP_TABLE_RELOADED__FILE__ );
+            wp_register_script( 'wp-table-reloaded-datatables-js', $datatables_url, array( 'wp-table-reloaded-admin-js' ), $this->options['installed_version'] );
+            wp_print_scripts( 'wp-table-reloaded-datatables-js' );
 
             $sProcessing = __( 'Please wait...', WP_TABLE_RELOADED_TEXTDOMAIN );
             $sLengthMenu = __( 'Show _MENU_ Tables', WP_TABLE_RELOADED_TEXTDOMAIN );

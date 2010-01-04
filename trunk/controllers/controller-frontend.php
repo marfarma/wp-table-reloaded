@@ -81,7 +81,8 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
         // if a JavaScript library is (globally) enabled, include respective files
         if ( $this->options['enable_tablesorter'] ) {
             wp_enqueue_script( 'jquery' ); // jQuery needed in any case (it's too late to do this, when Shortcode is executed)
-            add_action( 'wp_footer', array( &$this, 'add_frontend_js' ) );
+            $priority = apply_filters( 'wp_table_reloaded_frontend_js_priority', 10 );
+            add_action( 'wp_footer', array( &$this, 'add_frontend_js' ), $priority );
         }
 
         // if default CSS or Custom CSS shall be included, include respective files in the header
@@ -543,6 +544,7 @@ CSSSTYLE;
                     if ( !empty( $language_file_url ) )
                         $parameters['oLanguage'] = "\"oLanguage\":{\"sUrl\": \"{$language_file_url}\"}"; // URL with language file
                     // these parameters need to be added for performance gain or to overwrite unwanted default behavior
+                    // $parameters['bAutoWidth'] = '"bAutoWidth": false'; // might need to add this by default
                     $parameters['aaSorting'] = '"aaSorting": []'; // no initial sort
                     $parameters['bSortClasses'] = '"bSortClasses": false'; // don't add additional classes, to speed up sorting
                     $parameters['asStripClasses'] = ( $js_options['alternating_row_colors'] ) ? "\"asStripClasses\":['even','odd']" : '"asStripClasses":[]'; // alternating row colors is default, so remove them if not wanted with []
