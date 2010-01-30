@@ -103,6 +103,7 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
                 'field' => '',
                 'format' => ''
         );
+        $default_atts = apply_filters( 'wp_table_reloaded_shortcode_table_info_default_atts', $default_atts );
         $atts = shortcode_atts( $default_atts, $atts );
 
         // allow a filter to determine behavior of this function, by overwriting its behavior, just need to return something other than false
@@ -185,6 +186,7 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
             'cellpadding' => false,
             'border' => false
         );
+        $default_atts = apply_filters( 'wp_table_reloaded_shortcode_table_default_atts', $default_atts );
         $atts = shortcode_atts( $default_atts, $atts );
 
         // allow a filter to determine behavior of this function, by overwriting its behavior, just need to return something other than false
@@ -301,7 +303,7 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
 
         // render/generate the table HTML
         $render = $this->create_class_instance( 'WP_Table_Reloaded_Render', 'render.class.php' );
-        $render->output_options = $output_options;
+        $render->output_options = apply_filters( 'wp_table_reloaded_frontend_output_options', $output_options, $table['id'], $table );
         $render->table = $table;
         $output = $render->render_table();
 
@@ -362,6 +364,7 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
             foreach ( $hidden_rows as $row_idx ) {
                 unset( $table['data'][ $row_idx ] );
             }
+            $table['data'] = ( !isset( $table['data'] ) ) ? array() : $table['data']; // make sure $table['data'] exists for the next steps
             $table['data'] = array_merge( $table['data'] );
             foreach ( $table['data'] as $row_idx => $row ) {
                 foreach ( $hidden_columns as $col_idx ) {
@@ -369,15 +372,28 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
                 }
                 $table['data'][ $row_idx ] = array_merge( $row );
             }
-            $search_tables[ $table_id ] = $table['data'];
+            // add name and description to searched items, if they are displayed with the table
+            $table_name = ( isset( $table['options']['print_name'] ) && $table['options']['print_name'] ) ? $table['name'] : '';
+            $table_description = ( isset( $table['options']['print_description'] ) && $table['options']['print_description'] ) ? $table['description'] : '';
+            
+            $search_tables[ $table_id ] = array(
+                'data' => $table['data'],
+                'name' => $table_name,
+                'description' => $table_description
+            );
         }
 
         // for all search terms loop through all tables's cells (those cells are all visible, because we filtered before!)
         $query_result = array(); // array of all search words that were found, and the table IDs where they were found
         foreach ( $query_array as $search_term ) {
             $search_term = addslashes_gpc( $search_term ); // escapes with esc_sql
-            foreach ( $search_tables as $table_id => $table_data ) {
-                foreach ( $table_data as $table_row ) {
+            foreach ( $search_tables as $table_id => $table ) {
+                if ( false !== stripos( $table['name'], $search_term ) || false !== stripos( $table['description'], $search_term ) ){
+                            // we found the $search_term in the name or description (and they are shown)
+                            $query_result[ $search_term ][] = $table_id; // add table ID to result list
+                            continue; // don't need to search through this table any further, continue with next table
+                }
+                foreach ( $table['data'] as $table_row ) {
                     foreach ( $table_row as $table_cell ) {
                         if ( false !== stripos( $table_cell, $search_term ) ){
                             // we found the $search_term in the cell

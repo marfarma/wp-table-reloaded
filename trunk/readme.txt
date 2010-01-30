@@ -106,6 +106,14 @@ I'm also happy about [donations](http://tobias.baethge.com/donate/) or something
 
 == Changelog ==
 
+= Version 1.6.1 =
+* enhancement: let WP Search also search table name and description
+* enhancement: replacing a table during an import will leave options untouched and only replace table data
+* bugfix: better fix for DataTables invisibility issue in IE 7
+* enhancement: add 3 new plugin filters for frontend
+* bugfix: move $default_table to base controller
+* bugfix: fix for problem with search, if data is empty somehow
+
 = Version 1.6 =
 * feature: Support for "rowspan" and "colspan" in tables
 * feature: WP Search will now also search in tables
@@ -195,6 +203,9 @@ I'm also happy about [donations](http://tobias.baethge.com/donate/) or something
 * First release (not everything functional)
 
 == Upgrade Notice ==
+
+= 1.6.1 =
+This upgrade fixed a few minor bugs and enhances the WP Search integration and the import.
 
 = 1.6 =
 This upgrade adds features like "colspan"/"rowspan" support, support for the WP Search, and more. WordPress 2.8 or higher is now required!

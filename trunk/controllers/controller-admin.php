@@ -81,42 +81,6 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
      * @var array
      */
     var $default_tables = array();
-    
-    /**
-     * Default structure of a new table (one cell, default table options)
-     * @var array
-     */
-    var $default_table = array(
-        'id' => 0,
-        'data' => array( 0 => array( 0 => '' ) ),
-        'name' => '',
-        'description' => '',
-        'last_modified' => '0000-00-00 00:00:00',
-        'last_editor_id' => '',
-        'visibility' => array(
-            'rows' => array(),
-            'columns' => array()
-        ),
-        'options' => array(
-            'alternating_row_colors' => true,
-            'row_hover' => false,
-            'first_row_th' => true,
-            'table_footer' => false,
-            'print_name' => false,
-            'print_name_position' => 'above',
-            'print_description' => false,
-            'print_description_position' => 'below',
-            'use_tablesorter' => true,
-            'datatables_sort' => true,
-            'datatables_paginate' => true,
-            'datatables_lengthchange' => true,
-            'datatables_filter' => true,
-            'datatables_info' => true,
-            'datatables_tabletools' => false,
-            'datatables_customcommands' => ''
-        ),
-        'custom_fields' => array()
-    );
 
     /**
      * Instance of the WP_Table_Reloaded_Helper class, which has additional functions for frontend and backend, stored in separate file for better overview and maintenance
@@ -335,7 +299,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         $messages = array(
             0 => false,
             1 => sprintf( __( 'Welcome to WP-Table Reloaded %s. If you encounter any questions or problems, please refer to the <a href="%s">FAQ</a>, the <a href="%s">documentation</a>, and the <a href="%s">support</a> section.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'], 'http://tobias.baethge.com/go/wp-table-reloaded/faq/', 'http://tobias.baethge.com/go/wp-table-reloaded/documentation/', 'http://tobias.baethge.com/go/wp-table-reloaded/support/' ),
-            2 => sprintf( __( 'Thank you for upgrading to WP-Table Reloaded %s.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'] ) . ' ' . __( 'Among other things, this version adds support for "colspan" and "rowspan" of table cells and enables the WP Search to search through tables.', WP_TABLE_RELOADED_TEXTDOMAIN ) . ' ' . sprintf( __( 'Please read the <a href="%s">release announcement</a> for more information.', WP_TABLE_RELOADED_TEXTDOMAIN ), "http://tobias.baethge.com/go/wp-table-reloaded/release-announcement/{$this->options['installed_version']}/" ) . '<br/>' . sprintf( __( 'If you like the new features and enhancements, I would appreciate a small <a href="%s">donation</a>. Thank you.', WP_TABLE_RELOADED_TEXTDOMAIN ), 'http://tobias.baethge.com/go/wp-table-reloaded/donate/' )
+            2 => sprintf( __( 'Thank you for upgrading to WP-Table Reloaded %s.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'] ) . ' ' . sprintf( __( 'Please read the <a href="%s">release announcement</a> for more information.', WP_TABLE_RELOADED_TEXTDOMAIN ), "http://tobias.baethge.com/go/wp-table-reloaded/release-announcement/{$this->options['installed_version']}/" ) . '<br/>' . sprintf( __( 'If you like the new features and enhancements, I would appreciate a small <a href="%s">donation</a>. Thank you.', WP_TABLE_RELOADED_TEXTDOMAIN ), 'http://tobias.baethge.com/go/wp-table-reloaded/donate/' )
         );
         $message = ( isset( $messages[ $this->options['show_welcome_message'] ] ) ) ? $messages[ $this->options['show_welcome_message'] ] : false;
         if ( $message ) {
@@ -856,63 +820,81 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         if ( isset( $_POST['submit'] ) && isset( $_POST['import_from'] ) ) {
             check_admin_referer( $this->get_nonce( 'import' ) );
 
-            if ( 'file-upload' == $_POST['import_from'] && !empty( $_FILES['import_file']['tmp_name'] ) ) {
-                $this->import_instance->tempname = $_FILES['import_file']['tmp_name'];
-                $this->import_instance->filename = $_FILES['import_file']['name'];
-                $this->import_instance->mimetype = $_FILES['import_file']['type'];
-                $this->import_instance->import_from = 'file-upload';
-                $this->import_instance->import_format = $_POST['import_format'];
-                $this->import_instance->import_table();
-                $error = $this->import_instance->error;
-                $imported_table = $this->import_instance->imported_table;
-                $this->import_instance->unlink_uploaded_file();
-            } elseif ( 'server' == $_POST['import_from'] && !empty( $_POST['import_server'] ) ) {
-                $this->import_instance->tempname = $_POST['import_server'];
-                $this->import_instance->filename = __( 'Imported Table', WP_TABLE_RELOADED_TEXTDOMAIN );
-                $this->import_instance->mimetype = sprintf( __( 'from %s', WP_TABLE_RELOADED_TEXTDOMAIN ), $_POST['import_server'] );
-                $this->import_instance->import_from = 'server';
-                $this->import_instance->import_format = $_POST['import_format'];
-                $this->import_instance->import_table();
-                $error = $this->import_instance->error;
-                $imported_table = $this->import_instance->imported_table;
-            } elseif ( 'form-field' == $_POST['import_from'] && !empty( $_POST['import_data'] ) ) {
-                $this->import_instance->tempname = '';
-                $this->import_instance->filename = __( 'Imported Table', WP_TABLE_RELOADED_TEXTDOMAIN );
-                $this->import_instance->mimetype = __( 'via form', WP_TABLE_RELOADED_TEXTDOMAIN );
-                $this->import_instance->import_from = 'form-field';
-                $this->import_instance->import_data = stripslashes( $_POST['import_data'] );
-                $this->import_instance->import_format = $_POST['import_format'];
-                $this->import_instance->import_table();
-                $error = $this->import_instance->error;
-                $imported_table = $this->import_instance->imported_table;
-            } elseif ( 'url' == $_POST['import_from'] && !empty( $_POST['import_url'] ) ) {
-                $this->import_instance->tempname = '';
-                $this->import_instance->filename = __( 'Imported Table', WP_TABLE_RELOADED_TEXTDOMAIN );
-                $this->import_instance->mimetype = sprintf( __( 'from %s', WP_TABLE_RELOADED_TEXTDOMAIN ), $_POST['import_url'] );
-                $this->import_instance->import_from = 'url';
-                $url = clean_url( $_POST['import_url'] );
-                $temp_data = wp_remote_fopen( $url );
-                $this->import_instance->import_data = ( false !== $temp_data ) ? $temp_data : '';
-                $this->import_instance->import_format = $_POST['import_format'];
-                $this->import_instance->import_table();
-                $error = $this->import_instance->error;
-                $imported_table = $this->import_instance->imported_table;
-            } else { // no valid data submitted
+            $import_error = false;
+            switch( $_POST['import_from'] ) {
+            case 'file-upload':
+                if ( !empty( $_FILES['import_file']['tmp_name'] ) ) {
+                    $this->import_instance->tempname = $_FILES['import_file']['tmp_name'];
+                    $this->import_instance->filename = $_FILES['import_file']['name'];
+                    $this->import_instance->mimetype = $_FILES['import_file']['type'];
+                    $this->import_instance->import_from = 'file-upload';
+                    $unlink_file = true;
+                } else {
+                    $import_error = true;
+                }
+                break;
+            case 'server':
+                if ( !empty( $_POST['import_server'] ) ) {
+                    $this->import_instance->tempname = $_POST['import_server'];
+                    $this->import_instance->filename = __( 'Imported Table', WP_TABLE_RELOADED_TEXTDOMAIN );
+                    $this->import_instance->mimetype = sprintf( __( 'from %s', WP_TABLE_RELOADED_TEXTDOMAIN ), $_POST['import_server'] );
+                    $this->import_instance->import_from = 'server';
+                } else {
+                    $import_error = true;
+                }
+                break;
+            case 'form-field':
+                if ( !empty( $_POST['import_data'] ) ) {
+                    $this->import_instance->tempname = '';
+                    $this->import_instance->filename = __( 'Imported Table', WP_TABLE_RELOADED_TEXTDOMAIN );
+                    $this->import_instance->mimetype = __( 'via form', WP_TABLE_RELOADED_TEXTDOMAIN );
+                    $this->import_instance->import_from = 'form-field';
+                    $this->import_instance->import_data = stripslashes( $_POST['import_data'] );
+                } else {
+                    $import_error = true;
+                }
+                break;
+            case 'url':
+                if ( !empty( $_POST['import_url'] ) ) {
+                    $this->import_instance->tempname = '';
+                    $this->import_instance->filename = __( 'Imported Table', WP_TABLE_RELOADED_TEXTDOMAIN );
+                    $this->import_instance->mimetype = sprintf( __( 'from %s', WP_TABLE_RELOADED_TEXTDOMAIN ), $_POST['import_url'] );
+                    $this->import_instance->import_from = 'url';
+                    $url = clean_url( $_POST['import_url'] );
+                    $temp_data = wp_remote_fopen( $url );
+                    $this->import_instance->import_data = ( false !== $temp_data ) ? $temp_data : '';
+                } else {
+                    $import_error = true;
+                }
+                break;
+            default:
+                // no valid import source
+                $import_error = true;
+            }
+
+            if ( $import_error ) {
+                // no valid data submitted
                 $this->helper->print_header_message( __( 'Table could not be imported.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
                 $this->load_view( 'import' );
                 return;
             }
 
-            $table = array_merge( $this->default_table, $imported_table );
+            // do import with the config set above
+            $this->import_instance->import_format = $_POST['import_format'];
+            $this->import_instance->import_table();
+            $error = $this->import_instance->error;
+            $imported_table = $this->import_instance->imported_table;
+
+            if ( isset( $unlink_file) && $unlink_file )
+                $this->import_instance->unlink_uploaded_file();
 
             if ( isset( $_POST['import_addreplace'] ) && isset( $_POST['import_addreplace_table'] ) && ( 'replace' == $_POST['import_addreplace'] ) && $this->table_exists( $_POST['import_addreplace_table'] ) ) {
                 $existing_table = $this->load_table( $_POST['import_addreplace_table'] );
-                $table['id'] = $existing_table['id'];
-                $table['name'] = $existing_table['name'];
-                $table['description'] = $existing_table['description'];
+                $table = array_merge( $existing_table, $imported_table );
                 $success_message = sprintf( __( 'Table %s (%s) replaced successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->helper->safe_output( $table['name'] ), $this->helper->safe_output( $table['id'] ) );
                 unset( $existing_table );
             } else {
+                $table = array_merge( $this->default_table, $imported_table );
                 $table['id'] = $this->get_new_table_id();
                 $success_message = _n( 'Table imported successfully.', 'Tables imported successfully.', 1, WP_TABLE_RELOADED_TEXTDOMAIN );
             }
@@ -957,14 +939,14 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             $this->load_view( 'edit', compact( 'table_id' ) );
         } elseif ( isset( $_POST['import_wp_table_reloaded_dump_file'] ) ) {
             check_admin_referer( $this->get_nonce( 'import_dump' ) );
-            
+
             // check if user is admin
             if ( !current_user_can( 'manage_options' ) ) {
                 $this->helper->print_header_message( __( 'You do not have sufficient rights to perform this action.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
                 $this->load_view( 'options' );
                 return;
             }
-            
+
             // check if file was uploaded
             if ( empty( $_FILES['dump_file']['tmp_name'] ) ) {
                 $this->helper->print_header_message( __( 'You did not upload a WP-Table Reloaded dump file.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
