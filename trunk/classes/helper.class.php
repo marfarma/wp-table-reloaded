@@ -24,11 +24,11 @@ class WP_Table_Reloaded_Helper {
 
     // ###################################################################################################################
     function print_page_header( $text = 'WP-Table Reloaded' ) {
-        echo <<<TEXT
-<div class="wrap">
-<h2>{$text}</h2>
-<div id="poststuff">
-TEXT;
+        echo '<div class="wrap">';
+        if ( function_exists( 'screen_icon' ) ) // it does not for our pseudo-AJAX requests
+            screen_icon( 'wp-table-reloaded' );
+        echo "<h2>{$text}</h2>";
+        echo '<div id="poststuff">';
     }
 
     // ###################################################################################################################
@@ -101,12 +101,12 @@ TEXT;
     function help_button( $id ) {
         $help = array(
             'colspan' => array(
-                    'text' => __( 'Table cells can span across more than one column or row.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Combining consecutive cells within the same row is called "colspanning".', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'To combine cells, add the keyword #colspan# to the cell to the right of the one with the content for the combined cell by using the corresponding button.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Repeat this to add the keyword to all cells that shall be connected.', WP_TABLE_RELOADED_TEXTDOMAIN ),
+                    'text' => __( 'Table cells can span across more than one column or row.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Combining consecutive cells within the same row is called "colspanning".', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'To combine cells, add the keyword #colspan# to the cell to the right of the one with the content for the combined cell by using the corresponding button.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Repeat this to add the keyword to all cells that shall be connected.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Be aware that the JavaScript libraries will not work on tables which have combined cells.', WP_TABLE_RELOADED_TEXTDOMAIN ),
                     'height' => 200,
                     'width' => 300
                 ),
             'rowspan' => array(
-                    'text' => __( 'Table cells can span across more than one column or row.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Combining consecutive cells within the same column is called "rowspanning".', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'To combine cells, add the keyword #rowspan# to the cell below the one with the content for the combined cell by using the corresponding button.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Repeat this to add the keyword to all cells that shall be connected.', WP_TABLE_RELOADED_TEXTDOMAIN ),
+                    'text' => __( 'Table cells can span across more than one column or row.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Combining consecutive cells within the same column is called "rowspanning".', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'To combine cells, add the keyword #rowspan# to the cell below the one with the content for the combined cell by using the corresponding button.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Repeat this to add the keyword to all cells that shall be connected.', WP_TABLE_RELOADED_TEXTDOMAIN ) . '<br/><br/>' . __( 'Be aware that the JavaScript libraries will not work on tables which have combined cells.', WP_TABLE_RELOADED_TEXTDOMAIN ),
                     'height' => 200,
                     'width' => 300
                 )

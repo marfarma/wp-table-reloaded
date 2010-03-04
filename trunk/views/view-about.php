@@ -49,29 +49,29 @@
             <?php
                 $credits_links = array(
                     'cs_CZ' => '<a href="http://separatista.net/">Separatista</a>',
-                    'es_ES' => '<a href="http://halles.cl/">Matias Halles</a>',
+                    'es_ES' => '<a href="http://halles.cl/">Matias Halles</a>', // <a href="http://theindependentproject.com/">Alejandro Urrutia</a>
                     'fi_FI' => 'Jaakko',
                     'hi_IN' => '<a href="http://outshinesolutions.com/">Outshine Solutions</a>',
                     'it_IT' => '<a href="http://www.scrical.it/">Gabriella Mazzon</a>',
                     'ja'    => '<a href="http://www.u-1.net/">Yuuichi</a>',
                     'pt_BR' => '<a href="http://www.pensarics.com/">Rics</a>',
+                    'zh_CN' => '<a href="http://cnzhx.net/">Haoxian Zeng</a>',
+                    'ru_RU' => '<a href="http://www.wordpress4you.com/">WordPress4You</a>',
                     'sk_SK' => '<a href="http://lukas.cerro.sk/">55.lukas</a>',
-                    'sv_SE' => '<a href="http://www.zuperzed.se/">ZuperZed</a>'
-                    /* // inactive languages in this release
+                    'sv_SE' => '<a href="http://www.zuperzed.se/">ZuperZed</a>',
+                    // probably inactive languages
                     'by_BY' => '<a href="http://www.fatcow.com/">Marcis Gasuns</a>',
                     'et'    => 'Lembit Kivisik',
                     'fr_FR' => '<a href="http://ultratrailer.net/">Yin-Yin</a>',
                     'pl_PL' => 'Alex Kortan',
-                    'ru_RU' => '<a href="http://wp-skins.info/">Truper</a>',
                     'sq_AL' => '<a href="http://www.romeolab.com/">Romeo</a>',
                     'tr_TR' => '<a href="http://www.wpuzmani.com/">Semih</a>'
-                    */
                 );
-                
+
                 // no credits link for English and German, as they are by me :-)
                 unset ( $this->available_plugin_languages['en_US'] );
                 unset ( $this->available_plugin_languages['de_DE'] );
-                
+
                 foreach ( $this->available_plugin_languages as $code => $language ) {
                     echo "<br/>&middot; " . sprintf( __( '%s (thanks to %s)', WP_TABLE_RELOADED_TEXTDOMAIN ), $language, $credits_links[ $code ] ) . "\n";
                 }

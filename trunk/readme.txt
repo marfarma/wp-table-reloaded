@@ -3,7 +3,7 @@ Contributors: TobiasBg
 Donate link: http://tobias.baethge.com/donate/
 Tags: html,table,data,editor,csv,import,export,excel,widget,admin,sidebar
 Requires at least: 2.8
-Tested up to: 2.9.1
+Tested up to: 3.0-alpha
 Stable tag: 1.6.1
 
 WP-Table Reloaded lets you manage tables in a comfortable backend in WP's admin area, without any knowledge of HTML, and can add valuable features.
@@ -67,7 +67,7 @@ In short: WordPress 2.8 or higher
 = Languages and Localization? =
 
 The plugin currently includes the following languages:
-Brazilian Portuguese, Czech, English, Finnish, German, Hindi, Italian, Japanese, Slovak, Spanish, and Swedish.
+Albanian, Belorussian, Brazilian Portuguese, Czech, English, Finnish, French, German, Hindi, Italian, Japanese, Polish, Russian, Slovak, Spanish, Swedish and Turkish.
 
 I'd really appreciate it, if you would translate the plugin into your language! Using Heiko Rabe's WordPress plugin [Codestyling Localization](http://www.code-styling.de/english/development/wordpress-plugin-codestyling-localization-en/) that really is as easy as pie. Just install the plugin, add your language, create the .po-file, translate the strings in the comfortable editor and create the .mo-file. It will automatically be saved in WP-Table Reloaded's plugin folder. If you send me the .mo- and .po-file, I will gladly include them into future plugin releases.
 There is also a .pot-file available to use in the "languages" subfolder.
@@ -99,12 +99,21 @@ Thanks to every donor, supporter and bug reporter!
 
 == License ==
 
-This plugin is Free Software, released under the GPL version 2.
+This plugin is Free Software, released under the GPL, version 2.
 You may use it free of charge for any purposes.
 I kindly ask you for link somewhere on your website to http://tobias.baethge.com/. This is not required!
 I'm also happy about [donations](http://tobias.baethge.com/donate/) or something from [my wishlist](http://tobias.baethge.com/wishlist)! Thanks!
 
 == Changelog ==
+
+= Version 1.7 =
+* feature: add "Table" button to the visual editor (TinyMCE)
+* feature: update DataTables JavaScript library to version 1.6.2, including TableTools
+* enhancement: add option for initial number of rows per pagination page
+* enhancement: add value "all" to the four Shortcode parameters show_rows, hide_rows, show_columns, hide_columns
+* enhancement: add WP-Table Reloaded screen icon to all plugin screens and the Top-Level menu entry
+* enhancement: add two template tag functions that return the output instead of echoing it
+* bugfix: fix problem with admin menu parent pages, make them ready for WP 3.0
 
 = Version 1.6.1 =
 * enhancement: let WP Search also search table name and description
@@ -202,6 +211,9 @@ I'm also happy about [donations](http://tobias.baethge.com/donate/) or something
 * First release (not everything functional)
 
 == Upgrade Notice ==
+
+= 1.7 =
+This upgrade ...[to be written].
 
 = 1.6.1 =
 This upgrade fixes a few minor bugs and enhances the WP Search integration and the import.

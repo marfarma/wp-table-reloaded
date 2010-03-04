@@ -62,6 +62,7 @@ class WP_Table_Reloaded_Controller_Base {
             'use_tablesorter' => true,
             'datatables_sort' => true,
             'datatables_paginate' => true,
+            'datatables_paginate_entries' => 10,
             'datatables_lengthchange' => true,
             'datatables_filter' => true,
             'datatables_info' => true,
@@ -81,7 +82,7 @@ class WP_Table_Reloaded_Controller_Base {
      * List of allowed places for the menu item of WP-Table Reloaded in the WP admin menu
      * @var array
      */
-    var $possible_admin_menu_parent_pages = array( 'tools.php', 'top-level', 'edit.php', 'edit-pages.php', 'plugins.php', 'index.php', 'options-general.php' );
+    var $possible_admin_menu_parent_pages = array( 'tools.php', 'admin.php', 'edit.php', 'edit.php?post_type=page', 'edit-pages.php', 'plugins.php', 'index.php', 'options-general.php' );
 
     /**
      * PHP4 class constructor, calls the PHP5 class constructor __construct()

@@ -171,6 +171,7 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
             'use_tablesorter' => -1,
             'datatables_sort' => -1,
             'datatables_paginate' => -1,
+            'datatables_paginate_entries' => -1,
             'datatables_lengthchange' => -1,
             'datatables_filter' => -1,
             'datatables_info' => -1,
@@ -202,23 +203,6 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
             return $message;
         }
 
-        // explode from string to array
-        $atts['column_widths'] = ( !empty( $atts['column_widths'] ) ) ? explode( '|', $atts['column_widths'] ) : array();
-
-        // rows/columns are indexed from 0 internally, but from 1 externally, thus substract 1 from each value
-        $atts['show_rows'] = ( !empty( $atts['show_rows'] ) ) ? explode( ',', $atts['show_rows'] ) : array();
-        foreach ( $atts['show_rows'] as $key => $value )
-            $atts['show_rows'][ $key ] = (string) ( $value - 1 );
-        $atts['show_columns'] = ( !empty( $atts['show_columns'] ) ) ? explode( ',', $atts['show_columns'] ) : array();
-        foreach ( $atts['show_columns'] as $key => $value )
-            $atts['show_columns'][ $key ] = (string) ( $value - 1 );
-        $atts['hide_rows'] = ( !empty( $atts['hide_rows'] ) ) ? explode( ',', $atts['hide_rows'] ) : array();
-        foreach ( $atts['hide_rows'] as $key => $value )
-            $atts['hide_rows'][ $key ] = (string) ( $value - 1 );
-        $atts['hide_columns'] = ( !empty( $atts['hide_columns'] ) ) ? explode( ',', $atts['hide_columns'] ) : array();
-        foreach ( $atts['hide_columns'] as $key => $value )
-            $atts['hide_columns'][ $key ] = (string) ( $value - 1 );
-
         $table = $this->load_table( $table_id );
 
         // check for table data
@@ -227,7 +211,32 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
             $message = apply_filters( 'wp_table_reloaded_table_empty_message', $message, $table_id );
             return $message;
         }
+
+        $rows = count( $table['data'] );
+        $columns = count( $table['data'][0] );
         
+        // explode from string to array
+        $atts['column_widths'] = ( !empty( $atts['column_widths'] ) ) ? explode( '|', $atts['column_widths'] ) : array();
+
+        // add all rows/columns to array if "all" value set for one of the four parameters
+        // rows/columns are indexed from 0 internally, but from 1 externally, thus substract 1 from each value
+        $actions = array( 'show', 'hide' );
+        $elements = array( 'rows', 'columns' );
+        foreach ( $actions as $action ) {
+            foreach ( $elements as $element ) {
+                if ( !empty( $atts["{$action}_{$element}"] ) ) {
+                    if ( 'all' == $atts["{$action}_{$element}"] )
+                        $atts["{$action}_{$element}"] = range( 1, ${$element} + 1 ); // because second comment above
+                    else
+                        $atts["{$action}_{$element}"] = explode( ',', $atts["{$action}_{$element}"] );
+                    foreach ( $atts["{$action}_{$element}"] as $key => $value )
+                        $atts["{$action}_{$element}"][ $key ] = (string) ( $value - 1 );
+                } else {
+                        $atts["{$action}_{$element}"] = array();
+                }
+            }
+        }
+
         // determine options to use (if set in Shortcode, use those, otherwise use options from DB, i.e. "Edit Table" screen)
         $output_options = array();
         foreach ( $atts as $key => $value ) {
@@ -254,16 +263,16 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
             'alternating_row_colors' => $output_options['alternating_row_colors'],
             'datatables_sort' => $output_options['datatables_sort'],
             'datatables_paginate' => $output_options['datatables_paginate'],
+            'datatables_paginate_entries' => $output_options['datatables_paginate_entries'],
             'datatables_lengthchange' => $output_options['datatables_lengthchange'],
             'datatables_filter' => $output_options['datatables_filter'],
             'datatables_info' => $output_options['datatables_info'],
             'datatables_tabletools' => $output_options['datatables_tabletools'],
             'datatables_customcommands' => $output_options['datatables_customcommands']
         );
-        $js_options = apply_filters( 'wp_table_reloaded_table_js_options', $js_options, $table_id );
+        $js_options = apply_filters( 'wp_table_reloaded_table_js_options', $js_options, $table_id, $output_options );
 
         // eventually add this table to list of tables which have a JS library enabled and thus are to be included in the script's call in the footer
-        $rows = count( $table['data'] );
         if ( $output_options['use_tablesorter'] && $output_options['first_row_th'] && 1 < $rows )
             $this->tablesorter_tables[] = array (
                 'table_id' => $table_id,
@@ -287,9 +296,14 @@ class WP_Table_Reloaded_Controller_Frontend extends WP_Table_Reloaded_Controller
             if ( current_user_can( $min_capability ) ) {
                 $admin_menu_page = $this->options['admin_menu_parent_page'];
                 $admin_menu_page = apply_filters( 'wp_table_reloaded_admin_menu_parent_page', $admin_menu_page );
+                // backward-compatibility for the filter
+                if ( 'top-level' == $admin_menu_page )
+                    $admin_menu_page = 'admin.php';
+                // 'edit-pages.php' was renamed to 'edit.php?post_type=page' in WP 3.0
+                if ( 'edit-pages.php' == $admin_menu_page && version_compare( $GLOBALS['wp_version'] , '2.9.9', '>' ) )
+                    $admin_menu_page = 'edit.php?post_type=page';
                 if ( !in_array( $admin_menu_page, $this->possible_admin_menu_parent_pages ) )
                     $admin_menu_page = 'tools.php';
-                $admin_menu_page = ( 'top-level' == $admin_menu_page ) ? 'admin.php' : $admin_menu_page;
                 $url_params = array(
                         'page' => $this->page_slug,
                         'action' => 'edit',
@@ -569,6 +583,8 @@ CSSSTYLE;
                         $parameters['bSort'] = '"bSort": false';
                     if ( !$js_options['datatables_paginate'] )
                         $parameters['bPaginate'] = '"bPaginate": false';
+                    if ( $js_options['datatables_paginate'] && !empty( $js_options['datatables_paginate_entries'] ) && 10 <> $js_options['datatables_paginate_entries'] )
+                        $parameters['iDisplayLength'] = '"iDisplayLength": '. $js_options['datatables_paginate_entries'];
                     if ( !$js_options['datatables_lengthchange'] )
                         $parameters['bLengthChange'] = '"bLengthChange": false';
                     if ( !$js_options['datatables_filter'] )

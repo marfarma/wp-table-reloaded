@@ -199,22 +199,22 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         $display_name = 'WP-Table Reloaded'; // the name that is displayed in the admin menu on the left
         $display_name = apply_filters( 'wp_table_reloaded_plugin_display_name', $display_name ); // can be filtered to something shorter maybe
 
-        if ( isset( $_POST['options']['admin_menu_parent_page'] ) )
-            $admin_menu_page = $_POST['options']['admin_menu_parent_page'];
-        else
-            $admin_menu_page = $this->options['admin_menu_parent_page'];
-        $admin_menu_page = apply_filters( 'wp_table_reloaded_admin_menu_parent_page', $admin_menu_page ); // plugins may filter/change this though
+        $admin_menu_page = apply_filters( 'wp_table_reloaded_admin_menu_parent_page', $this->options['admin_menu_parent_page'] );
+        // backward-compatibility for the filter
+        if ( 'top-level' == $admin_menu_page )
+            $admin_menu_page = 'admin.php';
+        // 'edit-pages.php' was renamed to 'edit.php?post_type=page' in WP 3.0
+        if ( 'edit-pages.php' == $admin_menu_page && version_compare( $GLOBALS['wp_version'] , '2.9.9', '>' ) )
+            $admin_menu_page = 'edit.php?post_type=page';
         if ( !in_array( $admin_menu_page, $this->possible_admin_menu_parent_pages ) )
             $admin_menu_page = 'tools.php';
 
-        // top-level menu is created in different function, all others are created with the filename as a parameter
-        if ( 'top-level' == $admin_menu_page ) {
-            $this->hook = add_menu_page( 'WP-Table Reloaded', $display_name, $min_capability, $this->page_slug, array( &$this, 'show_manage_page' ) );
-            $this->page_url = 'admin.php';
-        } else {
+        // Top-Level menu is created in different function, all others are created with the filename as a parameter
+        if ( 'admin.php' == $admin_menu_page )
+            $this->hook = add_menu_page( 'WP-Table Reloaded', $display_name, $min_capability, $this->page_slug, array( &$this, 'show_manage_page' ), plugins_url( 'admin/plugin-icon-small.png', WP_TABLE_RELOADED__FILE__ ) );
+        else
             $this->hook = add_submenu_page( $admin_menu_page, 'WP-Table Reloaded', $display_name, $min_capability, $this->page_slug, array( &$this, 'show_manage_page' ) );
-            $this->page_url = $admin_menu_page;
-        }
+        $this->page_url = $admin_menu_page;
 
         add_action( 'load-' . $this->hook, array( &$this, 'load_manage_page' ) );
     }
@@ -262,17 +262,17 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             'it_IT' => __( 'Italian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'ja'    => __( 'Japanese', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'pt_BR' => __( 'Brazilian Portuguese', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'zh_CN' => __( 'Chinese (Simplified)', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'ru_RU' => __( 'Russian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'sk_SK' => __( 'Slovak', WP_TABLE_RELOADED_TEXTDOMAIN ),
-            'sv_SE' => __( 'Swedish', WP_TABLE_RELOADED_TEXTDOMAIN )
-            /* // the following will (as of currently) be made inactive because they are not up-to-date
+            'sv_SE' => __( 'Swedish', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            // the following will (as of currently) be made inactive because they are not up-to-date
             'sq_AL' => __( 'Albanian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'by_BY' => __( 'Belorussian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'et'    => __( 'Estonian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'fr_FR' => __( 'French', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'pl_PL' => __( 'Polish', WP_TABLE_RELOADED_TEXTDOMAIN ),
-            'ru_RU' => __( 'Russian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'tr_TR' => __( 'Turkish', WP_TABLE_RELOADED_TEXTDOMAIN )
-            */
         );
         asort( $this->available_plugin_languages );
 
@@ -299,7 +299,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         $messages = array(
             0 => false,
             1 => sprintf( __( 'Welcome to WP-Table Reloaded %s. If you encounter any questions or problems, please refer to the <a href="%s">FAQ</a>, the <a href="%s">documentation</a>, and the <a href="%s">support</a> section.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'], 'http://tobias.baethge.com/go/wp-table-reloaded/faq/', 'http://tobias.baethge.com/go/wp-table-reloaded/documentation/', 'http://tobias.baethge.com/go/wp-table-reloaded/support/' ),
-            2 => sprintf( __( 'Thank you for upgrading to WP-Table Reloaded %s.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'] ) . ' ' . sprintf( __( 'Please read the <a href="%s">release announcement</a> for more information.', WP_TABLE_RELOADED_TEXTDOMAIN ), "http://tobias.baethge.com/go/wp-table-reloaded/release-announcement/{$this->options['installed_version']}/" ) . '<br/>' . sprintf( __( 'If you like the new features and enhancements, I would appreciate a small <a href="%s">donation</a>. Thank you.', WP_TABLE_RELOADED_TEXTDOMAIN ), 'http://tobias.baethge.com/go/wp-table-reloaded/donate/' )
+            2 => sprintf( __( 'Thank you for upgrading to WP-Table Reloaded %s.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'] ) . ' ' . __( 'This version includes several enhancements, like an updated DataTables library, a &quot;Table&quot; button in the toolbar of the visual editor, and several other things.', WP_TABLE_RELOADED_TEXTDOMAIN ) . ' ' . sprintf( __( 'Please read the <a href="%s">release announcement</a> for more information.', WP_TABLE_RELOADED_TEXTDOMAIN ), "http://tobias.baethge.com/go/wp-table-reloaded/release-announcement/{$this->options['installed_version']}/" ) . '<br/>' . sprintf( __( 'If you like the new features and enhancements, I would appreciate a small <a href="%s">donation</a>. Thank you.', WP_TABLE_RELOADED_TEXTDOMAIN ), 'http://tobias.baethge.com/go/wp-table-reloaded/donate/' )
         );
         $message = ( isset( $messages[ $this->options['show_welcome_message'] ] ) ) ? $messages[ $this->options['show_welcome_message'] ] : false;
         if ( $message ) {
@@ -396,6 +396,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
                 $table['options']['datatables_filter'] = isset( $_POST['table']['options']['datatables_filter'] );
                 $table['options']['datatables_info'] = isset( $_POST['table']['options']['datatables_info'] );
                 $table['options']['datatables_tabletools'] = isset( $_POST['table']['options']['datatables_tabletools'] );
+                $table['options']['datatables_paginate_entries'] = ( is_numeric( $table['options']['datatables_paginate_entries'] ) ) ? absint( $table['options']['datatables_paginate_entries'] ) : $this->default_table['options']['datatables_paginate_entries'];
                 // $table['options']['datatables_customcommands'] is an input type=text field that is always submitted
                 // $table['options']['print_name|description_position'] are select fields that are always submitted
 
@@ -878,7 +879,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
                 $this->load_view( 'import' );
                 return;
             }
-
+            
             // do import with the config set above
             $this->import_instance->import_format = $_POST['import_format'];
             $this->import_instance->import_table();
@@ -889,22 +890,21 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
                 $this->import_instance->unlink_uploaded_file();
 
             if ( isset( $_POST['import_addreplace'] ) && isset( $_POST['import_addreplace_table'] ) && ( 'replace' == $_POST['import_addreplace'] ) && $this->table_exists( $_POST['import_addreplace_table'] ) ) {
-                $existing_table = $this->load_table( $_POST['import_addreplace_table'] );
-                $table = array_merge( $existing_table, $imported_table );
+                $table = $this->load_table( $_POST['import_addreplace_table'] );
+                $table['data'] = $imported_table['data'];
                 $success_message = sprintf( __( 'Table %s (%s) replaced successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->helper->safe_output( $table['name'] ), $this->helper->safe_output( $table['id'] ) );
-                unset( $existing_table );
             } else {
                 $table = array_merge( $this->default_table, $imported_table );
                 $table['id'] = $this->get_new_table_id();
                 $success_message = _n( 'Table imported successfully.', 'Tables imported successfully.', 1, WP_TABLE_RELOADED_TEXTDOMAIN );
             }
 
-            $rows = count( $table['data'] );
-            $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
-            $rows = ( 0 < $rows ) ? $rows : 1;
-            $cols = ( 0 < $cols ) ? $cols : 1;
-            $table['visibility']['rows'] = array_fill( 0, $rows, false );
-            $table['visibility']['columns'] = array_fill( 0, $cols, false );
+            unset( $imported_table );
+
+            foreach ( $table['data'] as $row_idx => $row )
+                $table['visibility']['rows'][$row_idx] = isset( $table['visibility']['rows'][$row_idx] ) ? $table['visibility']['rows'][$row_idx] : false;
+            foreach ( $table['data'][0] as $col_idx => $col )
+                $table['visibility']['columns'][$col_idx] = isset( $table['visibility']['columns'][$col_idx] ) ? $table['visibility']['columns'][$col_idx] : false;
 
             if ( !$error ) {
                 $this->save_table( $table );
@@ -939,14 +939,14 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             $this->load_view( 'edit', compact( 'table_id' ) );
         } elseif ( isset( $_POST['import_wp_table_reloaded_dump_file'] ) ) {
             check_admin_referer( $this->get_nonce( 'import_dump' ) );
-
+            
             // check if user is admin
             if ( !current_user_can( 'manage_options' ) ) {
                 $this->helper->print_header_message( __( 'You do not have sufficient rights to perform this action.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
                 $this->load_view( 'options' );
                 return;
             }
-
+            
             // check if file was uploaded
             if ( empty( $_FILES['dump_file']['tmp_name'] ) ) {
                 $this->helper->print_header_message( __( 'You did not upload a WP-Table Reloaded dump file.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
@@ -1088,12 +1088,13 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
                 else
                     $this->options['plugin_language'] = 'auto';
                 // admin menu parent page
+                $admin_menu_parent_page_changed = ( $this->options['admin_menu_parent_page'] != $new_options['admin_menu_parent_page'] );
                 if ( in_array( $new_options['admin_menu_parent_page'], $this->possible_admin_menu_parent_pages ) )
                     $this->options['admin_menu_parent_page'] = $new_options['admin_menu_parent_page'];
                 else
                     $this->options['admin_menu_parent_page'] = 'tools.php';
-                // adjust $this->page_url, so that next page load will work
-                $this->page_url = ( 'top-level' == $this->options['admin_menu_parent_page'] ) ? 'admin.php' : $this->options['admin_menu_parent_page'] ;
+                // update $this->page_url, so that next page load will work
+                $this->page_url = $this->options['admin_menu_parent_page'] ;
                 // user access to plugin
                 if ( in_array( $new_options['user_access_plugin'], array( 'admin', 'editor', 'author', 'contributor' ) ) )
                     $this->options['user_access_plugin'] = $new_options['user_access_plugin'];
@@ -1115,7 +1116,13 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
 
             $this->update_options();
 
-            $this->helper->print_header_message( __( 'Options saved successfully.', WP_TABLE_RELOADED_TEXTDOMAIN ) );
+            $message = __( 'Options saved successfully.', WP_TABLE_RELOADED_TEXTDOMAIN );
+            if ( $admin_menu_parent_page_changed ) {
+                $url = $this->get_action_url( array( 'action' => 'options' ), false );
+                $message .= ' ' . sprintf( __(  '<a href="%s">Click here to Proceed.</a>', WP_TABLE_RELOADED_TEXTDOMAIN ), $url );
+            }
+
+            $this->helper->print_header_message( $message );
         }
         $this->load_view( 'options' );
     }
@@ -1239,22 +1246,24 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
     function load_view( $name, $params = array(), $print_submenu_navigation = true ) {
         extract( $params );
 
-        // these views also need the complete table, besides the parameters
-        if ( in_array( $name, array( 'edit', 'ajax_preview' ) ) )
-            $table = $this->load_table( $table_id );
-
         $headlines = array(
             'list' => __( 'List of Tables', WP_TABLE_RELOADED_TEXTDOMAIN ) . ' &lsaquo; ' . __( 'WP-Table Reloaded', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'add' => __( 'Add new Table', WP_TABLE_RELOADED_TEXTDOMAIN ),
-            'edit' => sprintf( __( 'Edit Table &quot;%s&quot; (ID %s)', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->helper->safe_output( $table['name'] ), $this->helper->safe_output( $table['id'] ) ),
             'import' => __( 'Import a Table', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'export' => __( 'Export a Table', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'options' => __( 'Plugin Options', WP_TABLE_RELOADED_TEXTDOMAIN ) . ' &lsaquo; ' . __( 'WP-Table Reloaded', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'about' => __( 'About WP-Table Reloaded', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'uninstall' => __( 'WP-Table Reloaded', WP_TABLE_RELOADED_TEXTDOMAIN ),
-            'ajax_list' => __( 'List of Tables', WP_TABLE_RELOADED_TEXTDOMAIN ),
-            'ajax_preview' => sprintf( __( 'Preview of Table &quot;%s&quot; (ID %s)', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->helper->safe_output( $table['name'] ), $this->helper->safe_output( $table['id'] ) )
+            'ajax_list' => __( 'List of Tables', WP_TABLE_RELOADED_TEXTDOMAIN )
         );
+
+        // these views also need the complete table, besides the parameters
+        if ( in_array( $name, array( 'edit', 'ajax_preview' ) ) ) {
+            $table = $this->load_table( $table_id );
+            $headlines['edit'] = sprintf( __( 'Edit Table &quot;%s&quot; (ID %s)', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->helper->safe_output( $table['name'] ), $this->helper->safe_output( $table['id'] ) );
+            $headlines['ajax_preview'] = sprintf( __( 'Preview of Table &quot;%s&quot; (ID %s)', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->helper->safe_output( $table['name'] ), $this->helper->safe_output( $table['id'] ) );
+        }
+
         $headline = isset( $headlines[ $name ] ) ? $headlines[ $name ] : '';
 
         $this->helper->print_page_header( $headline );
@@ -1539,6 +1548,14 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         if ( version_compare( $this->options['installed_version'] , '1.4.9', '<' ) )
             $new_options['tablesorter_script'] = ( isset( $this->options['use_tablesorter_extended'] ) && $this->options['use_tablesorter_extended'] ) ? 'tablesorter_extended' : 'tablesorter';
 
+        // 2d., 'edit-pages.php' was renamed to 'edit.php?post_type=page' in WP 3.0
+        if ( 'edit-pages.php' == $this->options['admin_menu_parent_page'] && version_compare( $GLOBALS['wp_version'] , '2.9.9', '>' ) )
+            $new_options['admin_menu_parent_page'] = 'edit.php?post_type=page';
+
+        // 2e., 'top-level' was renamed to 'admin.php' (internally)
+        if ( 'top-level' == $this->options['admin_menu_parent_page'] )
+            $new_options['admin_menu_parent_page'] = 'admin.php';
+
         // 3. step: update installed version number, empty update message cache, set welcome message
         $new_options['installed_version'] = WP_TABLE_RELOADED_PLUGIN_VERSION;
         $new_options['update_message'] = array();
@@ -1678,7 +1695,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
 	  	    'str_DataManipulationLinkInsertURL' => __( 'URL of link to insert', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_DataManipulationLinkInsertText' => __( 'Text of link', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_DataManipulationLinkInsertExplain' => __( 'To insert the following HTML code for a link into a cell, just click the cell after closing this dialog.', WP_TABLE_RELOADED_TEXTDOMAIN ),
-	  	    'str_DataManipulationImageInsertThickbox' => __( 'To insert an image, click the cell into which you want to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . __( 'The Media Library will open, from which you can select the desired image or insert the image URL.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . sprintf( __( 'Click the &quot;%s&quot; button to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ), esc_js( __( 'Insert into Post' ) ) ),
+	  	    'str_DataManipulationImageInsertThickbox' => __( 'To insert an image, click &quot;OK&quot; and then click into the cell into which you want to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . __( 'The Media Library will open, from which you can select the desired image or insert the image URL.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . sprintf( __( 'Click the &quot;%s&quot; button to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ), esc_js( __( 'Insert into Post' ) ) ),
 	  	    'str_DataManipulationAddColspan' => __( 'To combine cells within a row, click into the cell to the right of the cell that has the content the combined cells shall have.', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_DataManipulationAddRowspan' => __( 'To combine cells within a column, click into the cell below the cell that has the content the combined cells shall have.', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_BulkCopyTablesLink' => __( 'Do you want to copy the selected tables?', WP_TABLE_RELOADED_TEXTDOMAIN ),
@@ -1743,12 +1760,45 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         $suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.dev' : '';
         $jsfile = "admin/admin-editor-buttons-script{$suffix}.js";
 
+        // HTML editor integration
         wp_enqueue_script( 'wp-table-reloaded-editor-button-js', plugins_url( $jsfile, WP_TABLE_RELOADED__FILE__ ), array( 'jquery', 'thickbox', 'media-upload' ), $this->options['installed_version'], true );
-        wp_localize_script( 'wp-table-reloaded-editor-button-js', 'WP_Table_Reloaded_Admin', array(
+        wp_localize_script( 'wp-table-reloaded-editor-button-js', 'WP_Table_Reloaded_Editor_Button', array(
 	  	    'str_EditorButtonCaption' => __( 'Table', WP_TABLE_RELOADED_TEXTDOMAIN ),
+	  	    'str_EditorButtonTitle' => __( 'Insert a Table', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_EditorButtonAjaxURL' => $ajax_url,
-            'l10n_print_after' => 'try{convertEntities(WP_Table_Reloaded_Admin);}catch(e){};'
+            'l10n_print_after' => 'try{convertEntities(WP_Table_Reloaded_Editor_Button);}catch(e){};'
         ) );
+
+        // TinyMCE integration
+        if ( user_can_richedit() ) {
+        	add_filter( 'mce_external_plugins', array( &$this, 'add_tinymce_plugin' ) );
+        	add_filter( 'mce_buttons', array( &$this, 'add_tinymce_button' ) );
+        }
+    }
+
+    /**
+     * Add "Table" button and separator to the TinyMCE toolbar
+     *
+     * @param array $buttons Current set of buttons in the TinyMCE toolbar
+     * @return array Current set of buttons in the TinyMCE toolbar, including "Table" button
+     */
+    function add_tinymce_button( $buttons ) {
+    	$buttons[] = '|';
+        $buttons[] = 'table';
+    	return $buttons;
+    }
+
+    /**
+     * Register "Table" button plugin to TinyMCE
+     *
+     * @param array $plugins Current set of registered TinyMCE plugins
+     * @return array Current set of registered TinyMCE plugins, including "Table" button plugin
+     */
+    function add_tinymce_plugin( $plugins ) {
+        $suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.dev' : '';
+        $jsfile = "admin/admin-tinymce-buttons-script{$suffix}.js";
+    	$plugins['table'] = plugins_url( $jsfile, WP_TABLE_RELOADED__FILE__ );
+    	return $plugins;
     }
 
     /**
