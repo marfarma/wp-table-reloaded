@@ -58,6 +58,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         'uninstall_upon_deactivation' => false,
         'show_exit_warning' => true,
         'growing_textareas' => true,
+        'use_datatables_on_table_list' => true,
         'add_target_blank_to_links' => false,
         'enable_tablesorter' => true,
         'tablesorter_script' => 'datatables', // others are 'datatables-tabletools', 'tablesorter', and 'tablesorter_extended'
@@ -163,7 +164,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             $doing_ajax = true;
         }
 
-        // if we are not doing AJAX, so we call the main plugin handler
+        // we are not doing AJAX, so we call the main plugin handler
         if ( !$doing_ajax ) {
             add_action( 'admin_menu', array( &$this, 'add_manage_page' ) );
 
@@ -263,6 +264,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             'hi_IN' => __( 'Hindi', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'it_IT' => __( 'Italian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'ja'    => __( 'Japanese', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'nl_NL' => __( 'Dutch', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'pl_PL' => __( 'Polish', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'pt_BR' => __( 'Brazilian Portuguese', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'ru_RU' => __( 'Russian', WP_TABLE_RELOADED_TEXTDOMAIN ),
@@ -271,9 +273,8 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             'ua_UA' => __( 'Ukrainian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'zh_CN' => __( 'Chinese (Simplified)', WP_TABLE_RELOADED_TEXTDOMAIN ),
             // the following are inactive because they are not up-to-date
-            /* 'sq_AL' => __( 'Albanian', WP_TABLE_RELOADED_TEXTDOMAIN ),
+            'sq_AL' => __( 'Albanian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'tr_TR' => __( 'Turkish', WP_TABLE_RELOADED_TEXTDOMAIN ),
-            */
         );
         asort( $this->available_plugin_languages );
 
@@ -300,7 +301,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         $messages = array(
             0 => false,
             1 => sprintf( __( 'Welcome to WP-Table Reloaded %s. If you encounter any questions or problems, please refer to the <a href="%s">FAQ</a>, the <a href="%s">documentation</a>, and the <a href="%s">support</a> section.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'], 'http://tobias.baethge.com/go/wp-table-reloaded/faq/', 'http://tobias.baethge.com/go/wp-table-reloaded/documentation/', 'http://tobias.baethge.com/go/wp-table-reloaded/support/' ),
-            2 => sprintf( __( 'Thank you for upgrading to WP-Table Reloaded %s.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'] ) . ' ' . __( 'This version includes several enhancements, like an updated DataTables library, several enhancements to certain features and a few small bug fixes.', WP_TABLE_RELOADED_TEXTDOMAIN ) . ' ' . sprintf( __( 'Please read the <a href="%s">release announcement</a> for more information.', WP_TABLE_RELOADED_TEXTDOMAIN ), "http://tobias.baethge.com/go/wp-table-reloaded/release-announcement/{$this->options['installed_version']}/" ) . '<br/>' . sprintf( __( 'If you like the new features and enhancements, I would appreciate a small <a href="%s">donation</a>. Thank you.', WP_TABLE_RELOADED_TEXTDOMAIN ), 'http://tobias.baethge.com/go/wp-table-reloaded/donate/' )
+            2 => sprintf( __( 'Thank you for upgrading to WP-Table Reloaded %s.', WP_TABLE_RELOADED_TEXTDOMAIN ), $this->options['installed_version'] ) . ' ' . __( 'This version includes a few new features, like output caching and a custom table CSS class, and several enhancements.', WP_TABLE_RELOADED_TEXTDOMAIN ) . ' ' . sprintf( __( 'Please read the <a href="%s">release announcement</a> for more information.', WP_TABLE_RELOADED_TEXTDOMAIN ), "http://tobias.baethge.com/go/wp-table-reloaded/release-announcement/{$this->options['installed_version']}/" ) . '<br/>' . sprintf( __( 'If you like the new features and enhancements, I would appreciate a small <a href="%s">donation</a>. Thank you.', WP_TABLE_RELOADED_TEXTDOMAIN ), 'http://tobias.baethge.com/go/wp-table-reloaded/donate/' )
         );
         $message = ( isset( $messages[ $this->options['show_welcome_message'] ] ) ) ? $messages[ $this->options['show_welcome_message'] ] : false;
         if ( $message ) {
@@ -390,6 +391,8 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
                 $table['options']['table_footer'] = isset( $_POST['table']['options']['table_footer'] );
                 $table['options']['print_name'] = isset( $_POST['table']['options']['print_name'] );
                 $table['options']['print_description'] = isset( $_POST['table']['options']['print_description'] );
+                $table['options']['cache_table_output'] = isset( $_POST['table']['options']['cache_table_output'] );
+                $table['options']['custom_css_class'] = trim( $table['options']['custom_css_class'] ); // more complex sanitize_* functions would change spaces to hyphens...
                 $table['options']['use_tablesorter'] = isset( $_POST['table']['options']['use_tablesorter'] );
                 $table['options']['datatables_sort'] = isset( $_POST['table']['options']['datatables_sort'] );
                 $table['options']['datatables_paginate'] = isset( $_POST['table']['options']['datatables_paginate'] );
@@ -1084,6 +1087,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             // checkboxes: option value is defined by whether option isset (e.g. was checked) or not
             $this->options['show_exit_warning'] = isset( $new_options['show_exit_warning'] );
             $this->options['growing_textareas'] = isset( $new_options['growing_textareas'] );
+            $this->options['use_datatables_on_table_list'] = isset( $new_options['use_datatables_on_table_list'] );
             $this->options['enable_tablesorter'] = isset( $new_options['enable_tablesorter'] );
             $this->options['use_default_css'] = isset( $new_options['use_default_css'] );
             $this->options['use_custom_css'] = isset( $new_options['use_custom_css'] );
@@ -1415,6 +1419,10 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
 
             $table = apply_filters( 'wp_table_reloaded_pre_save_table', $table );
             $table = apply_filters( 'wp_table_reloaded_pre_save_table_id-' . $table['id'], $table );
+
+            // delete the transient that caches the table output
+            $cache_name = "wp_table_reloaded_table_output_{$table['id']}";
+            delete_transient( $cache_name );
             
             $this->tables[ $table['id'] ] = ( isset( $this->tables[ $table['id'] ] ) ) ? $this->tables[ $table['id'] ] : $this->optionname['table'] . '_' . $table['id'];
             update_option( $this->tables[ $table['id'] ], $table );
@@ -1832,7 +1840,7 @@ WPLIST;
 
         $datatables = '';
         // filter to false, to prevent using DataTables in the List of Tables (seems to cause problems with IE 7)
-        $use_datatables = true;
+        $use_datatables = $this->options['use_datatables_on_table_list'];
         $use_datatables = apply_filters( 'wp_table_reloaded_admin_use_datatables', $use_datatables );
         // sorting doesn't make sense, if there is only one table in the list
         if ( $use_datatables && 1 < count( $this->tables ) ) {
@@ -1842,6 +1850,7 @@ WPLIST;
 
             $sProcessing = __( 'Please wait...', WP_TABLE_RELOADED_TEXTDOMAIN );
             $sLengthMenu = __( 'Show _MENU_ Tables', WP_TABLE_RELOADED_TEXTDOMAIN );
+            $sLengthMenu_All = __( 'All', WP_TABLE_RELOADED_TEXTDOMAIN );
             $sZeroRecords = __( 'No tables were found.', WP_TABLE_RELOADED_TEXTDOMAIN );
             $sInfo = __( '_START_ to _END_ of _TOTAL_ Tables', WP_TABLE_RELOADED_TEXTDOMAIN );
             $sInfoFiltered = __( '(filtered from _MAX_ Tables)', WP_TABLE_RELOADED_TEXTDOMAIN );
@@ -1859,6 +1868,7 @@ WPLIST;
 \nvar tablelist = $('#wp-table-reloaded-list').dataTable({
     "bSortClasses": false,
     {$pagination}
+    "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "{$sLengthMenu_All}"]],
     "aaSorting": [],
     "bProcessing": true,
     "sPaginationType": "full_numbers",

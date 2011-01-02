@@ -56,9 +56,9 @@ class WP_Table_Reloaded_Render {
         $this->bothspan_trigger = apply_filters( 'wp_table_reloaded_bothspan_trigger', $this->bothspan_trigger, $table['id'] );
 
         // classes that will be added to <table class=...>, can be used for CSS styling
-        $cssclasses = array( 'wp-table-reloaded', "wp-table-reloaded-id-{$table['id']}" );
+        $cssclasses = array( 'wp-table-reloaded', "wp-table-reloaded-id-{$table['id']}", stripslashes( $this->output_options['custom_css_class'] ) );
         $cssclasses = apply_filters( 'wp_table_reloaded_table_css_class', $cssclasses, $table['id'] );
-        $cssclasses = implode( ' ', $cssclasses );
+        $cssclasses = trim( implode( ' ', $cssclasses ) );
 
         $rows = count( $table['data'] );
         $cols = (0 < $rows) ? count( $table['data'][0] ) : 0;
@@ -72,7 +72,7 @@ class WP_Table_Reloaded_Render {
 
             if ( $this->output_options['print_name'] ) {
                 $print_name_html_tag = apply_filters( 'wp_table_reloaded_print_name_html_tag', 'h2', $table['id'] );
-                $print_name_css_class = apply_filters( 'wp_table_reloaded_print_name_css_class', 'wp-table-reloaded-table-name', $table['id'] );
+                $print_name_css_class = apply_filters( 'wp_table_reloaded_print_name_css_class', "wp-table-reloaded-table-name-id-{$table['id']} wp-table-reloaded-table-name", $table['id'] );
                 $name_html = "<{$print_name_html_tag} class=\"{$print_name_css_class}\">" . $this->safe_output( $table['name'] ) . "</{$print_name_html_tag}>\n";
                 $print_name_position = $this->output_options['print_name_position'];
                 $print_name_position = apply_filters( 'wp_table_reloaded_print_name_position', $print_name_position, $table['id'] );
@@ -83,7 +83,7 @@ class WP_Table_Reloaded_Render {
 
             if ( $this->output_options['print_description'] ) {
                 $print_description_html_tag = apply_filters( 'wp_table_reloaded_print_description_html_tag', 'span', $table['id'] );
-                $print_description_css_class = apply_filters( 'wp_table_reloaded_print_description_css_class', 'wp-table-reloaded-table-description', $table['id'] );
+                $print_description_css_class = apply_filters( 'wp_table_reloaded_print_description_css_class', "wp-table-reloaded-table-description-id-{$table['id']} wp-table-reloaded-table-description", $table['id'] );
                 $description_html = "<{$print_description_html_tag} class=\"{$print_description_css_class}\">" . $this->safe_output( $table['description'] ) . "</{$print_description_html_tag}>\n";
                 $print_description_position = $this->output_options['print_description_position'];
                 $print_description_position = apply_filters( 'wp_table_reloaded_print_description_position', $print_description_position, $table['id'] );
@@ -227,7 +227,7 @@ class WP_Table_Reloaded_Render {
                 $col_class .= " rowspan-{$this->rowspan[ $col_idx ]}";
             }
 
-            $col_class = apply_filters( 'wp_table_reloaded_cell_css_class', $col_class, $table_id, $row_idx + 1, $col_idx + 1, $this->colspan[ $row_idx ], $this->rowspan[ $col_idx ] );
+            $col_class = apply_filters( 'wp_table_reloaded_cell_css_class', $col_class, $table_id, $row_idx + 1, $col_idx + 1, $this->colspan[ $row_idx ], $this->rowspan[ $col_idx ], $cell_content );
             $class_attr = ( !empty( $col_class ) ) ? " class=\"{$col_class}\"" : '';
             $style_attr = ( ( 0 == $row_idx ) && !empty( $this->output_options['column_widths'][$col_idx] ) ) ? " style=\"width:{$this->output_options['column_widths'][$col_idx]};\"" : '';
 
