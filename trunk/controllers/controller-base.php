@@ -59,6 +59,8 @@ class WP_Table_Reloaded_Controller_Base {
             'print_name_position' => 'above',
             'print_description' => false,
             'print_description_position' => 'below',
+            'custom_css_class' => '',
+            'cache_table_output' => true,
             'use_tablesorter' => true,
             'datatables_sort' => true,
             'datatables_paginate' => true,
@@ -195,13 +197,22 @@ class WP_Table_Reloaded_Controller_Base {
 } // class WP_Table_Reloaded_Controller_Base
 
 /**
- * Provide backwards compatibility for deprecated functions
+ * Provide backwards compatibility for deprecated functions or functions that do not yet exist in all supported versions
  */
+
+// copy of is_rtl (introduced in WP 3.0) is located in controller-frontend.php
  
 // esc_url replaced clean_url in WP 3.0
 if ( !function_exists( 'esc_url' ) ) {
     function esc_url( $url ) {
         return clean_url( $url );
+    }
+}
+
+// disabled was added in WP 3.0, to supplement existing helpers checked() and selected()
+if ( !function_exists( 'disabled' ) ) {
+    function disabled( $disabled, $current = true, $echo = true ) {
+        return __checked_selected_helper( $disabled, $current, $echo, 'disabled' );
     }
 }
 
