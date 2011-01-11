@@ -172,13 +172,11 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
             $pages_with_editor_button = array( 'post.php', 'post-new.php', 'page.php', 'page-new.php' );
             foreach ( $pages_with_editor_button as $page )
                 add_action( 'load-' . $page, array( &$this, 'add_editor_button' ) );
-
-            // add message to list of plugins, if an update is available / add additional links on Plugins page, but only if page is plugins.php
-            if ( 'plugins.php' == $GLOBALS['pagenow'] ) {
-                add_action( 'in_plugin_update_message-' . WP_TABLE_RELOADED_BASENAME, array( &$this, 'add_plugin_update_message' ), 10, 2 );
-                add_filter( 'plugin_row_meta', array( &$this, 'add_plugin_row_meta' ), 10, 2);
-            }
         }
+
+        // add message to list of plugins, if an update is available / add additional links on Plugins page, for both regular visits and AJAX calls
+        add_action( 'in_plugin_update_message-' . WP_TABLE_RELOADED_BASENAME, array( &$this, 'add_plugin_update_message' ), 10, 2 );
+        add_filter( 'plugin_row_meta', array( &$this, 'add_plugin_row_meta' ), 10, 2);
     }
 
     /**
@@ -254,6 +252,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
      */
     function show_manage_page() {
         $this->available_plugin_languages = array(
+            'ar'    => __( 'Arabic', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'be_BY' => __( 'Belarusian', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'cs_CZ' => __( 'Czech', WP_TABLE_RELOADED_TEXTDOMAIN ),
             'de_DE' => __( 'German', WP_TABLE_RELOADED_TEXTDOMAIN ),
@@ -1718,7 +1717,7 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
 	  	    'str_DataManipulationLinkInsertURL' => __( 'URL of link to insert', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_DataManipulationLinkInsertText' => __( 'Text of link', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_DataManipulationLinkInsertExplain' => __( 'To insert the following HTML code for a link into a cell, just click the cell after closing this dialog.', WP_TABLE_RELOADED_TEXTDOMAIN ),
-	  	    'str_DataManipulationImageInsertThickbox' => __( 'To insert an image, click &quot;OK&quot; and then click into the cell into which you want to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . __( 'The Media Library will open, from which you can select the desired image or insert the image URL.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . sprintf( __( 'Click the &quot;%s&quot; button to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ), esc_js( __( 'Insert into Post' ) ) ),
+	  	    'str_DataManipulationImageInsertThickbox' => __( 'To insert an image, click &quot;OK&quot; and then click into the cell into which you want to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . __( 'The Media Library will open, from which you can select the desired image or insert the image URL.', WP_TABLE_RELOADED_TEXTDOMAIN ) . "\n" . sprintf( __( 'Click the &quot;%s&quot; button to insert the image.', WP_TABLE_RELOADED_TEXTDOMAIN ), esc_js( __( 'Insert into Post', 'default' ) ) ),
 	  	    'str_DataManipulationAddColspan' => __( 'To combine cells within a row, click into the cell to the right of the cell that has the content the combined cells shall have.', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_DataManipulationAddRowspan' => __( 'To combine cells within a column, click into the cell below the cell that has the content the combined cells shall have.', WP_TABLE_RELOADED_TEXTDOMAIN ),
 	  	    'str_BulkCopyTablesLink' => __( 'Do you want to copy the selected tables?', WP_TABLE_RELOADED_TEXTDOMAIN ),
@@ -1761,6 +1760,21 @@ class WP_Table_Reloaded_Controller_Admin extends WP_Table_Reloaded_Controller_Ba
         $suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.dev' : '';
         $cssfile = "admin/admin-style{$suffix}.css";
         wp_enqueue_style( 'wp-table-reloaded-admin-css', plugins_url( $cssfile, WP_TABLE_RELOADED__FILE__ ), array(), $this->options['installed_version'] );
+
+        // is_rtl was introduced in WP 3.0, for other versions we need to provide it here
+        if ( !function_exists( 'is_rtl' ) ) {
+            function is_rtl() {
+                global $wp_locale;
+                $is_rtl = isset( $wp_locale ) && isset( $wp_locale->text_direction ) && ( 'rtl' == $wp_locale->text_direction );
+                return $is_rtl;
+            }
+        }
+
+        // RTL languages support
+        if ( is_rtl() ) {
+            $cssfile = "admin/admin-style.rtl.css";
+            wp_enqueue_style( 'wp-table-reloaded-admin-rtl-css', plugins_url( $cssfile, WP_TABLE_RELOADED__FILE__ ), array(), $this->options['installed_version'] );
+        }
     }
 
     /**
